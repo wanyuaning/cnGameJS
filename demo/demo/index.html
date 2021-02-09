@@ -141,7 +141,7 @@
             }
         },
         draw: function() {
-        this.map.draw({ "0": { src: srcObj.ground }, "1": { src: srcObj.wall }, "2": { src: srcObj.grass} });
+            this.map.draw({ "0": { src: srcObj.ground }, "1": { src: srcObj.wall }, "2": { src: srcObj.grass} });
 
             for (var i = 1; i < path.length; i++) {
                 var xPos = path[i].x * 40;
@@ -151,12 +151,11 @@
         }
 
     }
-
-    // A*寻址
-    aStarManager = new AStar({
+    
+    aStarManager.install({
         mapMatrix,
         wallValueArr: [1, 2] // 障碍列表
-    }) 
+    })
 
     document.body.onmousedown = function() {
         var x = cnGame.input.mouseX;
@@ -164,8 +163,9 @@
         var endPoint = gameObj.map.getCurrentIndex(x, y);
         var startPoint = gameObj.map.getCurrentIndex(gameObj.player.x, gameObj.player.y);
 
-        aStarManager.init(startPoint, endPoint);
-        path = aStarManager.getPath();
+        //aStarManager.init(startPoint, endPoint);
+        //path = aStarManager.getPath();
+        path = aStarManager.getPath(startPoint, endPoint);
         index = 1;
     }
 

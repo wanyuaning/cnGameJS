@@ -5,11 +5,17 @@ function NodePointer(options){
     this.parent = options.parent;
     this.G = options.G;
     this.H = options.H;
-    this.value = options.value;
+    this.type = options.type;
+    this.key = options.key;
 }
 
 NodePointer.prototype = {
     constructor: NodePointer,
+    init(){
+        this.parent = undefined;
+        this.G = 0;
+        this.H = 0;
+    },
     /*  获取 起始点 到 该结点 的G值 */
     caculateG: function(fromPoint) {
         fromPoint.G = fromPoint.G || 0;
@@ -27,5 +33,6 @@ NodePointer.prototype = {
     /*  根据G和H值计算该点的F值 */
     updateF: function() {
         this.F = this.G + this.H;
+        
     }
 }
