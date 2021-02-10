@@ -20,14 +20,17 @@ NodePointer.prototype = {
     caculateG: function(fromPoint) {
         fromPoint.G = fromPoint.G || 0;
         if (fromPoint.x != this.x && fromPoint.y != this.y) {
+            //console.log(fromPoint.key, fromPoint.G, '+', 14,'=>',this.key)
             return fromPoint.G + 14; //在所选点斜方向，耗散值加14
         }
         else {
+            //console.log(fromPoint.key, fromPoint.G, '+', 10,'=>',this.key)
             return fromPoint.G + 10; //在所选点垂直方向，耗散值加10
         }
     },
     /*  根据结束结点计算该点的H值   */
     updateH: function(endPoint) {
+        console.log(this.key, (Math.abs(endPoint.x - this.x) + Math.abs(endPoint.y - this.y)) * 10)
         this.H = (Math.abs(endPoint.x - this.x) + Math.abs(endPoint.y - this.y)) * 10;
     },
     /*  根据G和H值计算该点的F值 */

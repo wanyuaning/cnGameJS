@@ -59,7 +59,7 @@
         initialize: function(options) {
 
             this.map = new cnGame.Map(mapMatrix, { cellSize: [40, 40] });
-            this.player = new Player({ src: srcObj.player, width: 40, height: 40, x: 80, y: 80 });
+            this.player = new Player({ src: srcObj.player, width: 40, height: 40, x: 200, y: 0 });
             this.player.addAnimation(new cnGame.SpriteSheet("right", srcObj.player, { width: 400, height: 40, beginX: 0, beginY: 0, frameSize: [40, 40], loop: true }));
             this.player.addAnimation(new cnGame.SpriteSheet("rightTop", srcObj.player, { width: 400, height: 320, beginX: 0, beginY: 280, frameSize: [40, 40], loop: true }));
             this.player.addAnimation(new cnGame.SpriteSheet("rightBottom", srcObj.player, { width: 400, height: 80, beginX: 0, beginY: 40, frameSize: [40, 40], loop: true }));
