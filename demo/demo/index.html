@@ -153,9 +153,9 @@
 
     }
     
-    aStarManager.install({
+    var aStarManager = new AStar({
         mapMatrix,
-        wallValueArr: [1, 2] // 障碍列表
+        wallValueArr: {1: true, 2: true} // 障碍列表
     })
 
     document.body.onmousedown = function() {
@@ -164,8 +164,6 @@
         var endPoint = gameObj.map.getCurrentIndex(x, y);
         var startPoint = gameObj.map.getCurrentIndex(gameObj.player.x, gameObj.player.y);
 
-        //aStarManager.init(startPoint, endPoint);
-        //path = aStarManager.getPath();
         path = aStarManager.getPath(startPoint, endPoint);
         index = 1;
     }
