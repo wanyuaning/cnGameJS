@@ -5,7 +5,6 @@
     this.keyMapOpen = {}
     this.keyMapClose = {}
     this.path = []
-
     var map = options.mapMatrix || []
     for (var r = 0; r < map.length; r++) {
         var row = map[r]
@@ -60,10 +59,8 @@ AStar.prototype = {
     checkPoint(point, parent){ this.isWall(point,this.wallValueArr) ? this.addToClose(point) : this.checkPoint2(point, parent) },
     handle: function(point) { // 寻路
         var x = point.x, _x = x - 1, x_ = x + 1, y = point.y, _y = y - 1, y_ = y + 1,
-            p1 = this.pointsMap[_x  + '_' + _y ], p2 = this.pointsMap[ x  + '_' + _y ],
-            p3 = this.pointsMap[ x_ + '_' + _y ], p4 = this.pointsMap[_x  + '_' +  y ],
-            p5 = this.pointsMap[ x_ + '_' +  y ], p6 = this.pointsMap[_x  + '_' +  y_],
-            p7 = this.pointsMap[ x  + '_' +  y_], p8 = this.pointsMap[ x_ + '_' +  y_]
+            p1 = this.pointsMap[_x  + '_' + _y ], p2 = this.pointsMap[ x  + '_' + _y ], p3 = this.pointsMap[ x_ + '_' + _y ], p4 = this.pointsMap[_x  + '_' +  y ],
+            p5 = this.pointsMap[ x_ + '_' +  y ], p6 = this.pointsMap[_x  + '_' +  y_], p7 = this.pointsMap[ x  + '_' +  y_], p8 = this.pointsMap[ x_ + '_' +  y_]
         p1 && !this.isInClose(p1) && this.checkPoint(p1, point)
         p2 && !this.isInClose(p2) && this.checkPoint(p2, point)
         p3 && !this.isInClose(p3) && this.checkPoint(p3, point)
