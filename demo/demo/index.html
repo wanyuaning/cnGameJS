@@ -5,7 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="cnGame_v1.2.js"></script>
+    <!-- <script src="cnGame_v1.2.js"></script> -->
+    <script src="cnGame_ewan.js"></script>
     <script src="NodePointer.js"></script>
     <script src="AStar.js"></script>
 </head>
@@ -59,6 +60,8 @@
         initialize: function(options) {
 
             this.map = new cnGame.Map(mapMatrix, { cellSize: [40, 40] });
+            console.log('99999');
+            
             this.player = new Player({ src: srcObj.player, width: 40, height: 40, x: 200, y: 0 });
             this.player.addAnimation(new cnGame.SpriteSheet("right", srcObj.player, { width: 400, height: 40, beginX: 0, beginY: 0, frameSize: [40, 40], loop: true }));
             this.player.addAnimation(new cnGame.SpriteSheet("rightTop", srcObj.player, { width: 400, height: 320, beginX: 0, beginY: 280, frameSize: [40, 40], loop: true }));
@@ -161,6 +164,7 @@
     document.body.onmousedown = function() {
         var x = cnGame.input.mouseX;
         var y = cnGame.input.mouseY;
+        console.log('8888');
         var endPoint = gameObj.map.getCurrentIndex(x, y);
         var startPoint = gameObj.map.getCurrentIndex(gameObj.player.x, gameObj.player.y);
 

@@ -264,14 +264,14 @@ cnGame.register("cnGame",function(cg){
 	file_type["tiff"] = "image"
 	var postfix_regexp = /\.([a-zA-Z0-9]+)/;
 	/**
-	 *��Դ������ϵĴ�������
+	 * 图像加载完毕的处理程序
 	**/	
 	var resourceLoad=function(self,type){
 		return function(){
 			self.loadedCount+=1;
 			type=="image"&&(self.loadedImgs[this.srcPath]=this);
 			type=="audio"&&(self.loadedAudios[this.srcPath]=this);
-			this.onLoad=null;					//��֤ͼƬ��onLoadִ��һ�κ�����
+			this.onLoad=null;					//保证图片的onLoad执行一次后销毁
 			self.loadedPercent=Math.floor(self.loadedCount/self.sum*100);
 			self.onLoad&&self.onLoad(self.loadedPercent);
 			if(self.loadedPercent===100){
@@ -281,10 +281,10 @@ cnGame.register("cnGame",function(cg){
 				type=="audio"&&(self.loadingAudios={});
 				if(self.gameObj&&self.gameObj.initialize){
 					self.gameObj.initialize(self.startOptions);
-					if(cg.loop&&!cg.loop.stop){//������һ��ѭ��
+					if(cg.loop&&!cg.loop.stop){//结束上一个循环
 						cg.loop.end();
 					}
-					cg.loop=new cg.GameLoop(self.gameObj);//��ʼ����Ϸѭ��
+					cg.loop=new cg.GameLoop(self.gameObj);//开始新游戏循环
 					cg.loop.start();
 				}	
 			}
@@ -295,14 +295,14 @@ cnGame.register("cnGame",function(cg){
 	 *ͼ�������
 	**/	
 	var loader={
-		sum:0,			//ͼƬ����
-		loadedCount:0,	//ͼƬ�Ѽ�����
-		loadingImgs:{}, //δ����ͼƬ����
-		loadedImgs:{},	//�Ѽ���ͼƬ����
+		sum:0,			//图片总数
+		loadedCount:0,	//图片已加载数
+		loadingImgs:{}, //未加载图片集合
+		loadedImgs:{},	//已加载图片集合
 		loadingAudios:{},//δ������Ƶ����
 		loadedAudios:{},//�Ѽ�����Ƶ����
 		/**
-		 *ͼ����أ�֮��������Ϸ
+		 *图像加载，之后启动游戏
 		**/	
 		start:function(gameObj,options){//options:srcArray,onload
 			var srcArr=options.srcArray;

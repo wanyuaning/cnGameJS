@@ -1,14 +1,83 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML5游戏框架cnGameJS开发实录</title>
-    <script src="cnGame_ewan.js"></script>
-</head>
 <body>
-    <div id="app"></div>
+    <div><canvas id="gameCanvas">请使用支持canvas的浏览器查看</canvas></div>
+    </body>
+    <script src="cnGame_ewan.js"></script>
+    <script>
+    var Src="player.png";
     
-</body>
-</html>
+    /* 初始化 */
+    cnGame.init('gameCanvas',{width:300,height:150});
+    var floorY=cnGame.height-40;
+    var gameObj=(function(){
+        /* 玩家对象 */
+        var player=function(options){
+            this.init(options);    
+            this.speedX=0;
+            this.moveDir;
+            this.isJump=false;
+        }
+        cnGame.core.inherit(player,cnGame.Sprite);
+        player.prototype.initialize=function(){
+            this.addAnimation(new cnGame.SpriteSheet("playerRight",Src,{frameSize:[50,60],loop:true,width:150,height:60}));
+            this.addAnimation(new cnGame.SpriteSheet("playerLeft",Src,{frameSize:[50,60],loop:true,width:150,height:120,beginY:60}));
+        }
+        player.prototype.moveRight=function(){
+            if(cnGame.core.isUndefined(this.moveDir)||this.moveDir!="right"){
+                this.moveDir="right";
+                this.speedX<0&&(this.speedX=0);
+                this.setMovement({aX:10,maxSpeedX:15});
+                this.setCurrentAnimation("playerRight");
+            }
+        }
+        player.prototype.moveLeft=function(){
+            if(cnGame.core.isUndefined(this.moveDir)||this.moveDir!="left"){
+                this.moveDir="left";
+                this.speedX>0&&(this.speedX=0);
+                this.setMovement({aX:-10,maxSpeedX:15});
+                this.setCurrentAnimation("playerLeft");
+            }
+        }
+        player.prototype.stopMove=function(){
+            
+            if(this.speedX<0){
+                this.setCurrentImage(Src,0,60);
+            }
+            else if(this.speedX>0){
+                this.setCurrentImage(Src);
+            }    
+            this.moveDir=undefined;
+            this.resetMovement();
+            
+        }
+        player.prototype.update=function(){
+            player.prototype.parent.prototype.update.call(this);//调用父类update
+    if(cnGame.input.isPressed("right")){
+                this.moveRight();    
+            }
+            else if(cnGame.input.isPressed("left")){
+                this.moveLeft();
+            }
+            else{
+                this.stopMove();
+            }
+            
+            
+        }
+    
+        return {
+            initialize:function(){
+                cnGame.input.preventDefault(["left","right","up","down"]);
+                this.player=new player({src:Src,width:50,height:60,x:0,y:floorY-60});
+                this.player.initialize();
+            },
+            update:function(){
+                this.player.update();
+            },
+            draw:function(){
+                this.player.draw();
+            }
+    
+        };
+    })();
+    cnGame.loader.start([Src],gameObj);
+    </script>
