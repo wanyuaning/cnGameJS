@@ -1,12 +1,11 @@
-<body>
+<body style="background-color: #333;">
     <div><canvas id="gameCanvas">请使用支持canvas的浏览器查看</canvas></div>
     </body>
     <script src="cnGame_ewan.js"></script>
     <script>
     var Src="player.png";
-    
-    /* 初始化 */
-    cnGame.init('gameCanvas',{width:300,height:150});
+    // 1 初始化
+    cnGame.init('gameCanvas',{width:300,height:150,background:'#f00'});
     var floorY=cnGame.height-40;
     var gameObj=(function(){
         /* 玩家对象 */
@@ -37,31 +36,18 @@
                 this.setCurrentAnimation("playerLeft");
             }
         }
-        player.prototype.stopMove=function(){
-            
-            if(this.speedX<0){
-                this.setCurrentImage(Src,0,60);
-            }
-            else if(this.speedX>0){
-                this.setCurrentImage(Src);
-            }    
+        player.prototype.stopMove=function(){            
+            if(this.speedX<0){ this.setCurrentImage(Src,0,60) }
+            else if(this.speedX>0){ this.setCurrentImage(Src) }    
             this.moveDir=undefined;
             this.resetMovement();
             
         }
         player.prototype.update=function(){
             player.prototype.parent.prototype.update.call(this);//调用父类update
-    if(cnGame.input.isPressed("right")){
-                this.moveRight();    
-            }
-            else if(cnGame.input.isPressed("left")){
-                this.moveLeft();
-            }
-            else{
-                this.stopMove();
-            }
-            
-            
+            if(cnGame.input.isPressed("right")){ this.moveRight() }
+            else if(cnGame.input.isPressed("left")){ this.moveLeft() }
+            else{ this.stopMove() }
         }
     
         return {
@@ -70,14 +56,9 @@
                 this.player=new player({src:Src,width:50,height:60,x:0,y:floorY-60});
                 this.player.initialize();
             },
-            update:function(){
-                this.player.update();
-            },
-            draw:function(){
-                this.player.draw();
-            }
-    
+            update:function(){ this.player.update() },
+            draw:function(){ this.player.draw() }
         };
     })();
-    cnGame.loader.start([Src],gameObj);
+    cnGame.loader.start(gameObj,{srcArray:[Src]});
     </script>

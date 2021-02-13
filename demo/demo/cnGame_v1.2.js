@@ -1,17 +1,10 @@
-/**
-*
-* name:cnGame.js	
-*`author:cson
-*`date:2012-2-7
-*`version:1.0
-*
-**/	
 
-(function(win,undefined){
+
+;(function(win,undefined){
 	var canvasPos;
 	/**
-	*��ȡcanvas��ҳ���λ��
-	**/	  
+	 * 获取canvas在页面的位置
+	 **/	  
 	var getCanvasPos=function(canvas){
 		var left = 0;
 		var top = 0;
@@ -27,8 +20,8 @@
 	
 	var _cnGame={
 		/**
-		 *��ʼ��
-		**/
+		 * 初始化
+		 **/
 		init:function(id,options){
 			options=options||{};
 			this.canvas = this.core.$(id||"canvas");	
@@ -46,8 +39,8 @@
 			
 		},
 		/**
-		 *���������ռ�,��ִ����Ӧ����
-		**/
+		 * 生成命名空间 并执行相应操作
+		 **/
 		register:function(nameSpace,func){
 			var nsArr=nameSpace.split(".");
 			var parent=win;
@@ -62,7 +55,7 @@
 		},
 		/**
 		 *�������
-		**/
+		 **/
 		clean:function(){
 			this.context.clearRect(this.width,this.height);
 		}
@@ -81,25 +74,25 @@
 
 /**
  *
- *�������ߺ���
+ * 基本工具函数模块
  *
 **/
 cnGame.register("cnGame.core",function(cg){
 		/**
-		��id��ȡԪ��
+		按id获取元素
 		**/
 		this.$=function(id){
 			return document.getElementById(id);		
 		};
 		/**
-		����ǩ����ȡԪ��
+		按标签名获取元素
 		**/
 		this.$$=function(tagName,parent){
 			parent=parent||document;
 			return parent.getElementsByTagName(tagName);	
 		};
 		/**
-		��������ȡԪ��
+		按类名获取元素
 		**/
 		this.$Class=function(className,parent){
 			var arr=[],result=[];
@@ -113,7 +106,7 @@ cnGame.register("cnGame.core",function(cg){
 			return result;	
 		};
 		/**
-		�¼���
+		事件绑定
 		**/
 		this.bindHandler=(function(){
 							
@@ -130,7 +123,7 @@ cnGame.register("cnGame.core",function(cg){
 						}
 		})();
 		/**
-		�¼����
+		事件解除
 		**/
 		this.removeHandler=(function(){
 						if(window.removeEventListerner){
@@ -146,20 +139,20 @@ cnGame.register("cnGame.core",function(cg){
 						}
 		})();
 		/**
-		��ȡ�¼�����
+		获取事件对象
 		**/
 		this.getEventObj=function(eve){
 			return eve||win.event;
 		};
 		/**
-		��ȡ�¼�Ŀ�����
+		获取事件目标对象
 		**/
 		this.getEventTarget=function(eve){
 			var eve=this.getEventObj(eve);
 			return eve.target||eve.srcElement;
 		};
 		/**
-		��ֹĬ����Ϊ
+		禁止默认行为
 		**/
 		this.preventDefault=function(eve){
 			if(eve.preventDefault){
@@ -171,7 +164,7 @@ cnGame.register("cnGame.core",function(cg){
 			
 		};
 		/**
-		��ȡ����������ʽ
+		获取对象计算的样式
 		**/
 		this.getComputerStyle = (function() {
 			var body=document.body||document.documentElement;
@@ -179,47 +172,45 @@ cnGame.register("cnGame.core",function(cg){
 				return function(elem){
 					return elem.currentStyle;
 				}
-			}
-			else if(document.defaultView.getComputedStyle){
+			} else if(document.defaultView.getComputedStyle){
 				return function(elem){
 					return document.defaultView.getComputedStyle(elem, null);	
 				}
-			}
-			
+			}			
 		})();
 		/**
-		�Ƿ�Ϊundefined
+		是否为undefined
 		**/
 		this.isUndefined=function(elem){
 			return typeof elem==='undefined';
 		},
 		/**
-		�Ƿ�Ϊ����
+		是否为数组
 		**/
 		this.isArray=function(elem){
 			return Object.prototype.toString.call(elem)==="[object Array]";
 		};
 		/**
-		�Ƿ�ΪObject����
+		是否为Object类型
 		**/
 		this.isObject=function(elem){
 			return elem===Object(elem);
 		};
 		/**
-		�Ƿ�Ϊ�ַ�������
+		是否为字符串类型
 		**/
 		this.isString=function(elem){
 			return Object.prototype.toString.call(elem)==="[object String]";
 		};
 		/**
-		�Ƿ�Ϊ��ֵ����
+		是否为数值类型
 		**/
 		this.isNum=function(elem){
 			return Object.prototype.toString.call(elem)==="[object Number]";
 		};
 		/**
-		 *���ƶ�������
-		**/
+		 * 复制对象属性
+		 **/
 		this.extend=function(destination,source,isCover){
 			var isUndefined=this.isUndefined;
 			(isUndefined(isCover))&&(isCover=true);
@@ -232,8 +223,8 @@ cnGame.register("cnGame.core",function(cg){
 			return destination;
 		};
 		/**
-		 *ԭ�ͼ̳ж���
-		**/
+		 * 原型继承对象
+		 **/
 		this.inherit=function(child,parent){
 			var func=function(){};
 			func.prototype=parent.prototype;
@@ -246,7 +237,7 @@ cnGame.register("cnGame.core",function(cg){
 
 /**
  *
- *��Դ������
+ * 资源加载器
  *
 **/
 cnGame.register("cnGame",function(cg){
@@ -295,12 +286,12 @@ cnGame.register("cnGame",function(cg){
 	 *ͼ�������
 	**/	
 	var loader={
-		sum:0,			//图片总数
-		loadedCount:0,	//图片已加载数
-		loadingImgs:{}, //未加载图片集合
-		loadedImgs:{},	//已加载图片集合
-		loadingAudios:{},//δ������Ƶ����
-		loadedAudios:{},//�Ѽ�����Ƶ����
+		sum:0,			 //图片总数
+		loadedCount:0,	 //图片已加载数
+		loadingImgs:{},  //未加载图片集合
+		loadedImgs:{},	 //已加载图片集合
+		loadingAudios:{},//未加载音频集合
+		loadedAudios:{}, //已加载音频集合
 		/**
 		 *图像加载，之后启动游戏
 		**/	
@@ -347,21 +338,21 @@ cnGame.register("cnGame",function(cg){
 
 /**
  *
- *canvas������״����
+ * canvas基本形状对象
  *
 **/
 cnGame.register("cnGame.shape",function(cg){
 
 	/**
-	 *����right��bottom
-	**/	
+	 * 更新right和bottom
+	 **/	
 	var resetRightBottom=function(elem){
 		elem.right=elem.x+elem.width;
 		elem.bottom=elem.y+elem.height;	
 	}
 	/**
-	 *���ζ���
-	**/										
+	 * 矩形对象
+	 **/										
 	var rect=function(options){
 		if(!(this instanceof arguments.callee)){
 			return new arguments.callee(options);
@@ -370,11 +361,11 @@ cnGame.register("cnGame.shape",function(cg){
 	}
 	rect.prototype={
 		/**
-		 *��ʼ��
+		 * 初始化
 		**/
 		init:function(options){
 			/**
-			 *Ĭ��ֵ����
+			 * 默认值对象
 			**/												
 			var defaultObj={
 				x:0,
@@ -392,8 +383,8 @@ cnGame.register("cnGame.shape",function(cg){
 			resetRightBottom(this);
 		},
 		/**
-		 *���ò���
-		**/	
+		 * 绘制矩形
+		 **/	
 		setOptions:function(options){
 			this.x=options.x||this.x;
 			this.y=options.y||this.y;
@@ -403,8 +394,8 @@ cnGame.register("cnGame.shape",function(cg){
 			this.isFill=options.isFill||this.isFill;
 		},
 		/**
-		 *���ƾ���
-		**/	
+		 * 绘制矩形
+		 **/	
 		draw:function(){
 			var context=cg.context;
 			if(this.isFill){
@@ -420,8 +411,8 @@ cnGame.register("cnGame.shape",function(cg){
 			
 		},
 		/**
-		 *�������ƶ�һ������
-		**/	
+		 * 将矩形移动一定距离
+		 **/	
 		move:function(dx,dy){
 			dx=dx||0;
 			dy=dy||0;
@@ -431,8 +422,8 @@ cnGame.register("cnGame.shape",function(cg){
 			return this;
 		},
 		/**
-		 *�������ƶ����ض�λ��
-		**/	
+		 * 将矩形移动到特定位置
+		 **/	
 		moveTo:function(x,y){
 			x=x||this.x;
 			y=y||this.y;
@@ -442,8 +433,8 @@ cnGame.register("cnGame.shape",function(cg){
 			return this;
 		},
 		/**
-		 *�����θı�һ����С
-		**/	
+		 * 将矩形改变一定大小
+		 **/	
 		resize:function(dWidth,dHeight){
 			dWidth=dWidth||0;
 			dHeight=dHeight||0;
@@ -454,8 +445,8 @@ cnGame.register("cnGame.shape",function(cg){
 			
 		},
 		/**
-		 *�����θı䵽�ض���С
-		**/	
+		 * 将矩形改变到特定大小
+		 **/	
 		resizeTo:function(width,height){
 			width=width||this.width;
 			height=height||this.height;
@@ -467,7 +458,7 @@ cnGame.register("cnGame.shape",function(cg){
 	}
 	
 	/**
-	 *Բ�ζ���
+	 * 圆形对象
 	**/		
 	var circle=function(options){
 		if(!(this instanceof arguments.callee)){
@@ -477,11 +468,11 @@ cnGame.register("cnGame.shape",function(cg){
 	}
 	circle.prototype={
 		/**
-		 *��ʼ��
+		 * 初始化
 		**/
 		init:function(options){
 			/**
-			 *Ĭ��ֵ����
+			 * 默认值对象
 			**/
 			var defaultObj={
 				x:100,
@@ -499,7 +490,7 @@ cnGame.register("cnGame.shape",function(cg){
 		
 		},
 		/**
-		 *���ò���
+		 * 设置参数
 		**/
 		setOptions:function(options){
 			this.x=options.x||this.x;
@@ -512,7 +503,7 @@ cnGame.register("cnGame.shape",function(cg){
 			this.style=options.style||this.style;
 		},
 		/**
-		 *����Բ��
+		 * 绘制圆形
 		**/
 		draw:function(){
 			var context=cg.context;
@@ -530,8 +521,8 @@ cnGame.register("cnGame.shape",function(cg){
 			
 		},
 		/**
-		 *��Բ���ƶ�һ������
-		**/	
+		 * 将圆形移动一定距离
+		 **/	
 		move:function(dx,dy){
 			dx=dx||0;
 			dy=dy||0;
@@ -540,8 +531,8 @@ cnGame.register("cnGame.shape",function(cg){
 			return this;
 		},
 		/**
-		 *��Բ���ƶ����ض�λ��
-		**/	
+		 * 将圆形移动到特定位置
+		 **/	
 		moveTo:function(x,y){
 			x=x||this.x;
 			y=y||this.y;
@@ -550,8 +541,8 @@ cnGame.register("cnGame.shape",function(cg){
 			return this;
 		},
 		/**
-		 *��Բ�θı�һ����С
-		**/	
+		 * 将圆形改变一定大小
+		 **/	
 		resize:function(dr){
 			dr=dr||0;
 			this.r+=dr;
@@ -559,8 +550,8 @@ cnGame.register("cnGame.shape",function(cg){
 			
 		},
 		/**
-		 *��Բ�θı䵽�ض���С
-		**/	
+		 * 将圆形改变到特定大小
+		 **/	
 		resizeTo:function(r){
 			r=r||this.r;
 			this.r=r;
@@ -568,8 +559,8 @@ cnGame.register("cnGame.shape",function(cg){
 		}	
 	}
 	/**
-	 *��Բ�θı䵽�ض���С
-	**/	
+	 * 将圆形改变到特定大小
+	 **/	
 	var text=function(text,options){
 		if(!(this instanceof arguments.callee)){
 			return new arguments.callee(text,options);
@@ -579,11 +570,11 @@ cnGame.register("cnGame.shape",function(cg){
 	}
 	text.prototype={
 		/**
-		 *��ʼ��
+		 * 初始化
 		**/
 		init:function(text,options){
 			/**
-			 *Ĭ��ֵ����
+			 * 默认值对象
 			**/
 			var defaultObj={
 				x:100,
@@ -598,7 +589,7 @@ cnGame.register("cnGame.shape",function(cg){
 			this.text=text;		
 		},
 		/**
-		*����
+		* 绘制
 		**/
 		draw:function(){
 			var context=cg.context;
@@ -616,7 +607,7 @@ cnGame.register("cnGame.shape",function(cg){
 			}
 		},
 		/**
-		*���ò���
+		* 设置参数
 		**/
 		setOptions:function(options){
 			this.x=options.x||this.x;
@@ -641,7 +632,7 @@ cnGame.register("cnGame.shape",function(cg){
 
 /**
  *
- *�����¼ģ��
+ * 输入记录模块
  *
 **/
 cnGame.register("cnGame.input",function(cg){
@@ -649,8 +640,8 @@ cnGame.register("cnGame.input",function(cg){
 	this.mouseX=0;
 	this.mouseY=0;
 	/**
-	 *��¼�����canvas�ڵ�λ��
-	**/	
+	 * 记录鼠标在canvas内的位置
+	 **/	
 	var recordMouseMove=function(eve){
 		var pageX,pageY,x,y;
 		eve=cg.core.getEventObj(eve);
@@ -664,25 +655,25 @@ cnGame.register("cnGame.input",function(cg){
 	cg.core.bindHandler(window,"mousemove",recordMouseMove);
 	
 	/**
-	 *�����µļ��ļ���
-	**/	
+	 * 被按下的键的集合
+	 **/	
 	var pressed_keys={};
 	/**
-	 *Ҫ���ֹĬ����Ϊ�ļ��ļ���
-	**/	
+	 * 要求禁止默认行为的键的集合
+	 **/	
 	var preventDefault_keys={};
 	/**
-	 *���̰��´����Ĵ�������
-	**/	
+	 * 键盘按下触发的处理函数
+	 **/	
 	var keydown_callbacks={};
 	/**
-	 *���̵��𴥷��Ĵ�������
-	**/	
+	 * 键盘弹起触发的处理函数
+	 **/	
 	var keyup_callbacks={};
 
 	
 	/**
-	 *���̰�������ͼ���
+	 * 键盘按键编码和键名
 	**/	
 	var k=[];
 	k[8] = "backspace"
@@ -739,8 +730,8 @@ cnGame.register("cnGame.input",function(cg){
 	for(var i = 0; fkeys[i]; i++)       { k[112+i] = fkeys[i] }
 	
 	/**
-	 *��¼���̰��µļ�
-	**/	
+	 * 记录键盘按下的键
+	 **/	
 	var recordPress=function(eve){
 		eve=cg.core.getEventObj(eve);
 		var keyName=k[eve.keyCode];
@@ -763,8 +754,8 @@ cnGame.register("cnGame.input",function(cg){
 		}
 	}
 	/**
-	 *��¼�����ɿ��ļ�
-	**/	
+	 * 记录键盘松开的键
+	 **/	
 	var recordUp=function(eve){
 		eve=cg.core.getEventObj(eve);
 		var keyName=k[eve.keyCode];
@@ -789,14 +780,14 @@ cnGame.register("cnGame.input",function(cg){
 	cg.core.bindHandler(window,"keyup",recordUp);
 	
 	/**
-	 *�ж�ĳ�����Ƿ���
+	 * 判断某个键是否按下
 	**/	
 	this.isPressed=function(keyName){
 		return !!pressed_keys[keyName];	
 	};
 	/**
-	 *��ֹĳ�������µ�Ĭ����Ϊ
-	**/	
+	 * 禁止某个键按下的默认行为
+	 **/	
 	this.preventDefault=function(keyName){
 		if(cg.core.isArray(keyName)){
 			for(var i=0,len=keyName.length;i<len;i++){
@@ -808,8 +799,8 @@ cnGame.register("cnGame.input",function(cg){
 		}
 	}
 	/**
-	 *�󶨼��̰����¼�
-	**/	
+	 * 绑定键盘按下事件
+	 **/	
 	this.onKeyDown=function(keyName,handler){
 		keyName=keyName||"allKeys";
 		if(cg.core.isUndefined(keydown_callbacks[keyName])){
@@ -819,8 +810,8 @@ cnGame.register("cnGame.input",function(cg){
 	
 	}
 	/**
-	 *�󶨼��̵����¼�
-	**/	
+	 * 绑定键盘弹起事件
+	 **/	
 	this.onKeyUp=function(keyName,handler){
 		keyName=keyName||"allKeys";
 		if(cg.core.isUndefined(keyup_callbacks[keyName])){
@@ -830,8 +821,8 @@ cnGame.register("cnGame.input",function(cg){
 	
 	}
 	/**
-	 *������̰����¼���������
-	**/	
+	 * 清除键盘按下事件处理程序
+	 **/	
 	this.clearDownCallbacks=function(keyName){
 		if(keyName){
 			keydown_callbacks[keyName]=[];
@@ -842,8 +833,8 @@ cnGame.register("cnGame.input",function(cg){
 		
 	}
 	/**
-	 *������̵����¼���������
-	**/	
+	 * 清除键盘弹起事件处理程序
+	 **/	
 	this.clearUpCallbacks=function(keyName){
 		if(keyName){
 			keyup_callbacks[keyName]=[];
@@ -857,32 +848,32 @@ cnGame.register("cnGame.input",function(cg){
 		
 /**
  *
- *��ײ���
+ * 碰撞检测
  *
-**/
+ **/
 cnGame.register("cnGame.collision",function(cg){
 	/**
-	 *��;��μ����ײ
-	**/	
+	 * 点和矩形间的碰撞
+	 **/	
 	this.col_Point_Rect=function(pointX,pointY,rectObj){
 		return (pointX>=rectObj.x&&pointX<=rectObj.right||pointY>=rectObj.y&&pointY<=rectObj.bottom);		
 	}
 	/**
-	 *���κ;��μ����ײ
-	**/	
+	 * 矩形和矩形间的碰撞
+	 **/	
 	this.col_Between_Rects=function(rectObjA,rectObjB){
 		return ((rectObjA.right>=rectObjB.x&&rectObjA.right<=rectObjB.right||rectObjA.x>=rectObjB.x&&rectObjA.x<=rectObjB.right)&&(rectObjA.bottom>=rectObjB.y&&rectObjA.bottom<=rectObjB.bottom||rectObjA.y<=rectObjB.bottom&&rectObjA.bottom>=rectObjB.y));		
 	}
 	/**
-	 *���Բ�μ����ײ
-	**/	
+	 * 点和圆形间的碰撞
+	 **/	
 	this.col_Point_Circle=function(pointX,pointY,circleObj){
 		return(Math.pow((pointX-circleObj.x),2)+Math.pow((pointY-circleObj.y),2)<Math.pow(circleObj.r,2));
 		
 	}
 	/**
-	 *Բ�κ�Բ�μ����ײ
-	**/	
+	 * 圆形和圆形间的碰撞
+	 **/	
 	this.col_between_Circles=function(circleObjA,circleObjB){
 		return(Math.pow((circleObjA.x-circleObjB.x),2)+Math.pow((circleObjA.y-circleObjB.y),2)<Math.pow((circleObjA.r+circleObjB).r,2));
 		
@@ -892,19 +883,19 @@ cnGame.register("cnGame.collision",function(cg){
 
 /**
  *
- *����
+ * 动画
  *
-**/
+ **/
 cnGame.register("cnGame",function(cg){
 	
 	/**
 	 *֡������
-	**/
+	 **/
 	var path=1;
 		
 	/**
 	 *��ȡ֡����
-	**/
+	 **/
 	var caculateFrames=function(options){
 		var frames=[];
 		var width=options.width;
@@ -944,8 +935,8 @@ cnGame.register("cnGame",function(cg){
 		
 	}
 	/**
-	 *������֡ͼ��Ĵ�ͼƬ
-	**/	
+	 * 包含多帧图像的大图片
+	 **/	
 	spriteSheet=function(id,src,options){
 		if(!(this instanceof arguments.callee)){
 			return new arguments.callee(id,src,options);
@@ -954,13 +945,13 @@ cnGame.register("cnGame",function(cg){
 	}
 	spriteSheet.prototype={
 		/**
-		 *��ʼ��
-		**/
+		 * 初始化
+		 **/
 		init:function(id,src,options){
 			
 			/**
-			 *Ĭ�϶���
-			**/	
+			 * 默认对象
+			 **/	
 			var defaultObj={
 				x:0,
 				y:0,
@@ -968,7 +959,7 @@ cnGame.register("cnGame",function(cg){
 				height:40,
 				frameSize:[40,40],
 				frameDuration:100,
-				direction:"right",	//������
+				direction:"right",	// 从左到右
 				beginX:0,
 				beginY:0,
 				loop:false,
@@ -976,49 +967,49 @@ cnGame.register("cnGame",function(cg){
 			};
 			options=options||{};
 			options=cg.core.extend(defaultObj,options);
-			this.id=id;									//spriteSheet��id
-			this.src=src;								//ͼƬ��ַ
-			this.x=options.x;							//����Xλ��
-			this.y=options.y;							//����Yλ��
-			this.width=options.width;					//ͼƬ�Ŀ���
-			this.height=options.height;					//ͼƬ�ĸ߶�
-			this.image=cg.loader.loadedImgs[this.src]; //ͼƬ����
-			this.frameSize=options.frameSize;			//ÿ֡�ߴ�
-			this.frameDuration=options.frameDuration;	//ÿ֡����ʱ��
-			this.direction=options.direction;			//��ȡ֡�ķ��򣨴������һ���ϵ��£�
-			this.currentIndex=0;						//Ŀǰ֡����
-			this.beginX=options.beginX;					//��ȡͼƬ����ʼλ��X
-			this.beginY=options.beginY;					//��ͼͼƬ����ʼλ��Y
-			this.loop=options.loop;						//�Ƿ�ѭ������
-			this.bounce=options.bounce;					//�Ƿ���������
-			this.onFinish=options.onFinish;				//������Ϻ�Ļص�����
-			this.frames=caculateFrames(options);		//֡��Ϣ����
-			this.now=new Date().getTime();				//��ǰʱ��
-			this.last=new Date().getTime();			//��һ֡��ʼʱ��
+			this.id=id;                                      //spriteSheet的id
+                this.src=src;                                //图片地址
+                this.x=options.x;                            //动画X位置
+                this.y=options.y;                            //动画Y位置
+                this.width=options.width;                    //图片的宽度
+                this.height=options.height;                  //图片的高度
+                this.image=cg.loader.loadedImgs[this.src];   //图片对象
+                this.frameSize=options.frameSize;            //每帧尺寸
+                this.frameDuration=options.frameDuration;    //每帧持续时间
+                this.direction=options.direction;            //读取帧的方向（从做到右或从上到下）
+                this.currentIndex=0;                         //目前帧索引
+                this.beginX=options.beginX;                  //截取图片的起始位置X
+                this.beginY=options.beginY;                  //截图图片的起始位置Y
+                this.loop=options.loop;                      //是否循环播放
+                this.bounce=options.bounce;                  //是否往返播放
+				this.onFinish=options.onFinish;				 //播放完毕后的回调函数
+				this.frames=caculateFrames(options);         //帧信息集合
+                this.now=new Date().getTime();               //当前时间
+                this.last=new Date().getTime();              //上一帧开始时间
 		},
 		/**
-		 *����֡
-		**/	
+		 * 更新帧
+		 **/	
 		update:function(){
 			
 			this.now=new Date().getTime();
 			var frames=this.frames;
-			if((this.now-this.last)>this.frameDuration){//����������֡��������update
+			if((this.now-this.last)>this.frameDuration){//如果间隔大于帧间间隔，则update
 				var currentIndex=this.currentIndex;
 				var length=this.frames.length;
 				this.last=this.now;
 				
 				if(currentIndex>=length-1){
-					if(this.loop){	//ѭ��
+					if(this.loop){	//循环
 						return frames[this.currentIndex=0];	
 					}
-					else if(!this.bounce){//û��ѭ������û��������������ֹͣ�����һ֡
+					else if(!this.bounce){//没有循环并且没有往返滚动，则停止在最后一帧
 						this.onFinish&&this.onFinish();
 						this.onFinish=undefined;
 						return frames[currentIndex];
 					}
 				}
-				if((this.bounce)&&((currentIndex>=length-1&&path>0)||(currentIndex<=0&&path<0))){	//����
+				if((this.bounce)&&((currentIndex>=length-1&&path>0)||(currentIndex<=0&&path<0))){	//往返
 					path*=(-1);
 				}
 				this.currentIndex+=path;
@@ -1027,21 +1018,21 @@ cnGame.register("cnGame",function(cg){
 			return frames[this.currentIndex];
 		},
 		/**
-		 *�����ض�֡
-		**/
+		 * 跳到特定帧
+		 **/
 		index:function(index){
 			this.currentIndex=index;
 			return this.frames[this.currentIndex];	
 		},
 		/**
-		 *��ȡ��ʱ֡
-		**/
+		 * 获取现时帧
+		 **/
 		getCurrentFrame:function(){
 			return this.frames[this.currentIndex];	
 		},
 		/**
-		 *���ض�λ�û��Ƹ�֡
-		**/
+		 * 在特定位置绘制该帧
+		 **/
 		draw:function(){
 			
 			var currentFrame=this.getCurrentFrame();
@@ -1057,7 +1048,7 @@ cnGame.register("cnGame",function(cg){
 
 /**
  *
- *sprite����
+ *sprite对象
  *
 **/
 cnGame.register("cnGame",function(cg){
@@ -1072,13 +1063,13 @@ cnGame.register("cnGame",function(cg){
 	}
 	sprite.prototype={
 		/**
-		 *��ʼ��
-		**/
+		 * 初始化
+		 **/
 		init:function(options){
 			
 			/**
-			 *Ĭ�϶���
-			**/	
+			 * 默认对象
+			 **/	
 			var defaultObj={
 				x:0,
 				y:0,
@@ -1126,32 +1117,32 @@ cnGame.register("cnGame",function(cg){
 			this.minY=options.minY;
 			this.spriteSheetList={};
 			
-			if(options.src){	//����ͼƬ·��
+			if(options.src){	//传入图片路径
 				this.setCurrentImage(options.src,options.imgX,options.imgY);
 			}
-			else if(options.spriteSheet){//����spriteSheet����
+			else if(options.spriteSheet){//传入spriteSheet对象
 				this.addAnimation(options.spriteSheet);		
 				setCurrentAnimation(options.spriteSheet);
 			}
 			
 		},
 		/**
-		 *���ذ�����sprite�ľ��ζ���
-		**/
+		 *返回包含该sprite的矩形对象
+		 **/
 		getRect:function(){
 			return new cg.shape.Rect({x:this.x,y:this.y,width:this.width,height:this.height});
 			
 		},
 		/**
-		 *���Ӷ���
-		**/
+		 * 添加动画
+		 **/
 		addAnimation:function(spriteSheet){
 			this.spriteSheetList[spriteSheet.id]=spriteSheet;	
 		},
 		/**
-		 *���õ�ǰ��ʾ����
-		**/
-		setCurrentAnimation:function(id){//�ɴ���id��spriteSheet
+		 * 设置当前显示动画
+		 **/
+		setCurrentAnimation:function(id){//可传入id或spriteSheet
 			if(!this.isCurrentAnimation(id)){
 				if(cg.core.isString(id)){
 					this.spriteSheet=this.spriteSheetList[id];
@@ -1166,8 +1157,8 @@ cnGame.register("cnGame",function(cg){
 		
 		},
 		/**
-		 *�жϵ�ǰ�����Ƿ�Ϊ��id�Ķ���
-		**/
+		 * 判断当前动画是否为该id的动画
+		 **/
 		isCurrentAnimation:function(id){
 			if(cg.core.isString(id)){
 				return (this.spriteSheet&&this.spriteSheet.id===id);
@@ -1177,8 +1168,8 @@ cnGame.register("cnGame",function(cg){
 			}
 		},
 		/**
-		 *���õ�ǰ��ʾͼ��
-		**/
+		 * 设置当前显示图像
+		 **/
 		setCurrentImage:function(src,imgX,imgY){
 			if(!this.isCurrentImage(src,imgX,imgY)){
 				imgX=imgX||0;
@@ -1190,8 +1181,8 @@ cnGame.register("cnGame",function(cg){
 			}
 		},
 		/**
-		 *�жϵ�ǰͼ���Ƿ�Ϊ��src��ͼ��
-		**/
+		 * 判断当前图像是否为该src的图像
+		 **/
 		isCurrentImage:function(src,imgX,imgY){
 			imgX=imgX||0;
 			imgY=imgY||0;
@@ -1201,7 +1192,7 @@ cnGame.register("cnGame",function(cg){
 			}
 		},
 			/**
-		 *�����ƶ�����
+		 *设置移动参数
 		**/
 		setMovement:function(options){
 			isUndefined=cg.core.isUndefined;
@@ -1223,8 +1214,8 @@ cnGame.register("cnGame",function(cg){
 			
 		},
 		/**
-		 *�����ƶ������ص���ʼֵ
-		**/
+		 * 重置移动参数回到初始值
+		 **/
 		resetMovement:function(){
 			this.speedX=0;
 			this.speedY=0;
@@ -1242,8 +1233,8 @@ cnGame.register("cnGame",function(cg){
 			this.minAngle=-postive_infinity;
 		},
 			/**
-		 *����λ�ú�֡����
-		**/
+		 * 更新位置和帧动画
+		 **/
 		update:function(duration){//duration:��֡��ʱ ��λ����
 			this.speedX=this.speedX+this.aX*duration;	
 			if(this.maxSpeedX<0){
@@ -1277,8 +1268,8 @@ cnGame.register("cnGame",function(cg){
 			}
 		},
 		/**
-		 *���Ƴ�sprite
-		**/
+		 * 绘制出sprite
+		 **/
 		draw:function(){
 			var context=cg.context;
 			var halfWith;
@@ -1300,8 +1291,8 @@ cnGame.register("cnGame",function(cg){
 		
 		},
 		/**
-		 *�ƶ�һ������
-		**/
+		 * 移动一定距离
+		 **/
 		move:function(dx,dy){
 			dx=dx||0;
 			dy=dy||0;
@@ -1313,16 +1304,16 @@ cnGame.register("cnGame",function(cg){
 			
 		},
 		/**
-		 *�ƶ���ĳ��
-		**/
+		 * 移动到某处
+		 **/
 		moveTo:function(x,y){
 			this.x=Math.min(Math.max(this.minX,x),this.maxX);
 			this.y=Math.min(Math.max(this.minY,y),this.maxY);
 			return this;
 		},
 		/**
-		 *��תһ���Ƕ�
-		**/
+		 * 旋转一定角度
+		 **/
 		rotate:function(da){
 			da=da||0;
 			var angle=this.angle+da;
@@ -1331,23 +1322,23 @@ cnGame.register("cnGame",function(cg){
 			return this;
 		},
 		/**
-		 *��ת��һ���Ƕ�
-		**/
+		 * 旋转到一定角度
+		 **/
 		rotateTo:function(a){
 			this.angle=Math.min(Math.max(this.minAngle,a),this.maxAngle);
 			return this;
 			
 		},
 		/**
-		 *�ı�һ���ߴ�
-		**/
+		 * 改变一定尺寸
+		 **/
 		resize:function(dw,dh){
 			this.width+=dw;
 			this.height+=dh;
 			return this;
 		},
 		/**
-		 *�ı䵽һ���ߴ�
+		 * 改变到一定尺寸
 		**/
 		resizeTo:function(width,height){
 			this.width=width;
@@ -1389,15 +1380,15 @@ cnGame.register("cnGame",function(cg){
 
 /**
  *
- *��Ϸѭ��
+ * 游戏循环
  *
-**/
+ **/
 cnGame.register("cnGame",function(cg){
 
 	var timeId;
 	var interval;
 	/**
-	*ѭ������
+	* 循环方法
 	**/	
 	var loop=function(){
 		var self=this;
@@ -1408,15 +1399,12 @@ cnGame.register("cnGame",function(cg){
 				var spriteList=cg.spriteList;
 				self.loopDuration=(self.startTime-self.now)/1000;
 		
-				if(self.gameObj.update){//������Ϸ�����update
-					self.gameObj.update(duration);
-				}
+				if(self.gameObj.update) self.gameObj.update(duration);				
 				if(self.gameObj.draw){
 					cg.context.clearRect(0,0,cg.width,cg.height);
 					self.gameObj.draw();
 				}
-				for(var i=0,len=spriteList.length;i<len;i++){//��������sprite
-				
+				for(var i=0,len=spriteList.length;i<len;i++){				
 					spriteList[i].update(duration);
 					spriteList[i].draw();
 				}
@@ -1426,8 +1414,7 @@ cnGame.register("cnGame",function(cg){
 		}
 	}
 	
-	var gameLoop=function(gameObj,options){
-	
+	var gameLoop=function(gameObj,options){	
 		if(!(this instanceof arguments.callee)){
 			return new arguments.callee(gameObj,options);
 		}
@@ -1435,12 +1422,12 @@ cnGame.register("cnGame",function(cg){
 	}
 	gameLoop.prototype={
 		/**
-		 *��ʼ��
-		**/
+		 * 初始化
+		 **/
 		init:function(gameObj,options){
 			/**
-			 *Ĭ�϶���
-			**/	
+			 * 默认对象
+			 **/	
 			var defaultObj={
 				fps:30
 			};
@@ -1456,10 +1443,10 @@ cnGame.register("cnGame",function(cg){
 		},
 			
 		/**
-		 *��ʼѭ��
-		**/	
+		 * 开始循环
+		 **/	
 		start:function(){
-			if(this.stop){		//����ǽ���״̬����Կ�ʼ
+			if(this.stop){		// 如果是结束状态则可以开始
 				this.stop=false;
 				var now=new Date().getTime();
 				this.startTime=now;
@@ -1468,20 +1455,20 @@ cnGame.register("cnGame",function(cg){
 				loop.call(this)();	
 			}	
 		},		/**
-		 *����ѭ��
-		**/	
+		 * 继续循环
+		 **/	
 		run:function(){
 			this.pause=false;	
 		},
 		/**
-		 *��ͣѭ��
-		**/	
+		 * 暂停循环
+		 **/	
 		pause:function(){
 			this.pause=true;	
 		},
 		/**
-		 *ֹͣѭ��
-		**/	
+		 *ֹͣ 停止循环
+		 **/	
 		end:function(){
 			this.stop=true;
 			window.clearTimeout(timeId);
@@ -1494,9 +1481,9 @@ cnGame.register("cnGame",function(cg){
 
 /**
  *
- *��ͼ
+ * 地图
  *
-**/
+ **/
 cnGame.register("cnGame",function(cg){
 							  							  
 	var map=function(mapMatrix,options){
@@ -1508,16 +1495,16 @@ cnGame.register("cnGame",function(cg){
 	}
 	map.prototype={
 		/**
-		 *��ʼ��
-		**/	
+		 * 初始化
+		 **/	
 		init:function(mapMatrix,options){
 			/**
-			 *Ĭ�϶���
-			**/	
+			 * 默认对象
+			 **/	
 			var defaultObj={
-				cellSize:[32,32],   //���������
-				beginX:0,		    //��ͼ��ʼx
-				beginY:0			//��ͼ��ʼy
+				cellSize:[32,32],   //方格宽，高
+                    beginX:0,            //地图起始x
+                    beginY:0            //地图起始y
 		
 			};
 			options=options||{};
@@ -1526,13 +1513,13 @@ cnGame.register("cnGame",function(cg){
 			this.cellSize=options.cellSize;
 			this.beginX=options.beginX;
 			this.beginY=options.beginY;
-			this.row=mapMatrix.length;//�ж�����
+			this.row=mapMatrix.length;//有多少行
 				
 		},
 		/**
-		 *����map�������map
-		**/	
-		draw:function(options){//options��{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
+		 * 根据map矩阵绘制map
+		 **/	
+		draw:function(options){//options：{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
 			var mapMatrix=this.mapMatrix;
 			var beginX=this.beginX;
 			var beginY=this.beginY;
@@ -1542,7 +1529,7 @@ cnGame.register("cnGame",function(cg){
 			var currentObj;
 			var row=this.row;
 			var img;
-			for(var i=beginY,ylen=beginY+row*cellSize[1];i<ylen;i+=cellSize[1]){	//���ݵ�ͼ���󣬻���ÿ������
+			for(var i=beginY,ylen=beginY+row*cellSize[1];i<ylen;i+=cellSize[1]){	//根据地图矩阵，绘制每个方格
 					currentRow=(i-beginY)/cellSize[1];
 				for(var j=beginX,xlen=beginX+mapMatrix[currentRow].length*cellSize[0];j<xlen;j+=cellSize[0]){
 					currentCol=(j-beginX)/cellSize[0];
@@ -1550,15 +1537,15 @@ cnGame.register("cnGame",function(cg){
 					currentObj.x=currentObj.x||0;
 					currentObj.y=currentObj.y||0;
 					img=cg.loader.loadedImgs[currentObj.src];
-					cg.context.drawImage(img,currentObj.x,currentObj.y,cellSize[0],cellSize[1],j,i,cellSize[0],cellSize[1]);//�����ض������ͼ��
+					cg.context.drawImage(img,currentObj.x,currentObj.y,cellSize[0],cellSize[1],j,i,cellSize[0],cellSize[1]);//绘制特定坐标的图像
 					cg.context.strokeText(currentCol+'/'+currentRow,currentCol*cellSize[0]+12,currentRow*cellSize[1]+25)
 				}
 			}
 		
 		},
 		/**
-		 *��ȡ�ض������ڵ�ͼ�д��ڵķ����ֵ
-		**/
+		 * 获取特定对象在地图中处于的方格的值
+		 **/
 		getPosValue:function(x,y){
 			if(cg.core.isObject(x)){
 				y=x.y;
@@ -1574,7 +1561,7 @@ cnGame.register("cnGame",function(cg){
 		},
 		/**
 		 *��ȡ�ض������ڵ�ͼ�д��ڵķ�������
-		**/
+		 **/
 		getCurrentIndex:function(x,y){
 			if(cg.core.isObject(x)){
 				y=x.y;
@@ -1606,14 +1593,14 @@ cnGame.register("cnGame",function(cg){
 
 /**
  *
- *����
+ * 场景
  *
 **/
 cnGame.register("cnGame",function(cg){
 	
 	/**
-	 *ʹָ�������ڿ�������view��
-	**/
+	 * 使指定对象在可视区域view内
+	 **/
 	var inside=function(sprite){
 		var dir=sprite.insideDir;
 		if(dir!="y"){
@@ -1642,11 +1629,11 @@ cnGame.register("cnGame",function(cg){
 	view.prototype={
 	
 		/**
-		 *��ʼ��
-		**/
+		 * 初始化
+		 **/
 		init:function(options){
 			/**
-			 *Ĭ�϶���
+			 * 默认对象
 			**/
 			var defaultObj={
 				width:cg.width,
@@ -1675,17 +1662,17 @@ cnGame.register("cnGame",function(cg){
 			
 		},
 		/**
-		 *ʹplayer��λ�ñ����ڳ����е�֮ǰ���ƶ�����
-		**/
+		 * 使player的位置保持在场景中点之前的移动背景
+		 **/
 		centerPlayer:function(isLoop){
 			isLoop=isLoop||false;
 			this.isLoop=isLoop;
 			this.isCenterPlayer=true;
 		},
 		/**
-		 *ʹ�����λ�ñ����ڳ�����
+		 * 使对象的位置保持在场景内
 		**/
-		insideView:function(sprite,dir){//dirΪ�޶��ĸ�������view�ڣ�ֵΪx��y������������������޶�
+		insideView:function(sprite,dir){//dir为限定哪个方向在view内，值为x或y，不传则两个方向皆限定
 			if(cg.core.isArray(sprite)){
 				for(var i=0,len=sprite.length;i<len;i++){
 					arguments.callee.call(this,sprite[i],dir);
@@ -1697,9 +1684,9 @@ cnGame.register("cnGame",function(cg){
 			}
 		},
 		/**
-		 *�����ƶ�ʱ�ĸ���
-		**/
-		update:function(spritelist){//��������sprite������
+		 * 背景移动时的更新
+		 **/
+		update:function(spritelist){//传入所有sprite的数组
 			if(this.isCenterPlayer){
 				if(this.player.x>this.centerX){
 					if(this.x<this.imgWidth-this.width){
@@ -1736,7 +1723,7 @@ cnGame.register("cnGame",function(cg){
 			}
 		},
 		/**
-		 *���Ƴ���
+		 *绘制场景
 		**/
 		draw:function(){
 			cg.context.drawImage(cg.loader.loadedImgs[this.src],this.x,this.y,this.width,this.height,0,0,this.width,this.height);
@@ -1748,4 +1735,3 @@ cnGame.register("cnGame",function(cg){
 });
 
 })(window,undefined);
-
