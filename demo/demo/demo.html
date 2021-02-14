@@ -8,31 +8,147 @@
 </body>
 <script src="ewan.js"></script>
 <script>
-    var a = cnGame.core.$c("a", cnGame.core.$("qq"));
-    console.log(a);
+    var Src = "player.png";
+    // 1 初始化
+    cnGame.init("canvas", { width: 300, height: 150, background: "#f00" });
+    var floorY = cnGame.height - 40;
+    var gameObj = (function () {
+        /* 玩家对象 */
+        var player = function (options) {
+            this.init(options);
+            this.speedX = 0;
+            this.moveDir;
+            this.isJump = false;
+        };
+        cnGame.core.inherit(player, cnGame.Sprite);
+        player.prototype.initialize = function () {
+            this.addAnimation(
+                new cnGame.SpriteSheet("playerRight", Src, {
+                    frameSize: [50, 60],
+                    loop: true,
+                    width: 150,
+                    height: 60,
+                })
+            );
+            this.addAnimation(
+                new cnGame.SpriteSheet("playerLeft", Src, {
+                    frameSize: [50, 60],
+                    loop: true,
+                    width: 150,
+                    height: 120,
+                    beginY: 60,
+                })
+            );
+        };
+        player.prototype.moveRight = function () {
+            if (
+                cnGame.core.isUndefined(this.moveDir) ||
+                this.moveDir != "right"
+            ) {
+                this.moveDir = "right";
+                this.speedX < 0 && (this.speedX = 0);
+                this.setMovement({ aX: 10, maxSpeedX: 15 });
+                this.setCurrentAnimation("playerRight");
+            }
+        };
+        player.prototype.moveLeft = function () {
+            if (
+                cnGame.core.isUndefined(this.moveDir) ||
+                this.moveDir != "left"
+            ) {
+                this.moveDir = "left";
+                this.speedX > 0 && (this.speedX = 0);
+                this.setMovement({ aX: -10, maxSpeedX: 15 });
+                this.setCurrentAnimation("playerLeft");
+            }
+        };
+        player.prototype.stopMove = function () {
+            if (this.speedX < 0) {
+                this.setCurrentImage(Src, 0, 60);
+            } else if (this.speedX > 0) {
+                this.setCurrentImage(Src);
+            }
+            this.moveDir = undefined;
+            this.resetMovement();
+        };
+        player.prototype.update = function () {
+            player.prototype.parent.prototype.update.call(this); //调用父类update
+            if (cnGame.input.isPressed("right")) {
+                this.moveRight();
+            } else if (cnGame.input.isPressed("left")) {
+                this.moveLeft();
+            } else {
+                this.stopMove();
+            }
+        };
 
-    cnGame.init("canvas", { width: 600, height: 600 });
-    cnGame.core.bind(document.body, "click", function (e) {
-        console.log(cnGame.core.getTarget(e));
-    });
-
-    cnGame.loader.start(
-        {
+        return {
             initialize: function () {
-                console.log("资源加载完成，游戏开始！");
+                cnGame.input.preventDefault(["left", "right", "up", "down"]);
+                this.player = new player({
+                    src: Src,
+                    width: 50,
+                    height: 60,
+                    x: 0,
+                    y: floorY - 60,
+                });
+                this.player.initialize();
             },
-        },
-        {
-            srcArray: [
-                "player2A.png",
-                "desertA.png",
-                "stoneA.png",
-                "grassA.png",
-                "pathA.png",
-            ],
-            onLoad(count, total) {
-                console.log("onLoad", count, total);
+            update: function () {
+                this.player.update();
             },
-        }
-    );
+            draw: function () {
+                this.player.draw();
+            },
+        };
+    })();
+    cnGame.loader.start(gameObj, { srcArray: [Src] });
+
+    // var a = cnGame.core.$c("a", cnGame.core.$("qq"));
+    // console.log(a);
+
+    // cnGame.init("canvas", { width: 600, height: 600 });
+    // cnGame.core.bind(document.body, "click", function (e) {
+    //     console.log(cnGame.core.getTarget(e));
+    // });
+
+    // // 飞鸟对象
+    // var Player = function (options) {
+    //     this.init(options);
+    // };
+    // cnGame.core.inherit(Player, cnGame.Sprite);
+    // Player.prototype.moveSpeed = 2;
+
+    // cnGame.loader.start(
+    //     {
+    //         initialize: function () {
+    //             console.log("资源加载完成，游戏开始！");
+    //             var qw = new Player({
+    //                 src: "player2A.png",
+    //                 width: 40,
+    //                 height: 40,
+    //                 x: 200,
+    //                 y: 0,
+    //             });
+    //         },
+    //         update: function (duration) {
+    //             console.log("update:", duration);
+    //         },
+    //         draw: function () {
+    //             console.log("draw");
+    //         },
+    //     },
+    //     {
+    //         srcArray: [
+    //             "player2A.png",
+    //             "desertA.png",
+    //             "stoneA.png",
+    //             "grassA.png",
+    //             "pathA.png",
+    //         ],
+    //         onLoad(count, total) {
+    //             console.log("onLoad", count, total);
+    //         },
+    //     }
+    // );
 </script>
