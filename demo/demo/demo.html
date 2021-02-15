@@ -72,6 +72,7 @@
             this.resetMovement();
         };
         player.prototype.update = function () {
+            console.log("player update");
             player.prototype.parent.prototype.update.call(this); //调用父类update
             if (cnGame.input.isPressed("right")) {
                 this.moveRight();
