@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <!-- <script src="cnGame_v1.2.js"></script> -->
-    <script src="cnGame_ewan.js"></script>
+    <script src="ewan.js"></script>
     <script src="NodePointer.js"></script>
     <script src="AStar.js"></script>
 </head>
@@ -150,7 +150,7 @@
             for (var i = 1; i < path.length; i++) {
                 var xPos = path[i].x * 40;
                 var yPos = path[i].y * 40;
-                cnGame.context.drawImage(cnGame.loader.loadedImgs[srcObj.path], 0, 0, 40, 40, xPos, yPos, 40, 40);
+                cnGame.context.drawImage(cnGame.loader.images[srcObj.path], 0, 0, 40, 40, xPos, yPos, 40, 40);
             }
         }
 
