@@ -1,27 +1,19 @@
 (function (W, U) {
     W["cnGame"] = {
+        width: 800, height: 600, x: 0, y: 0,
         init: function (id, options) {
-            options = options || {};
-            this.canvas = this.core.$(id || "canvas");
+            options = options || {}; this.core.extend(this, options)
+            this.canvas = this.core.$(id || "canvas"); var canvasPos = this.core.getElementPos(this.canvas); this.x = canvasPos[0] || 0; this.y = canvasPos[1] || 0;
             this.context = this.canvas.getContext("2d");
-            this.width = options.width || 800;
-            this.height = options.height || 600;
-            this.canvas.width = this.width;
+            this.canvas.width = this.width; 
             this.canvas.height = this.height;
-            this.title = this.core.$t("title")[0];
-            var canvasPos = this.core.getElementPos(this.canvas);
-            this.x = canvasPos[0] || 0;
-            this.y = canvasPos[1] || 0;
             this.canvas.style.left = this.x + "px";
             this.canvas.style.top = this.y + "px";
+            !this.title && (this.title = this.core.$t("title")[0]);
         },
         register: function (ns, fn) {
             var parent = W, nsArr = ns.split(".");
-            for (var i = 0; i < nsArr.length; i++) {
-                var key = nsArr[i];
-                typeof parent[key] == "undefined" && (parent[key] = {});
-                parent = parent[key];
-            }
+            for (var i = 0; i < nsArr.length; i++) { var n = nsArr[i]; typeof parent[n] == "undefined" && (parent[n] = {}); parent = parent[n] }
             fn && fn.call(parent, this);
             return parent;
         },
@@ -30,64 +22,35 @@
             $: id => document.getElementById(id),
             $t: (tagName, parent) => { parent = parent || document; return parent.getElementsByTagName(tagName) },
             $c(className, parent) {
-                var allElements = this.$t("*", parent), matchResult = [];
-                parent = parent || document;
-                className = " " + className + " ";
-                for (var i = 0; i < allElements.length; i++) {
-                    var el = allElements[i], classProperty = " " + el.className + " ";
-                    classProperty.indexOf(className) > -1 && matchResult.push(el);
-                }
-                return matchResult;
+                var eles = this.$t("*", parent), res = []; parent = parent || document; className = " " + className + " ";
+                for (var i = 0; i < eles.length; i++) { var el = eles[i], cN = " " + el.className + " "; cN.indexOf(className) > -1 && res.push(el) }
+                return res;
             },
-            // 获取元素在页面中的位置
-            getElementPos: el => { // 当存在 定位父元素 offsetLeft是相对于它的
-                var left = 0, top = 0;                
-                while (el.offsetParent) { left += el.offsetLeft; top += el.offsetTop; el = el.offsetParent }
-                return [left, top];
-            },
+            // 获取元素在页面中的位置 当存在 定位父元素 offsetLeft是相对于它的
+            getElementPos: el => { var l = 0, t = 0; while (el.offsetParent) { l += el.offsetLeft; t += el.offsetTop; el = el.offsetParent }; return [l, t] },
             bind: (function () {
-                if (window.addEventListener) {
-                    return function (el, type, handler) { el.addEventListener(type, handler, false) };
-                } else if (window.attachEvent) {
-                    return function (el, type, handler) { el.attachEvent("on" + type, handler) };
-                }
+                if (window.addEventListener) { return function (el, type, handler) { el.addEventListener(type, handler, false) } } 
+                else if (window.attachEvent) { return function (el, type, handler) { el.attachEvent("on" + type, handler) } }
             })(),
             unbind: (function () {
-                if (window.removeEventListerner) {
-                    return function (el, type, handler) { el.removeEventListerner(type, handler, false) };
-                } else if (window.detachEvent) {
-                    return function (el, type, handler) { el.detachEvent("on" + type, handler) };
-                }
+                if (window.removeEventListerner) { return function (el, type, handler) { el.removeEventListerner(type, handler, false) } } 
+                else if (window.detachEvent) { return function (el, type, handler) { el.detachEvent("on" + type, handler) } }
             })(),
             getEvent: ev => ev || W.event,
             getTarget: function (ev) { ev = this.getEvent(ev); return ev.target || ev.srcElement },
             preventDefault: function (ev) { ev.preventDefault ? ev.preventDefault() : (ev.returnValue = false) },
             getComputedStyle: (function () {
                 var body = document.body || document.documentElement;
-                if (body.currentStyle) {
-                    return function (el) { return el.currentStyle };
-                } else if (document.defaultView.getComputedStyle) {
-                    return function (el) { return document.defaultView.getComputedStyle(el, null) };
-                }
+                if (body.currentStyle) { return function (el) { return el.currentStyle } } 
+                else if (document.defaultView.getComputedStyle) { return function (el) { return document.defaultView.getComputedStyle(el, null) } }
             })(),
             isUndefined: x => typeof x === "undefined",
             isArray: elem => Object.prototype.toString.call(elem) === "[object Array]",
             isObject: elem => elem === Object(elem),
             isString: elem => Object.prototype.toString.call(elem) === "[object String]",
             isNum: elem => Object.prototype.toString.call(elem) === "[object Number]",
-            extend: function (destination, source, isCover) {
-                var isUndefined = this.isUndefined; isUndefined(isCover) && (isCover = true);
-                for (var key in source) {
-                    if (isCover || isUndefined(destination[key])) destination[key] = source[key];
-                }
-                return destination;
-            },
-            inherit: function (child, parent) {
-                var func = function () {}; func.prototype = parent.prototype;
-                child.prototype = new func();
-                child.prototype.constructor = child;
-                child.prototype.parent = parent;
-            }
+            extend: function (a, b, c) { var U = this.isUndefined; U(c) && (c = true); for (var key in b) { if (c || U(a[key])) a[key] = b[key] };return a },
+            inherit: function (c, p) { var f = function () {}; f.prototype = p.prototype; c.prototype = new f(); c.prototype.constructor = c; c.prototype.p = p }
         }
     };
 
@@ -161,11 +124,11 @@
     cnGame.register("cnGame", function (cg) {
         var path = 1; // 往返运动 1 -1
         var caculateFrames = function (sheet) {
-            var frames = [], x, y, width = sheet.width, height = sheet.height, beginX = sheet.beginX, beginY = sheet.beginY, frameSize = sheet.frameSize, direction = sheet.direction;            
+            var frames = [], x, y, w = sheet.width, h = sheet.height, bX = sheet.beginX, bY = sheet.beginY, frameSize = sheet.frameSize, direction = sheet.direction;            
             if (direction == "right") {
-                for (var y = beginY; y < height; y += frameSize[1]) { for (var x = beginX; x < width; x += frameSize[0]) { frames.push({x, y}) } }
+                for (var y = bY; y < h; y += frameSize[1]) { for (var x = bX; x < w; x += frameSize[0]) { frames.push({x, y}) } }
             } else {
-                for (var x = beginX; x < width; x += frameSize[0]) { for (var y = beginY; y < height; y += frameSize[1]) { frames.push({x, y}) } }
+                for (var x = bX; x < w; x += frameSize[0]) { for (var y = bY; y < h; y += frameSize[1]) { frames.push({x, y}) } }
             }
             return frames;
         };
@@ -385,61 +348,51 @@
 
     ////////////////////* 输入记录模块 *////////////////////
     cnGame.register("cnGame.input", function (cg) {
-        this.mouseX = 0; this.mouseY = 0;
+        this.mouseX = 0; this.mouseY = 0; var T = cg.core;
         // 记录鼠标在canvas内的位置
         var recordMouseMove = function (eve) {
-            var pageX, pageY, x, y;
-            eve = cg.core.getEvent(eve);
+            var pageX, pageY, x, y; eve = T.getEvent(eve);
             pageX = eve.pageX || eve.clientX + document.documentElement.scrollLeft - document.documentElement.clientLeft;
             pageY = eve.pageY || eve.clientY + document.documentElement.scrollTop - document.documentElement.clientTop;
-            cg.input.mouseX = pageX - cg.x;
-            cg.input.mouseY = pageY - cg.y;
+            cg.input.mouseX = pageX - cg.x; cg.input.mouseY = pageY - cg.y;
         };
-        cg.core.bind(window, "mousemove", recordMouseMove);
-        // 被按下的键的集合
-        var pressed_keys = {};
-        // 要求禁止默认行为的键的集合
-        var preventDefault_keys = {};
-        // 键盘按下触发的处理函数
-        var keydown_callbacks = {};
-        // 键盘弹起触发的处理函数
-        var keyup_callbacks = {};
+        T.bind(window, "mousemove", recordMouseMove);
+        // 被按下的键的集合 & 要求禁止默认行为的键的集合 & 键盘按下触发的处理函数 & 键盘弹起触发的处理函数
+        var pressed_keys = {}, preventDefault_keys = {}, keydown_callbacks = {}, keyup_callbacks = {};
         // 键盘按键编码和键名
-        var k1 = { 8: "backspace", 9: "tab", 13: "enter", 16: "shift", 17: "ctrl", 18: "alt", 19: "pause", 20: "capslock", 27: "esc", 32: "space", 33: "pageup", 34: "pagedown" },
-            k2 = { 35: "end", 36: "home", 37: "left", 38: "up", 39: "right", 40: "down", 45: "insert", 46: "delete", 91: "leftwindowkey", 92: "rightwindowkey", 93: "selectkey" },
-            k3 = { 106: "multiply", 107: "add", 109: "subtract", 110: "decimalpoint", 111: "divide", 144: "numlock", 145: "scrollock", 186: "semicolon", 187: "equalsign" },
-            k4 = { 188: "comma", 189: "dash", 190: "period", 191: "forwardslash", 192: "graveaccent", 219: "openbracket", 220: "backslash", 221: "closebracket", 222: "singlequote" },
+        var k1 = { 8: "backspace", 9: "tab", 13: "enter", 16: "shift", 17: "ctrl", 18: "alt", 19: "pause", 20: "capslock", 27: "esc", 32: "space", 33: "pageup" },
+            k2 = { 34: "pagedown", 35: "end", 36: "home", 37: "left", 38: "up", 39: "right", 40: "down", 45: "insert", 46: "delete", 91: "leftwindowkey" },
+            k3 = { 92: "rightwindowkey", 93: "selectkey", 106: "multiply", 107: "add", 109: "subtract", 110: "decimalpoint", 111: "divide", 144: "numlock" },
+            k4 = { 145: "scrollock", 186: "semicolon", 187: "equalsign", 188: "comma", 189: "dash", 190: "period", 191: "forwardslash", 192: "graveaccent" },
+            k5 = { 219: "openbracket", 220: "backslash", 221: "closebracket", 222: "singlequote" };
             numpadkeys = ["numpad1", "numpad2", "numpad3", "numpad4", "numpad5", "numpad6", "numpad7", "numpad8", "numpad9"],
             fkeys = ["f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9"], numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
             letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
-        var k = cnGame.core.extend(k1, k2); k = cnGame.core.extend(k, k3); k = cnGame.core.extend(k, k4);
+        var k = cnGame.core.extend(k1, k2); k = cnGame.core.extend(k, k3); k = cnGame.core.extend(k, k4); k = cnGame.core.extend(k, k5);
         for (var i = 0; numbers[i]; i++) { k[48 + i] = numbers[i] }
         for (var i = 0; letters[i]; i++) { k[65 + i] = letters[i] }
         for (var i = 0; numpadkeys[i]; i++) { k[96 + i] = numpadkeys[i] }
         for (var i = 0; fkeys[i]; i++) { k[112 + i] = fkeys[i] }
 
         // 记录键盘按下的键
-        var recordPress = function (eve) {
-            eve = cg.core.getEvent(eve); var keyName = k[eve.keyCode]; pressed_keys[keyName] = true;
-            if (keydown_callbacks[keyName]) for (var i = 0, len = keydown_callbacks[keyName].length; i < len; i++) { keydown_callbacks[keyName][i]() };
+        var recordPress = function (e) {
+            e = T.getEvent(e); var kN = k[e.keyCode]; pressed_keys[kN] = true;
+            if (keydown_callbacks[kN]) for (var i = 0, len = keydown_callbacks[kN].length; i < len; i++) { keydown_callbacks[kN][i]() };
             if (keydown_callbacks["allKeys"]) for (var i = 0, len = keydown_callbacks["allKeys"].length; i < len; i++) { keydown_callbacks["allKeys"][i]() };
-            if (preventDefault_keys[keyName]) cg.core.preventDefault(eve);
+            if (preventDefault_keys[kN]) T.preventDefault(e);
         };
         // 记录键盘松开的键
         var recordUp = function (eve) {
-            eve = cg.core.getEvent(eve); var keyName = k[eve.keyCode]; pressed_keys[keyName] = false;
-            if (keyup_callbacks[keyName]) for (var i = 0, len = keyup_callbacks[keyName].length; i < len; i++) { keyup_callbacks[keyName][i]() };
+            eve = T.getEvent(eve); var kN = k[eve.keyCode]; pressed_keys[kN] = false;
+            if (keyup_callbacks[kN]) for (var i = 0, len = keyup_callbacks[kN].length; i < len; i++) { keyup_callbacks[kN][i]() };
             if (keyup_callbacks["allKeys"]) for (var i = 0, len = keyup_callbacks["allKeys"].length; i < len; i++) { keyup_callbacks["allKeys"][i]() };
-            if (preventDefault_keys[keyName]) cg.core.preventDefault(eve);
+            if (preventDefault_keys[kN]) T.preventDefault(eve);
         };
-        cg.core.bind(window, "keydown", recordPress); cg.core.bind(window, "keyup", recordUp);
+        T.bind(window, "keydown", recordPress); T.bind(window, "keyup", recordUp);
         // 判断某个键是否按下
         this.isPressed = function (keyName) { return !!pressed_keys[keyName] };
         // 禁止某个键按下的默认行为
-        this.preventDefault = function (keyName) {
-            if (cg.core.isArray(keyName)) { for (var i = 0; i < keyName.length; i++) { arguments.callee.call(this, keyName[i]) } } 
-            else { preventDefault_keys[keyName] = true }
-        };
+        this.preventDefault = function (n) {if (T.isArray(n)) {for (var i = 0; i < n.length; i++) {arguments.callee.call(this, n[i])}}else{preventDefault_keys[n] = true}};
         // 绑定键盘按下事件
         this.onKeyDown = function (keyName, handler) {
             keyName = keyName || "allKeys";
@@ -464,19 +417,13 @@
     cnGame.register("cnGame.shape", function (cg) {
         // 更新right和bottom
         function resetRightBottom(ele) { ele.right = ele.x + ele.width; ele.bottom = ele.y + ele.height };
-        // 矩形对象/
-        var rect = function (options) { if (!(this instanceof arguments.callee)) return new arguments.callee(options); this.init(options) };
-        rect.prototype = {
-            init(options) {
-                var defaultObj = { x: 0, y: 0, width: 100, height: 100, style: "red", isFill: true };
-                options = options || {}; options = cg.core.extend(defaultObj, options); this.setOptions(options); resetRightBottom(this);
-            },
+        
+        function Rect(options) { if (!(this instanceof arguments.callee)) return new arguments.callee(options); this.init(options) };
+        Rect.prototype = {
+            x: 0, y: 0, width: 100, height: 100, style: "red", isFill: true,
+            init(options) { options = options || {}; cg.core.extend(this, options); this.setOptions(this); resetRightBottom(this) },
             // 绘制矩形
-            setOptions(options) {
-                this.x = options.x || this.x; this.y = options.y || this.y;
-                this.width = options.width || this.width; this.height = options.height || this.height;
-                this.style = options.style || this.style; this.isFill = options.isFill || this.isFill;
-            },
+            setOptions(options) { cg.core.extend(this, options) },
             // 绘制矩形
             draw() {
                 var context = cg.context;
@@ -487,25 +434,19 @@
             // 将矩形移动一定距离
             move(dx, dy) { dx = dx || 0; dy = dy || 0; this.x += dx; this.y += dy; resetRightBottom(this); return this },
             // 将矩形移动到特定位置
-            moveTo(x, y) { x = x || this.x; y = y || this.y; this.x = x; this.y = y; resetRightBottom(this); return this },
+            moveTo(x, y) { x && (this.x = x); y && (this.y = y); resetRightBottom(this); return this },
             // 将矩形改变一定大小
-            resize(dWidth, dHeight) { dWidth = dWidth || 0; dHeight = dHeight || 0; this.width += dWidth; this.height += dHeight; resetRightBottom(this); return this },
+            resize(dW, dH) { dW = dW || 0; dH = dH || 0; this.width += dW; this.height += dH; resetRightBottom(this); return this },
             // 将矩形改变到特定大小
-            resizeTo(width, height) { width = width || this.width; height = height || this.height; this.width = width; this.height = height; resetRightBottom(this); return this },
+            resizeTo(w, h) { w && (this.width = w); h && (this.height = h); resetRightBottom(this); return this },
         };
         
-        var circle = function (options) { if (!(this instanceof arguments.callee)) return new arguments.callee(options); this.init(options) };
-        circle.prototype = {
-            init(options) {
-                var defaultObj = { x: 100, y: 100, r: 100, startAngle: 0, endAngle: Math.PI * 2, antiClock: false, style: "red", isFill: true };
-                options = options || {}; options = cg.core.extend(defaultObj, options); this.setOptions(options) 
-            },
+        function Circle(options) { if (!(this instanceof arguments.callee)) return new arguments.callee(options); this.init(options) };
+        Circle.prototype = {
+            x: 100, y: 100, r: 100, startAngle: 0, endAngle: Math.PI * 2, antiClock: false, style: "red", isFill: true,
+            init(o) { o = o || {}; cg.core.extend(this, o) },
             // 设置参数
-            setOptions(options) {
-                this.x = options.x || this.x; this.y = options.y || this.y; this.r = options.r || this.r;
-                this.startAngle = options.startAngle || this.startAngle; this.endAngle = options.endAngle || this.endAngle;
-                this.antiClock = options.antiClock || this.antiClock; this.isFill = options.isFill || this.isFill; this.style = options.style || this.style;
-            },
+            setOptions(options) { cg.core.extend(this, options) },
             // 绘制圆形
             draw() {
                 var context = cg.context; context.beginPath(); context.arc(this.x, this.y, this.r, this.startAngle, this.endAngle, this.antiClock); context.closePath();
@@ -522,30 +463,23 @@
             resizeTo(r) { r = r || this.r; this.r = r; return this }
         };
         
-        var text = function (text, options) { if (!(this instanceof arguments.callee)) return new arguments.callee(text, options); this.init(text, options) };
-        text.prototype = {
-            init(text, options) {
-                var defaultObj = { x: 100, y: 100, style: "red", isFill: true }; options = options || {}; options = cg.core.extend(defaultObj, options);
-                this.setOptions(options); this.text = text;
-            },
-            // 绘制
+        function Text(text, options) { if (!(this instanceof arguments.callee)) return new arguments.callee(text, options); this.init(text, options) };
+        Text.prototype = {
+            x: 100, y: 100, style: "red", isFill: true,
+            init(text, options) { options = options || {}; cg.core.extend(this, options); this.text = text},
             draw() {
-                var context = cg.context, isUn = cg.core.isUndefined;
-                !isUn(this.font) && (context.font = this.font);
-                !isUn(this.textBaseline) && (context.textBaseline = this.textBaseline);
-                !isUn(this.textAlign) && (context.textAlign = this.textAlign);
-                !isUn(this.maxWidth) && (context.maxWidth = this.maxWidth);
-                if (this.isFill) { context.fillStyle = this.style; this.maxWidth ? context.fillText(this.text, this.x, this.y, this.maxWidth) : context.fillText(this.text, this.x, this.y) } 
-                else { context.strokeStyle = this.style; this.maxWidth ? context.strokeText(this.text, this.x, this.y, this.maxWidth) : context.strokeText(this.text, this.x, this.y) }
+                var ctx = cg.context, isUn = cg.core.isUndefined;
+                !isUn(this.font) && (ctx.font = this.font); !isUn(this.textBaseline) && (ctx.textBaseline = this.textBaseline);
+                !isUn(this.textAlign) && (ctx.textAlign = this.textAlign); !isUn(this.maxWidth) && (ctx.maxWidth = this.maxWidth);
+                if (this.isFill) { 
+                    ctx.fillStyle = this.style; this.maxWidth ? ctx.fillText(this.text, this.x, this.y, this.maxWidth) : ctx.fillText(this.text, this.x, this.y) 
+                } else { 
+                    ctx.strokeStyle = this.style; this.maxWidth ? ctx.strokeText(this.text, this.x, this.y, this.maxWidth) : ctx.strokeText(this.text, this.x, this.y) 
+                }
             },
-            // 设置参数
-            setOptions(options) {
-                this.x = options.x || this.x; this.y = options.y || this.y; this.maxWidth = options.maxWidth || this.maxWidth;
-                this.font = options.font || this.font; this.textBaseline = options.textBaseline || this.textBaseline; this.textAlign = options.textAlign || this.textAlign;
-                this.isFill = options.isFill || this.isFill; this.style = options.style || this.style;
-            },
+            setOptions(options) { cg.core.extend(this, options) },
         };
-        this.Text = text; this.Rect = rect; this.Circle = circle;
+        this.Text = Text; this.Rect = Rect; this.Circle = Circle;
     });
 
     ////////////////////* 碰撞检测 *////////////////////
@@ -553,7 +487,8 @@
         // 点和矩形间的碰撞
         this.col_Point_Rect = (Px, Py, R) => (Px >= R.x && Px <= R.right) || (Py >= R.y && Py <= R.bottom);
         // 矩形和矩形间的碰撞
-        this.col_Between_Rects = (R1,R2) => ((R1.right>=R2.x && R1.right<=R2.right)||(R1.x>=R2.x && R1.x<=R2.right))&&((R1.bottom>=R2.y&&R1.bottom<=R2.bottom)||(R1.y<=R2.bottom&&R1.bottom>=R2.y));
+        this.col_Between_Rects = (R1,R2) => 
+            ((R1.right>=R2.x && R1.right<=R2.right)||(R1.x>=R2.x && R1.x<=R2.right))&&((R1.bottom>=R2.y&&R1.bottom<=R2.bottom)||(R1.y<=R2.bottom&&R1.bottom>=R2.y));
         // 点和圆形间的碰撞
         this.col_Point_Circle = (Px, Py, C) => Math.pow(Px - C.x, 2) + Math.pow(Py - C.y, 2) < Math.pow(C.r, 2);
         // 圆形和圆形间的碰撞
@@ -572,49 +507,35 @@
 
     ////////////////////* 地图 *////////////////////
     cnGame.register("cnGame", function (cg) {
-        var map = function (mapMatrix, options) { if (!(this instanceof arguments.callee)) return new arguments.callee(mapMatrix, options); this.init(mapMatrix, options) };
+        function map(MAP, opt) { if (!(this instanceof arguments.callee)) return new arguments.callee(MAP, opt); this.init(MAP, opt) };
         map.prototype = {
-            init: function (mapMatrix, options) {
-                // 方格宽高 地图起始x 地图起始y
-                var defaultObj = { cellSize: [32, 32], beginX: 0, beginY: 0 };
-                options = options || {}; options = cg.core.extend(defaultObj, options);
-                this.mapMatrix = mapMatrix;
-                this.cellSize = options.cellSize;
-                this.beginX = options.beginX; this.beginY = options.beginY;
-                this.row = mapMatrix.length; //有多少行
-            },
+            cellSize: [32, 32], beginX: 0, beginY: 0, // 方格宽高 地图起始x 地图起始y
+            init(MAP, opt) { opt = opt || {}; cg.core.extend(this, opt); this.mapMatrix = MAP; this.row = MAP.length },
             // 根据map矩阵绘制map
-            draw: function (options) {
-                //options：{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
-                var mapMatrix = this.mapMatrix, beginX = this.beginX, beginY = this.beginY, cellSize = this.cellSize, currentRow, currentCol, currentObj, row = this.row, img;
-                for (var i = beginY, ylen = beginY + row * cellSize[1]; i < ylen; i += cellSize[1]) {
-                    //根据地图矩阵，绘制每个方格
-                    currentRow = (i - beginY) / cellSize[1];
-                    for (var j = beginX, xlen = beginX + mapMatrix[currentRow].length * cellSize[0]; j < xlen; j += cellSize[0]) {
-                        currentCol = (j - beginX) / cellSize[0];
-                        currentObj = options[mapMatrix[currentRow][currentCol]];
-                        currentObj.x = currentObj.x || 0;
-                        currentObj.y = currentObj.y || 0;
-                        img = cg.loader.images[currentObj.src];
-                        cg.context.drawImage(img, currentObj.x, currentObj.y, cellSize[0], cellSize[1], j, i, cellSize[0], cellSize[1]); //绘制特定坐标的图像
-                        cg.context.strokeText(currentCol + "/" + currentRow, currentCol * cellSize[0] + 12, currentRow * cellSize[1] + 25);
+            draw(opt) { //options：{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
+                var MAP = this.mapMatrix, bX = this.beginX, bY = this.beginY, cS = this.cellSize, cRow, cCol, cObj, row = this.row, img;
+                for (var i = bY, ylen = bY + row * cS[1]; i < ylen; i += cS[1]) {
+                    cRow = (i - bY) / cS[1];
+                    for (var j = bX, xlen = bX + MAP[cRow].length * cS[0]; j < xlen; j += cS[0]) {
+                        cCol = (j - bX) / cS[0]; cObj = opt[MAP[cRow][cCol]]; cObj.x = cObj.x || 0; cObj.y = cObj.y || 0; img = cg.loader.images[cObj.src];
+                        cg.context.drawImage(img, cObj.x, cObj.y, cS[0], cS[1], j, i, cS[0], cS[1]); //绘制特定坐标的图像
+                        cg.context.strokeText(cCol + "/" + cRow, cCol * cS[0] + 12, cRow * cS[1] + 25);
                     }
                 }
             },
             // 获取特定对象在地图中处于的方格的值
-            getPosValue: function (x, y) {
+            getPosValue(x, y) {
                 if (cg.core.isObject(x)) { y = x.y; x = x.x }
-                var isUndefined = cg.core.isUndefined;
-                y = Math.floor(y / this.cellSize[1]); x = Math.floor(x / this.cellSize[0]);
+                var isUndefined = cg.core.isUndefined; y = Math.floor(y / this.cellSize[1]); x = Math.floor(x / this.cellSize[0]);
                 if (!isUndefined(this.mapMatrix[y]) && !isUndefined(this.mapMatrix[y][x])) return this.mapMatrix[y][x];
                 return undefined;
             },
             // 获取特定对象在layer中处于的方格索引
-            getCurrentIndex: function (x, y) { if (cg.core.isObject(x)) { y = x.y; x = x.x }; return [Math.floor(x / this.cellSize[0]), Math.floor(y / this.cellSize[1])] },
+            getCurrentIndex(x, y) { if (cg.core.isObject(x)) { y = x.y; x = x.x }; return [Math.floor(x / this.cellSize[0]), Math.floor(y / this.cellSize[1])] },
             // 获取特定对象是否刚好与格子重合
-            isMatchCell: function (x, y) { if (cg.core.isObject(x)) { y = x.y; x = x.x }; return x % this.cellSize[0] == 0 && y % this.cellSize[1] == 0 },
+            isMatchCell(x, y) { if (cg.core.isObject(x)) { y = x.y; x = x.x }; return x % this.cellSize[0] == 0 && y % this.cellSize[1] == 0 },
             // 设置layer对应位置的值
-            setPosValue: function (x, y, value) { this.mapMatrix[y][x] = value },
+            setPosValue(x, y, value) { this.mapMatrix[y][x] = value },
         };
         this.Map = map;
     });
@@ -628,72 +549,36 @@
             if (dir != "x") { if (sprite.y < 0) { sprite.y = 0 } else if (sprite.y > this.height - sprite.height) { sprite.y = this.height - sprite.height } }
         };
 
-        var view = function (options) { this.init(options) };
+        function view(options) { this.init(options) };
         view.prototype = {
+            width: cg.width, height: cg.height, imgWidth: cg.width, imgHeight: cg.height, x: 0, y: 0,
             init: function (options) {
-                var defaultObj = { width: cg.width, height: cg.height, imgWidth: cg.width, imgHeight: cg.height, x: 0, y: 0 };
-                options = options || {}; options = cg.core.extend(defaultObj, options);
-                this.player = options.player;
-                this.width = options.width;
-                this.height = options.height;
-                this.imgWidth = options.imgWidth;
-                this.imgHeight = options.imgHeight;
-                this.centerX = this.width / 2;
-                this.src = options.src;
-                this.x = options.x;
-                this.y = options.y;
-                this.insideArr = [];
-                this.isLoop = false;
-                this.isCenterPlayer = false;
-                this.onEnd = options.onEnd;
+                options = options || {}; cg.core.extend(this, options); this.centerX = this.width / 2; this.insideArr = []; this.isLoop = false; this.isCenterPlayer = false;
             },
             // 使player的位置保持在场景中点之前的移动背景
             centerPlayer(isLoop) { isLoop = isLoop || false; this.isLoop = isLoop; this.isCenterPlayer = true },
             // 使对象的位置保持在场景内
-            insideView(sprite, dir) {
-                //dir为限定哪个方向在view内，值为x或y，不传则两个方向皆限定
-                if (cg.core.isArray(sprite)) { for (var i = 0, len = sprite.length; i < len; i++) { arguments.callee.call(this, sprite[i], dir) } } 
+            insideView(sprite, dir) { //dir为限定哪个方向在view内，值为x或y，不传则两个方向皆限定
+                if (cg.core.isArray(sprite)) { for (var i = 0; i < sprite.length; i++) { arguments.callee.call(this, sprite[i], dir) } } 
                 else { sprite.insideDir = dir; this.insideArr.push(sprite) }
             },
             // 背景移动时的更新
-            update(spritelist) {
-                //传入所有sprite的数组
+            update(sl) { //传入所有sprite的数组
                 if (this.isCenterPlayer) {
                     if (this.player.x > this.centerX) {
                         if (this.x < this.imgWidth - this.width) {
-                            var marginX = this.player.x - this.centerX;
-                            this.x += marginX;
-                            if (spritelist) {
-                                for (var i = 0, len = spritelist.length; i < len; i++) {
-                                    if (spritelist[i] == this.player) {
-                                        spritelist[i].x = this.centerX;
-                                    } else {
-                                        spritelist[i].x -= marginX;
-                                    }
-                                }
-                            }
+                            var marginX = this.player.x - this.centerX; this.x += marginX;
+                            if (sl) { for (var i = 0; i < sl.length; i++) { sl[i] == this.player ? sl[i].x = this.centerX : sl[i].x -= marginX } }
                         } else if (this.isLoop) {
-                            if (spritelist) {
-                                for (var i = 0, len = spritelist.length; i < len; i++) {
-                                    if (spritelist[i] != this.player) {
-                                        spritelist[i].move(this.imgWidth - this.width);
-                                    }
-                                }
-                            }
+                            if (sl) { for (var i = 0; i < sl.length; i++) { if (sl[i] != this.player) sl[i].move(this.imgWidth - this.width) } }
                             this.x = 0;
-                        } else {
-                            this.onEnd && this.onEnd();
-                        }
+                        } else { this.onEnd && this.onEnd() }
                     }
                 }
-                for (var i = 0, len = this.insideArr.length; i < len; i++) {
-                    inside.call(this, this.insideArr[i]);
-                }
+                for (var i = 0, len = this.insideArr.length; i < len; i++) { inside.call(this, this.insideArr[i]) }
             },
             // 绘制场景
-            draw() {
-                cg.context.drawImage(cg.loader.loadedImgs[this.src], this.x, this.y, this.width, this.height, 0, 0, this.width, this.height);
-            },
+            draw() { cg.context.drawImage(cg.loader.loadedImgs[this.src], this.x, this.y, this.width, this.height, 0, 0, this.width, this.height) }
         };
         this.View = view;
     });
