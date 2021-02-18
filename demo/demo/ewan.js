@@ -1,49 +1,25 @@
 (function (W, U) {
-    W["cnGame"] = {
+    W.cnGame = {
         width: 800, height: 600, x: 0, y: 0,
         init: function (id, options) {
             options = options || {}; this.core.extend(this, options)
-            this.canvas = this.core.$(id || "canvas"); var canvasPos = this.core.getElementPos(this.canvas); this.x = canvasPos[0] || 0; this.y = canvasPos[1] || 0;
-            this.context = this.canvas.getContext("2d");
-            this.canvas.width = this.width; 
-            this.canvas.height = this.height;
-            this.canvas.style.left = this.x + "px";
-            this.canvas.style.top = this.y + "px";
-            !this.title && (this.title = this.core.$t("title")[0]);
+            this.canvas = this.core.$(id||"canvas"); this.context = this.canvas.getContext("2d");            
+            this.canvas.width = this.width;          this.canvas.height = this.height; var p=this.core.getElementPos(this.canvas); this.x = p[0] || 0; this.y = p[1] || 0;
+            this.canvas.style.left = this.x + "px";  this.canvas.style.top = this.y + "px"; !this.title && (this.title = this.core.$t("title")[0]);
         },
-        register: function (ns, fn) {
-            var parent = W, nsArr = ns.split(".");
-            for (var i = 0; i < nsArr.length; i++) { var n = nsArr[i]; typeof parent[n] == "undefined" && (parent[n] = {}); parent = parent[n] }
-            fn && fn.call(parent, this);
-            return parent;
-        },
+        register:function(s,f){var p=W,a=s.split(".");for(var i=0;i<a.length;i++) {var n=a[i];typeof p[n]=="undefined" && (p[n]={});p=p[n]};f&&f.call(p,this);return p},
         clean: function () { this.context.clearRect(this.width, this.height) },
         core: {
             $: id => document.getElementById(id),
             $t: (tagName, parent) => { parent = parent || document; return parent.getElementsByTagName(tagName) },
-            $c(className, parent) {
-                var eles = this.$t("*", parent), res = []; parent = parent || document; className = " " + className + " ";
-                for (var i = 0; i < eles.length; i++) { var el = eles[i], cN = " " + el.className + " "; cN.indexOf(className) > -1 && res.push(el) }
-                return res;
-            },
-            // 获取元素在页面中的位置 当存在 定位父元素 offsetLeft是相对于它的
+            $c(c,p){var t=this.$t("*",p),r=[];p=p||document;c=" "+c+" ";for(var i=0;i<t.length;i++){var e=t[i],cN=" "+e.className+" ";cN.indexOf(c)>-1&&r.push(e)};return r},
             getElementPos: el => { var l = 0, t = 0; while (el.offsetParent) { l += el.offsetLeft; t += el.offsetTop; el = el.offsetParent }; return [l, t] },
-            bind: (function () {
-                if (window.addEventListener) { return function (el, type, handler) { el.addEventListener(type, handler, false) } } 
-                else if (window.attachEvent) { return function (el, type, handler) { el.attachEvent("on" + type, handler) } }
-            })(),
-            unbind: (function () {
-                if (window.removeEventListerner) { return function (el, type, handler) { el.removeEventListerner(type, handler, false) } } 
-                else if (window.detachEvent) { return function (el, type, handler) { el.detachEvent("on" + type, handler) } }
-            })(),
+            bind: (() => window.addEventListener ? function (e, t, h) { e.addEventListener(t, h, false) } : function (e, t, h) { e.attachEvent("on" + t, h) } )(),
+            unbind: (() => window.addEventListener ? function (e, t, h) { e.removeEventListerner(t, h, false) } : function (e, t, h) { e.detachEvent("on" + t, h) } )(),
             getEvent: ev => ev || W.event,
             getTarget: function (ev) { ev = this.getEvent(ev); return ev.target || ev.srcElement },
             preventDefault: function (ev) { ev.preventDefault ? ev.preventDefault() : (ev.returnValue = false) },
-            getComputedStyle: (function () {
-                var body = document.body || document.documentElement;
-                if (body.currentStyle) { return function (el) { return el.currentStyle } } 
-                else if (document.defaultView.getComputedStyle) { return function (el) { return document.defaultView.getComputedStyle(el, null) } }
-            })(),
+            getStyle:(()=>{var b=document.body||document.documentElement; return b.currentStyle?e=>e.currentStyle:e=>document.defaultView.getComputedStyle(e,null)})(),
             isUndefined: x => typeof x === "undefined",
             isArray: elem => Object.prototype.toString.call(elem) === "[object Array]",
             isObject: elem => elem === Object(elem),
@@ -59,62 +35,27 @@
         var FILE_TYPE = { json: "json", wav: "audio", mp3: "audio", ogg: "audio", png: "image", jpg: "image", jpeg: "image", gif: "image", bmp: "image", tiff: "image" };
         var load = function (loader, type) {
             return function () {
-                loader.count++;
-                loader.images[this.srcHold] = this;
-                this.onLoad = null;                                         //资源的onLoad执行一次后销毁
+                loader.count++; loader.images[this.srcHold] = this; this.onLoad = null; //资源的onLoad执行一次后销毁
                 loader.onLoad && loader.onLoad(loader.count, loader.total);
-                if (loader.count === loader.total) {
-                    loader.count = 0;
-                    if (loader.gameObj && loader.gameObj.initialize) {
-                        loader.gameObj.initialize(loader.startOptions);
-                        if (cg.loop && !cg.loop.stop) cg.loop.end();        //结束上一个循环
-                        cg.loop = new cg.GameLoop(loader.gameObj);          //开始新游戏循环
-                        cg.loop.start();
-                    }
+                if (loader.count < loader.total) return;
+                loader.count = 0;
+                if (loader.gameObj && loader.gameObj.initialize) {
+                    loader.gameObj.initialize(loader.startOptions);
+                    if (cg.loop && !cg.loop.stop) cg.loop.end(); //结束上一个循环
+                    cg.loop = new cg.GameLoop(loader.gameObj); //开始新游戏循环
+                    cg.loop.start();
                 }
             };
         };
         this.loader = {
             total: 0, count: 0, images: {}, // 图片总数 & 图片已加载数 & 加载完成的资源
-            /**
-             * gameObj {
-             *     initialize: function (startOptions) {console.log("资源加载完成，游戏开始！")},
-             * }
-             * options {
-             *     srcArray: []                     资源列表
-             *     onLoad: function(count, total){} 第个资源加载完成回调 可获取进度
-             *     startOptions                     游戏开始需要的初始化参数
-             * }
-             *
-             * 属性
-             * images:{'path': 资源对象} 可通过 cnGame.loader.images['path']访问
-             **/
             start: function (gameObj, options) {
-                cg.spriteList.clean();
-                var srcArr = options.srcArray || [];
-
-                this.gameObj = gameObj;
-                this.startOptions = options.startOptions;
-                this.onLoad = options.onLoad;
-                this.total = srcArr.length;
-
-                for (var i = 0; i < srcArr.length; i++) {
-                    var path = srcArr[i], suffix = path.split(".")[1], type = FILE_TYPE[suffix];
-                    switch (type) {
-                        case "image":
-                            var img = new Image();
-                            cg.core.bind(img, "load", load(this, type));
-                            img.src = path;     // 默认情况下浏览器会把src参数转换成完整的图片路径
-                            img.srcHold = path; // 原始的src参数
-                            break;
-                        case "audio":
-                            var ado = new Audio(path);
-                            cg.core.bind(ado, "canplay", load(this, type));
-                            ado.onload = load(this, type);
-                            ado.src = path;
-                            ado.srcHold = path;
-                            break;
-                    }
+                cg.spriteList.clean(); var srcArr = options.srcArray || [];
+                this.gameObj = gameObj; this.startOptions = options.startOptions; this.onLoad = options.onLoad; this.total = srcArr.length;
+                for (var j = 0; j < srcArr.length; j++) {
+                    var path = srcArr[j], suffix = path.split(".")[1], type = FILE_TYPE[suffix];                    
+                    if (type === "image") { var i = new Image(); cg.core.bind(i,"load",load(this, type)); i.src = path; i.srcHold = path }
+                    if (type === "audio") { var a = new Audio(path); cg.core.bind(a,"canplay",load(this, type)); a.onload=load(this, type); a.src = path; a.srcHold = path }                   
                 }
             }
         };
@@ -123,42 +64,26 @@
     ////////////////////* 精灵表单 *////////////////////
     cnGame.register("cnGame", function (cg) {
         var path = 1; // 往返运动 1 -1
-        var caculateFrames = function (sheet) {
-            var frames = [], x, y, w = sheet.width, h = sheet.height, bX = sheet.beginX, bY = sheet.beginY, frameSize = sheet.frameSize, direction = sheet.direction;            
-            if (direction == "right") {
-                for (var y = bY; y < h; y += frameSize[1]) { for (var x = bX; x < w; x += frameSize[0]) { frames.push({x, y}) } }
-            } else {
-                for (var x = bX; x < w; x += frameSize[0]) { for (var y = bY; y < h; y += frameSize[1]) { frames.push({x, y}) } }
-            }
-            return frames;
+        var caculateFrames = function (sS) {
+            var f = [], x, y, w = sS.width, h = sS.height, X = sS.beginX, Y = sS.beginY, s = sS.frameSize, d = sS.direction;            
+            if (d == "right") { for (var y = Y; y < h; y += s[1]) { for (var x = X; x < w; x += s[0]) { f.push({x, y}) } } } 
+            else { for (var x = X; x < w; x += s[0]) { for (var y = Y; y < h; y += s[1]) { f.push({x, y}) } } }
+            return f;
         };
-
-        /**包含多帧图像的大图片
-         * 
-         */
-        spriteSheet = function (id, src, options) {
-            if (!(this instanceof arguments.callee))  return new arguments.callee(id, src, options);
-            this.init(id, src, options);
-        };
-        spriteSheet.prototype = { // 动画位置 & 图片宽高 & 循环播放&往返播放 & 截图图片的起始位置 & 每帧尺寸 & 每帧持续时间 & 读取帧的方向(从左到右或从上到下)
+        function SpriteSheet(id, src, options) { if (!(this instanceof arguments.callee))  return new arguments.callee(id, src, options); this.init(id, src, options) };
+        SpriteSheet.prototype = { // 动画位置 & 图片宽高 & 循环播放&往返播放 & 截图图片的起始位置 & 每帧尺寸 & 每帧持续时间 & 读取帧的方向(从左到右或从上到下)
             x: 0, y: 0, width: 120, height: 40, loop: false, bounce: false, beginX: 0, beginY: 0, frameSize: [40, 40], frameDuration: 100, direction: "right",
             init(id, src, options) {
-                options = options || {};
-                cg.core.extend(this, options)
-                this.id = id; 
-                this.src = src; 
-                this.image = cg.loader.images[src];    // 图片地址&图片对象
-                this.frames = caculateFrames(this); // 帧信息集合
-                this.currentIndex = 0;                 // 目前帧索引
-                this.now = new Date().getTime();       // 当前时间
-                this.last = new Date().getTime();      // 上一帧开始时间 
+                options = options || {}; cg.core.extend(this, options)
+                this.id = id;                       this.src = src; 
+                this.image = cg.loader.images[src]; this.frames = caculateFrames(this); // 图片地址&图片对象 & 帧信息集合
+                this.now = new Date().getTime();    this.last = new Date().getTime();      // 当前时间 & 上一帧开始时间
+                this.currentIndex = 0;                 // 目前帧索引 
             },
             update() {
-                this.now = new Date().getTime();
-                var frames = this.frames;
+                this.now = new Date().getTime(); var frames = this.frames;
                 if (this.now - this.last > this.frameDuration) { //如果间隔大于帧间间隔，则update
-                    var cI = this.currentIndex, len = frames.length;
-                    this.last = this.now;
+                    var cI = this.currentIndex, len = frames.length; this.last = this.now;
                     if (cI >= len - 1) {
                         if (this.loop) return frames[(this.currentIndex = 0)];
                         if (!this.bounce) { this.onFinish && this.onFinish(); this.onFinish = undefined; return frames[cI] } // 没有循环和往返 则停止在最后一帧
@@ -175,22 +100,17 @@
             // 在特定位置绘制该帧
             draw() { var cF = this.getCurrentFrame(), sz = this.frameSize,  w = sz[0], h = sz[1]; cg.context.drawImage(this.image, cF.x, cF.y, w, h, this.x, this.y, w, h) },
         };
-        this.SpriteSheet = spriteSheet;
+        this.SpriteSheet = SpriteSheet;
     });
 
     ////////////////////* 精灵对象 *////////////////////
     cnGame.register("cnGame", function (cg) {
-        var sprite = function (id, options) {
-            if (!(this instanceof arguments.callee)) return new arguments.callee(id, options);
-            this.init(id, options);
-        };
-        sprite.prototype = {
+        function Sprite(id, options) { if (!(this instanceof arguments.callee)) return new arguments.callee(id, options); this.init(id, options) };
+        Sprite.prototype = {
             x: 0, y: 0, imgX: 0, imgY: 0, width: 32, height: 32, angle: 0, speedX: 0, speedY: 0, rotateSpeed: 0, aR: 0, aX: 0, aY: 0, 
             maxSpeedX: Infinity, maxSpeedY: Infinity, maxX: Infinity, maxY: Infinity, minX: -Infinity, minY: -Infinity, minAngle: -Infinity, maxAngle: Infinity,
             init: function (options) {
-                options = options || {};
-                cg.core.extend(this, options);
-                this.spriteSheetList = {};
+                options = options || {}; cg.core.extend(this, options); this.spriteSheetList = {};
                 // 图片路径 或 spriteSheet对象
                 if (this.src) { this.setCurrentImage(this.src, this.imgX, this.imgY) } 
                 else if (this.spriteSheet) { this.addAnimation(this.spriteSheet); setCurrentAnimation(this.spriteSheet) }
@@ -207,16 +127,12 @@
             },
             // 判断当前动画是否为该id的动画
             isCurrentAnimation(id) {
-                if (cg.core.isString(id)) { return this.spriteSheet && this.spriteSheet.id === id } 
-                else if (cg.core.isObject(id)) { return this.spriteSheet === id }
+                if (cg.core.isString(id)) { return this.spriteSheet && this.spriteSheet.id === id } else if (cg.core.isObject(id)) { return this.spriteSheet === id }
             },
             // 设置当前显示图像
             setCurrentImage(src, imgX, imgY) {
-                if (this.isCurrentImage(src, imgX, imgY)) return;
-                imgX = imgX || 0; imgY = imgY || 0;
-                this.image = cg.loader.images[src];
-                this.imgX = imgX; this.imgY = imgY;
-                this.spriteSheet = undefined;
+                if (this.isCurrentImage(src, imgX, imgY)) return; imgX = imgX || 0; imgY = imgY || 0;
+                this.image = cg.loader.images[src]; this.imgX = imgX; this.imgY = imgY; this.spriteSheet = undefined;
             },
             // 判断当前图像是否为该src的图像
             isCurrentImage: function (src, imgX, imgY) {
@@ -224,23 +140,7 @@
                 if (cg.core.isString(src)) return image && image.srcPath === src && this.imgX === imgX && this.imgY === imgY;
             },
             // 设置移动参数
-            setMovement(options) {
-                var isUn = cg.core.isUndefined;
-                isUn(options.speedX) ? (this.speedX = this.speedX) : (this.speedX = options.speedX);
-                isUn(options.speedY) ? (this.speedY = this.speedY) : (this.speedY = options.speedY);
-                isUn(options.rotateSpeed) ? (this.rotateSpeed = this.rotateSpeed) : (this.rotateSpeed = options.rotateSpeed);
-                isUn(options.aX) ? (this.aR = this.aR) : (this.aR = options.aR);
-                isUn(options.aX) ? (this.aX = this.aX) : (this.aX = options.aX);
-                isUn(options.aY) ? (this.aY = this.aY) : (this.aY = options.aY);
-                isUn(options.maxX) ? (this.maxX = this.maxX) : (this.maxX = options.maxX);
-                isUn(options.maxY) ? (this.maxY = this.maxY) : (this.maxY = options.maxY);
-                isUn(options.maxAngle) ? (this.maxAngle = this.maxAngle) : (this.maxAngle = options.maxAngle);
-                isUn(options.minAngle) ? (this.minAngle = this.minAngle) : (this.minAngle = options.minAngle);
-                isUn(options.minX) ? (this.minX = this.minX) : (this.minX = options.minX);
-                isUn(options.minY) ? (this.minY = this.minY) : (this.minY = options.minY);
-                isUn(options.maxSpeedX) ? (this.maxSpeedX = this.maxSpeedX) : (this.maxSpeedX = options.maxSpeedX);
-                isUn(options.maxSpeedY) ? (this.maxSpeedY = this.maxSpeedY) : (this.maxSpeedY = options.maxSpeedY);
-            },
+            setMovement(options) { cg.core.extend(this, options) },
             // 重置移动参数回到初始值
             resetMovement() {
                 this.speedX = this.speedY = this.rotateSpeed = this.aX = this.aY = this.aR = 0;
@@ -248,7 +148,7 @@
                 this.minX = this.minY = this.minAngle = -Infinity;
             },
             // 更新位置和帧动画
-            update(duration) { //duration:��֡��ʱ ��λ����
+            update(duration) { 
                 this.speedX = this.speedX + this.aX * duration;
                 this.maxSpeedX < 0 && (this.maxSpeedX *= -1);
                 this.speedX < 0 ? (this.speedX = Math.max(this.speedX, this.maxSpeedX * -1)) : (this.speedX = Math.min(this.speedX, this.maxSpeedX));
@@ -272,24 +172,18 @@
                     context.restore();
                 }
             },
-            // 移动一定距离
             move(dx, dy) {
                 dx = dx || 0; dy = dy || 0; var x = this.x + dx, y = this.y + dy;
                 this.x = Math.min(Math.max(this.minX, x), this.maxX); this.y = Math.min(Math.max(this.minY, y), this.maxY);
                 return this;
             },
-            // 移动到某处
             moveTo(x, y) { this.x = Math.min(Math.max(this.minX, x), this.maxX); this.y = Math.min(Math.max(this.minY, y), this.maxY); return this },
-            // 旋转一定角度
             rotate(da) { da = da || 0; var angle = this.angle + da; this.angle = Math.min(Math.max(this.minAngle, angle), this.maxAngle); return this },
-            // 旋转到一定角度
             rotateTo(a) { this.angle = Math.min(Math.max(this.minAngle, a), this.maxAngle); return this },
-            // 改变一定尺寸
             resize(dw, dh) { this.width += dw; this.height += dh; return this },
-            // 改变到一定尺寸
             resizeTo(width, height) { this.width = width; this.height = height; return this }
         };
-        this.Sprite = sprite;
+        this.Sprite = Sprite;
     });
 
     ////////////////////* 精灵列表 *////////////////////
@@ -324,19 +218,13 @@
         gameLoop.prototype = {
             init(gameObj, options) {
                 options = options || {}; options = cg.core.extend({ fps: 1 }, options);
-                this.gameObj = gameObj;
-                this.fps = options.fps;
-                this.pause = false;
-                this.stop = true;
+                this.gameObj = gameObj; this.fps = options.fps; this.pause = false; this.stop = true;
                 interval = 1000 / this.fps;
             },
             start() {
                 if (!this.stop) return; // 如果是结束状态则可以开始                
                 var now = new Date().getTime();
-                this.stop = false;
-                this.startTime = now;
-                this.lastTime = now;
-                this.loopDuration = 0;
+                this.stop = false; this.startTime = now; this.lastTime = now; this.loopDuration = 0;
                 loop.call(this)();
             },
             run() { this.pause = false },
@@ -350,10 +238,10 @@
     cnGame.register("cnGame.input", function (cg) {
         this.mouseX = 0; this.mouseY = 0; var T = cg.core;
         // 记录鼠标在canvas内的位置
-        var recordMouseMove = function (eve) {
-            var pageX, pageY, x, y; eve = T.getEvent(eve);
-            pageX = eve.pageX || eve.clientX + document.documentElement.scrollLeft - document.documentElement.clientLeft;
-            pageY = eve.pageY || eve.clientY + document.documentElement.scrollTop - document.documentElement.clientTop;
+        var recordMouseMove = function (e) {
+            var pageX, pageY, x, y; e = T.getEvent(e);
+            pageX = e.pageX || e.clientX + document.documentElement.scrollLeft - document.documentElement.clientLeft;
+            pageY = e.pageY || e.clientY + document.documentElement.scrollTop - document.documentElement.clientTop;
             cg.input.mouseX = pageX - cg.x; cg.input.mouseY = pageY - cg.y;
         };
         T.bind(window, "mousemove", recordMouseMove);
@@ -373,7 +261,6 @@
         for (var i = 0; letters[i]; i++) { k[65 + i] = letters[i] }
         for (var i = 0; numpadkeys[i]; i++) { k[96 + i] = numpadkeys[i] }
         for (var i = 0; fkeys[i]; i++) { k[112 + i] = fkeys[i] }
-
         // 记录键盘按下的键
         var recordPress = function (e) {
             e = T.getEvent(e); var kN = k[e.keyCode]; pressed_keys[kN] = true;
@@ -382,11 +269,11 @@
             if (preventDefault_keys[kN]) T.preventDefault(e);
         };
         // 记录键盘松开的键
-        var recordUp = function (eve) {
-            eve = T.getEvent(eve); var kN = k[eve.keyCode]; pressed_keys[kN] = false;
+        var recordUp = function (e) {
+            e = T.getEvent(e); var kN = k[e.keyCode]; pressed_keys[kN] = false;
             if (keyup_callbacks[kN]) for (var i = 0, len = keyup_callbacks[kN].length; i < len; i++) { keyup_callbacks[kN][i]() };
             if (keyup_callbacks["allKeys"]) for (var i = 0, len = keyup_callbacks["allKeys"].length; i < len; i++) { keyup_callbacks["allKeys"][i]() };
-            if (preventDefault_keys[kN]) T.preventDefault(eve);
+            if (preventDefault_keys[kN]) T.preventDefault(e);
         };
         T.bind(window, "keydown", recordPress); T.bind(window, "keyup", recordUp);
         // 判断某个键是否按下
@@ -394,50 +281,33 @@
         // 禁止某个键按下的默认行为
         this.preventDefault = function (n) {if (T.isArray(n)) {for (var i = 0; i < n.length; i++) {arguments.callee.call(this, n[i])}}else{preventDefault_keys[n] = true}};
         // 绑定键盘按下事件
-        this.onKeyDown = function (keyName, handler) {
-            keyName = keyName || "allKeys";
-            if (cg.core.isUndefined(keydown_callbacks[keyName])) keydown_callbacks[keyName] = [];
-            keydown_callbacks[keyName].push(handler);
-        };
+        this.onKeyDown = function (k, f) { k = k || "allKeys"; if (cg.core.isUndefined(keydown_callbacks[k])) keydown_callbacks[k] = []; keydown_callbacks[k].push(f) };
         // 绑定键盘弹起事件
-        this.onKeyUp = function (keyName, handler) {
-            keyName = keyName || "allKeys";
-            if (cg.core.isUndefined(keyup_callbacks[keyName])) keyup_callbacks[keyName] = [];
-            keyup_callbacks[keyName].push(handler);
-        };
+        this.onKeyUp = function (k, f) { k = k || "allKeys"; if (cg.core.isUndefined(keyup_callbacks[k])) keyup_callbacks[k] = []; keyup_callbacks[k].push(f) };
         // 清除键盘按下事件处理程序
         this.clearDownCallbacks = function (keyName) { keyName ? (keydown_callbacks[keyName] = []) : (keydown_callbacks = {}) };
         // 清除键盘弹起事件处理程序
-        this.clearUpCallbacks = function (keyName) {
-            keyName ? (keyup_callbacks[keyName] = []) : (keyup_callbacks = {});
-        };
+        this.clearUpCallbacks = function (keyName) { keyName ? (keyup_callbacks[keyName] = []) : (keyup_callbacks = {}) };
     });
 
     ////////////////////* canvas基本形状对象 *////////////////////
     cnGame.register("cnGame.shape", function (cg) {
-        // 更新right和bottom
         function resetRightBottom(ele) { ele.right = ele.x + ele.width; ele.bottom = ele.y + ele.height };
         
         function Rect(options) { if (!(this instanceof arguments.callee)) return new arguments.callee(options); this.init(options) };
         Rect.prototype = {
             x: 0, y: 0, width: 100, height: 100, style: "red", isFill: true,
             init(options) { options = options || {}; cg.core.extend(this, options); this.setOptions(this); resetRightBottom(this) },
-            // 绘制矩形
             setOptions(options) { cg.core.extend(this, options) },
-            // 绘制矩形
             draw() {
-                var context = cg.context;
-                if (this.isFill) { context.fillStyle = this.style; context.fillRect(this.x, this.y, this.width, this.height) } 
-                else { context.strokeStyle = this.style; context.strokeRect(this.x, this.y, this.width, this.height) }
+                var c = cg.context;
+                if (this.isFill) { c.fillStyle = this.style; c.fillRect(this.x, this.y, this.width, this.height) } 
+                else { c.strokeStyle = this.style; c.strokeRect(this.x, this.y, this.width, this.height) }
                 return this;
             },
-            // 将矩形移动一定距离
             move(dx, dy) { dx = dx || 0; dy = dy || 0; this.x += dx; this.y += dy; resetRightBottom(this); return this },
-            // 将矩形移动到特定位置
             moveTo(x, y) { x && (this.x = x); y && (this.y = y); resetRightBottom(this); return this },
-            // 将矩形改变一定大小
             resize(dW, dH) { dW = dW || 0; dH = dH || 0; this.width += dW; this.height += dH; resetRightBottom(this); return this },
-            // 将矩形改变到特定大小
             resizeTo(w, h) { w && (this.width = w); h && (this.height = h); resetRightBottom(this); return this },
         };
         
@@ -445,21 +315,14 @@
         Circle.prototype = {
             x: 100, y: 100, r: 100, startAngle: 0, endAngle: Math.PI * 2, antiClock: false, style: "red", isFill: true,
             init(o) { o = o || {}; cg.core.extend(this, o) },
-            // 设置参数
             setOptions(options) { cg.core.extend(this, options) },
-            // 绘制圆形
             draw() {
-                var context = cg.context; context.beginPath(); context.arc(this.x, this.y, this.r, this.startAngle, this.endAngle, this.antiClock); context.closePath();
-                if (this.isFill) { context.fillStyle = this.style; context.fill() } 
-                else { context.strokeStyle = this.style; context.stroke() }
+                var c = cg.context; c.beginPath(); c.arc(this.x, this.y, this.r, this.startAngle, this.endAngle, this.antiClock); c.closePath();
+                if (this.isFill) { c.fillStyle = this.style; c.fill() } else { c.strokeStyle = this.style; c.stroke() }
             },
-            // 将圆形移动一定距离
             move(dx, dy) { dx = dx || 0; dy = dy || 0; this.x += dx; this.y += dy; return this },
-            // 将圆形移动到特定位置
             moveTo(x, y) { x = x || this.x; y = y || this.y; this.x = x; this.y = y; return this },
-            // 将圆形改变一定大小
             resize(dr) { dr = dr || 0; this.r += dr; return this },
-            // 将圆形改变到特定大小
             resizeTo(r) { r = r || this.r; this.r = r; return this }
         };
         
@@ -468,13 +331,15 @@
             x: 100, y: 100, style: "red", isFill: true,
             init(text, options) { options = options || {}; cg.core.extend(this, options); this.text = text},
             draw() {
-                var ctx = cg.context, isUn = cg.core.isUndefined;
-                !isUn(this.font) && (ctx.font = this.font); !isUn(this.textBaseline) && (ctx.textBaseline = this.textBaseline);
-                !isUn(this.textAlign) && (ctx.textAlign = this.textAlign); !isUn(this.maxWidth) && (ctx.maxWidth = this.maxWidth);
+                var c = cg.context, isUn = cg.core.isUndefined;
+                !isUn(this.font) && (c.font = this.font); 
+                !isUn(this.textBaseline) && (c.textBaseline = this.textBaseline);
+                !isUn(this.textAlign) && (c.textAlign = this.textAlign); 
+                !isUn(this.maxWidth) && (c.maxWidth = this.maxWidth);
                 if (this.isFill) { 
-                    ctx.fillStyle = this.style; this.maxWidth ? ctx.fillText(this.text, this.x, this.y, this.maxWidth) : ctx.fillText(this.text, this.x, this.y) 
+                    c.fillStyle = this.style; this.maxWidth ? c.fillText(this.text, this.x, this.y, this.maxWidth) : c.fillText(this.text, this.x, this.y) 
                 } else { 
-                    ctx.strokeStyle = this.style; this.maxWidth ? ctx.strokeText(this.text, this.x, this.y, this.maxWidth) : ctx.strokeText(this.text, this.x, this.y) 
+                    c.strokeStyle = this.style; this.maxWidth ? c.strokeText(this.text, this.x, this.y, this.maxWidth) : c.strokeText(this.text, this.x, this.y) 
                 }
             },
             setOptions(options) { cg.core.extend(this, options) },
@@ -484,15 +349,10 @@
 
     ////////////////////* 碰撞检测 *////////////////////
     cnGame.register("cnGame.collision", function (cg) {
-        // 点和矩形间的碰撞
-        this.col_Point_Rect = (Px, Py, R) => (Px >= R.x && Px <= R.right) || (Py >= R.y && Py <= R.bottom);
-        // 矩形和矩形间的碰撞
-        this.col_Between_Rects = (R1,R2) => 
-            ((R1.right>=R2.x && R1.right<=R2.right)||(R1.x>=R2.x && R1.x<=R2.right))&&((R1.bottom>=R2.y&&R1.bottom<=R2.bottom)||(R1.y<=R2.bottom&&R1.bottom>=R2.y));
-        // 点和圆形间的碰撞
-        this.col_Point_Circle = (Px, Py, C) => Math.pow(Px - C.x, 2) + Math.pow(Py - C.y, 2) < Math.pow(C.r, 2);
-        // 圆形和圆形间的碰撞
-        this.col_between_Circles = (C1, C2) => Math.pow(C1.x - C2.x, 2) + Math.pow(C1.y - C2.y, 2) < Math.pow((C1.r + C2).r, 2);
+        this.P_R = (Px, Py, R) => (Px >= R.x && Px <= R.right) || (Py >= R.y && Py <= R.bottom);
+        this.R_R = (r, R) => ((r.right>=R.x && r.right<=R.right) || (r.x>=R.x && r.x<=R.right)) && ((r.bottom>=R.y&&r.bottom<=R.bottom) || (r.y<=R.bottom&&r.bottom>=R.y));
+        this.P_C = (Px, Py, C) => Math.pow(Px - C.x, 2) + Math.pow(Py - C.y, 2) < Math.pow(C.r, 2);
+        this.C_C = (C1, C2) => Math.pow(C1.x - C2.x, 2) + Math.pow(C1.y - C2.y, 2) < Math.pow((C1.r + C2).r, 2);
     });
 
     ////////////////////* 精灵列表 *////////////////////
@@ -507,8 +367,8 @@
 
     ////////////////////* 地图 *////////////////////
     cnGame.register("cnGame", function (cg) {
-        function map(MAP, opt) { if (!(this instanceof arguments.callee)) return new arguments.callee(MAP, opt); this.init(MAP, opt) };
-        map.prototype = {
+        function Map(MAP, opt) { if (!(this instanceof arguments.callee)) return new arguments.callee(MAP, opt); this.init(MAP, opt) };
+        Map.prototype = {
             cellSize: [32, 32], beginX: 0, beginY: 0, // 方格宽高 地图起始x 地图起始y
             init(MAP, opt) { opt = opt || {}; cg.core.extend(this, opt); this.mapMatrix = MAP; this.row = MAP.length },
             // 根据map矩阵绘制map
@@ -537,7 +397,7 @@
             // 设置layer对应位置的值
             setPosValue(x, y, value) { this.mapMatrix[y][x] = value },
         };
-        this.Map = map;
+        this.Map = Map;
     });
 
     ////////////////////* 场景 *////////////////////
@@ -549,12 +409,10 @@
             if (dir != "x") { if (sprite.y < 0) { sprite.y = 0 } else if (sprite.y > this.height - sprite.height) { sprite.y = this.height - sprite.height } }
         };
 
-        function view(options) { this.init(options) };
-        view.prototype = {
+        function View(options) { this.init(options) };
+        View.prototype = {
             width: cg.width, height: cg.height, imgWidth: cg.width, imgHeight: cg.height, x: 0, y: 0,
-            init: function (options) {
-                options = options || {}; cg.core.extend(this, options); this.centerX = this.width / 2; this.insideArr = []; this.isLoop = false; this.isCenterPlayer = false;
-            },
+            init(o) { o = o || {}; cg.core.extend(this, o); this.centerX = this.width / 2; this.insideArr = []; this.isLoop = false; this.isCenterPlayer = false },
             // 使player的位置保持在场景中点之前的移动背景
             centerPlayer(isLoop) { isLoop = isLoop || false; this.isLoop = isLoop; this.isCenterPlayer = true },
             // 使对象的位置保持在场景内
@@ -577,9 +435,22 @@
                 }
                 for (var i = 0, len = this.insideArr.length; i < len; i++) { inside.call(this, this.insideArr[i]) }
             },
-            // 绘制场景
             draw() { cg.context.drawImage(cg.loader.loadedImgs[this.src], this.x, this.y, this.width, this.height, 0, 0, this.width, this.height) }
         };
-        this.View = view;
+        this.View = View;
     });
 })(window, undefined);
+
+/**
+             * gameObj {
+             *     initialize: function (startOptions) {console.log("资源加载完成，游戏开始！")},
+             * }
+             * options {
+             *     srcArray: []                     资源列表
+             *     onLoad: function(count, total){} 第个资源加载完成回调 可获取进度
+             *     startOptions                     游戏开始需要的初始化参数
+             * }
+             *
+             * 属性
+             * images:{'path': 资源对象} 可通过 cnGame.loader.images['path']访问
+             **/
