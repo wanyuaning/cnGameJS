@@ -1,21 +1,21 @@
-// {
-//     "editor.formatOnSave": true,
-//     "editor.tabSize": 4,
-//     "prettier.tabWidth": 4,
-//     "vetur.format.defaultFormatter.html": "prettier",
-//     "[javascript]": {
-//         "editor.defaultFormatter": "esbenp.prettier-vscode"
-//     },
-//     "[vue]": {
-//         "editor.defaultFormatter": "esbenp.prettier-vscode"
-//     },
-//     "[html]": {
-//         "editor.defaultFormatter": "esbenp.prettier-vscode"
-//     },
-//     "launch": {
+{
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "prettier.tabWidth": 4,
+    "vetur.format.defaultFormatter.html": "prettier",
+    "editor.minimap.enabled":   false,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[vue]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "launch": {
 
-//         "configurations": [],
-//         "compounds": []
-//     }
-// }
-{"editor.minimap.enabled":   false}
+        "configurations": [],
+        "compounds": []
+    }
+}
