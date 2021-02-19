@@ -1521,3 +1521,8 @@
         this.View = view;
     });
 })(window, undefined);
+
+// v1.1
+cnGame.clean = function () {
+    this.context.clearRect(this.width, this.height);
+};
