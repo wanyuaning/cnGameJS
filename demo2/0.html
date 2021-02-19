@@ -30,7 +30,7 @@
         cnGame.init("gameCanvas", { width: 500, height: 400 });
 
         var gameStart = function () {
-            cnGame.loader.start([srcObj.backgroundSrc, srcObj.playerSrc, srcObj.enemySrc, srcObj.stoneSrc, srcObj.stoneSrc2, srcObj.bulletSrc, srcObj.pillarSrc], maryGame);
+            cnGame.loader.start(maryGame, { srcArray: [srcObj.backgroundSrc, srcObj.playerSrc, srcObj.enemySrc, srcObj.stoneSrc, srcObj.stoneSrc2, srcObj.bulletSrc, srcObj.pillarSrc] });
             cnGame.input.clearDownCallbacks("enter"); //��ִֻ֤��һ��
         };
         /* ��Ϸ��ʼ������� */
@@ -309,6 +309,6 @@
             };
         })();
 
-        cnGame.loader.start([srcObj.startSrc], menuObj);
+        cnGame.loader.start(menuObj, { srcArray: [srcObj.startSrc] }); //start(src, gameObj, onLoad)  => start(gameObj, options)
     </script>
 </html>

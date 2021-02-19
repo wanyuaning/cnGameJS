@@ -222,22 +222,36 @@
      *
      **/
     cnGame.register("cnGame", function (cg) {
+        var file_type = {};
+        file_type["json"] = "json";
+        file_type["wav"] = "audio";
+        file_type["mp3"] = "audio";
+        file_type["ogg"] = "audio";
+        file_type["png"] = "image";
+        file_type["jpg"] = "image";
+        file_type["jpeg"] = "image";
+        file_type["gif"] = "image";
+        file_type["bmp"] = "image";
+        file_type["tiff"] = "image";
+        var postfix_regexp = /\.([a-zA-Z0-9]+)/;
         /**
          *ͼ�������ϵĴ�������
          **/
-        var imgLoad = function (self) {
+        var resourceLoad = function (self, type) {
             return function () {
                 self.loadedCount += 1;
-                self.loadedImgs[this.srcPath] = this;
+                type == "image" && (self.loadedImgs[this.srcPath] = this);
+                type == "audio" && (self.loadedAudios[this.srcPath] = this);
                 this.onLoad = null; //��֤ͼƬ��onLoadִ��һ�κ�����
                 self.loadedPercent = Math.floor((self.loadedCount / self.sum) * 100);
                 self.onLoad && self.onLoad(self.loadedPercent);
                 if (self.loadedPercent === 100) {
                     self.loadedCount = 0;
                     self.loadedPercent = 0;
-                    loadingImgs = {};
+                    type == "image" && (self.loadingImgs = {});
+                    type == "audio" && (self.loadingAudios = {});
                     if (self.gameObj && self.gameObj.initialize) {
-                        self.gameObj.initialize();
+                        self.gameObj.initialize(self.startOptions);
                         if (cg.loop && !cg.loop.stop) {
                             //������һ��ѭ��
                             cg.loop.end();
@@ -256,21 +270,38 @@
             loadedCount: 0, //ͼƬ�Ѽ�����
             loadingImgs: {}, //δ����ͼƬ����
             loadedImgs: {}, //�Ѽ���ͼƬ����
+            loadingAudios: {}, //δ������Ƶ����
+            loadedAudios: {}, //�Ѽ�����Ƶ����
             /**
              *ͼ����أ�֮��������Ϸ
              **/
-            start: function (src, gameObj, onLoad) {
-                //�ɴ���src����򵥸�src "xxx.jpg" or ["xxx.jpg","ggg,gif","www.png"]
+            start: function (gameObj, options) {
+                //options:srcArray,onload
+                var srcArr = options.srcArray;
 
-                if (cg.core.isArray(src)) {
-                    this.sum = src.length;
-                    for (var i = 0, len = src.length; i < len; i++) {
-                        this.gameObj = gameObj;
-                        this.onLoad = onLoad;
-                        this.loadingImgs[src[i]] = new Image();
-                        this.loadingImgs[src[i]].onload = imgLoad(this);
-                        this.loadingImgs[src[i]].src = src[i];
-                        this.loadingImgs[src[i]].srcPath = src[i]; //û�о����Զ��任��src
+                this.gameObj = gameObj;
+                this.startOptions = options.startOptions; //��Ϸ��ʼ��Ҫ�ĳ�ʼ������
+                this.onLoad = options.onLoad;
+                cg.spriteList.clean();
+
+                if (cg.core.isArray(srcArr)) {
+                    this.sum = srcArr.length;
+                    for (var i = 0, len = srcArr.length; i < len; i++) {
+                        var path = srcArr[i];
+                        var suffix = srcArr[i].substring(srcArr[i].lastIndexOf(".") + 1);
+                        var type = file_type[suffix];
+                        if (type == "image") {
+                            this.loadingImgs[path] = new Image();
+                            cg.core.bindHandler(this.loadingImgs[path], "load", resourceLoad(this, type));
+                            this.loadingImgs[path].src = path;
+                            this.loadingImgs[path].srcPath = path; //û�о����Զ��任��src
+                        } else if (type == "audio") {
+                            this.loadingAudios[path] = new Audio(path);
+                            cg.core.bindHandler(this.loadingAudios[path], "canplay", resourceLoad(this, type));
+                            this.loadingAudios[path].onload = resourceLoad(this, type);
+                            this.loadingAudios[path].src = path;
+                            this.loadingAudios[path].srcPath = path; //û�о����Զ��任��src
+                        }
                     }
                 }
             },
@@ -776,13 +807,13 @@
          *��;��μ����ײ
          **/
         this.col_Point_Rect = function (pointX, pointY, rectObj) {
-            return (pointX > rectObj.x && pointX < rectObj.right) || (pointY > rectObj.y && pointY < rectObj.bottom);
+            return (pointX >= rectObj.x && pointX <= rectObj.right) || (pointY >= rectObj.y && pointY <= rectObj.bottom);
         };
         /**
          *���κ;��μ����ײ
          **/
         this.col_Between_Rects = function (rectObjA, rectObjB) {
-            return ((rectObjA.right > rectObjB.x && rectObjA.right < rectObjB.right) || (rectObjA.x > rectObjB.x && rectObjA.x < rectObjB.right)) && ((rectObjA.bottom > rectObjB.y && rectObjA.bottom < rectObjB.bottom) || (rectObjA.y < rectObjB.bottom && rectObjA.bottom > rectObjB.y));
+            return ((rectObjA.right >= rectObjB.x && rectObjA.right <= rectObjB.right) || (rectObjA.x >= rectObjB.x && rectObjA.x <= rectObjB.right)) && ((rectObjA.bottom >= rectObjB.y && rectObjA.bottom <= rectObjB.bottom) || (rectObjA.y <= rectObjB.bottom && rectObjA.bottom >= rectObjB.y));
         };
         /**
          *���Բ�μ����ײ
@@ -890,7 +921,7 @@
                 this.beginY = options.beginY; //��ͼͼƬ����ʼλ��Y
                 this.loop = options.loop; //�Ƿ�ѭ������
                 this.bounce = options.bounce; //�Ƿ���������
-                this.onFinsh = options.onFinsh; //������Ϻ�Ļص�����
+                this.onFinish = options.onFinish; //������Ϻ�Ļص�����
                 this.frames = caculateFrames(options); //֡��Ϣ����
                 this.now = new Date().getTime(); //��ǰʱ��
                 this.last = new Date().getTime(); //��һ֡��ʼʱ��
@@ -913,8 +944,8 @@
                             return frames[(this.currentIndex = 0)];
                         } else if (!this.bounce) {
                             //û��ѭ������û��������������ֹͣ�����һ֡
-                            this.onFinsh && this.onFinsh();
-                            this.onFinsh = undefined;
+                            this.onFinish && this.onFinish();
+                            this.onFinish = undefined;
                             return frames[currentIndex];
                         }
                     }
@@ -984,6 +1015,8 @@
                     angle: 0,
                     speedX: 0,
                     speedY: 0,
+                    rotateSpeed: 0,
+                    aR: 0,
                     aX: 0,
                     aY: 0,
                     maxSpeedX: postive_infinity,
@@ -992,6 +1025,8 @@
                     maxY: postive_infinity,
                     minX: -postive_infinity,
                     minY: -postive_infinity,
+                    minAngle: -postive_infinity,
+                    maxAngle: postive_infinity,
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
@@ -1003,12 +1038,16 @@
                 this.angle = options.angle;
                 this.speedX = options.speedX;
                 this.speedY = options.speedY;
+                this.rotateSpeed = options.rotateSpeed;
+                this.aR = options.aR;
                 this.aX = options.aX;
                 this.aY = options.aY;
                 this.maxSpeedX = options.maxSpeedX;
                 this.maxSpeedY = options.maxSpeedY;
                 this.maxX = options.maxX;
                 this.maxY = options.maxY;
+                this.maxAngle = options.maxAngle;
+                this.minAngle = options.minAngle;
                 this.minX = options.minX;
                 this.minY = options.minY;
 
@@ -1091,24 +1130,20 @@
                 isUndefined = cg.core.isUndefined;
                 isUndefined(options.speedX) ? (this.speedX = this.speedX) : (this.speedX = options.speedX);
                 isUndefined(options.speedY) ? (this.speedY = this.speedY) : (this.speedY = options.speedY);
-
+                isUndefined(options.rotateSpeed) ? (this.rotateSpeed = this.rotateSpeed) : (this.rotateSpeed = options.rotateSpeed);
+                isUndefined(options.aX) ? (this.aR = this.aR) : (this.aR = options.aR);
                 isUndefined(options.aX) ? (this.aX = this.aX) : (this.aX = options.aX);
                 isUndefined(options.aY) ? (this.aY = this.aY) : (this.aY = options.aY);
                 isUndefined(options.maxX) ? (this.maxX = this.maxX) : (this.maxX = options.maxX);
                 isUndefined(options.maxY) ? (this.maxY = this.maxY) : (this.maxY = options.maxY);
+                isUndefined(options.maxAngle) ? (this.maxAngle = this.maxAngle) : (this.maxAngle = options.maxAngle);
+                isUndefined(options.minAngle) ? (this.minAngle = this.minAngle) : (this.minAngle = options.minAngle);
                 isUndefined(options.minX) ? (this.minX = this.minX) : (this.minX = options.minX);
                 isUndefined(options.minY) ? (this.minY = this.minY) : (this.minY = options.minY);
 
-                if (this.aX != 0) {
-                    this.startTimeX = new Date().getTime();
-                    this.oriSpeedX = this.speedX;
-                    isUndefined(options.maxSpeedX) ? (this.maxSpeedX = this.maxSpeedX) : (this.maxSpeedX = options.maxSpeedX);
-                }
-                if (this.aY != 0) {
-                    this.startTimeY = new Date().getTime();
-                    this.oriSpeedY = this.speedY;
-                    isUndefined(options.maxSpeedY) ? (this.maxSpeedY = this.maxSpeedY) : (this.maxSpeedY = options.maxSpeedY);
-                }
+                isUndefined(options.maxSpeedX) ? (this.maxSpeedX = this.maxSpeedX) : (this.maxSpeedX = options.maxSpeedX);
+
+                isUndefined(options.maxSpeedY) ? (this.maxSpeedY = this.maxSpeedY) : (this.maxSpeedY = options.maxSpeedY);
             },
             /**
              *�����ƶ������ص���ʼֵ
@@ -1116,38 +1151,46 @@
             resetMovement: function () {
                 this.speedX = 0;
                 this.speedY = 0;
+                this.rotateSpeed = 0;
                 this.aX = 0;
                 this.aY = 0;
+                this.aR = 0;
                 this.maxSpeedX = postive_infinity;
                 this.maxSpeedY = postive_infinity;
                 this.maxX = postive_infinity;
                 this.minX = -postive_infinity;
                 this.maxY = postive_infinity;
                 this.minY = -postive_infinity;
+                this.maxAngle = postive_infinity;
+                this.minAngle = -postive_infinity;
             },
             /**
              *����λ�ú�֡����
              **/
-            update: function () {
-                if (this.aX != 0) {
-                    var now = new Date().getTime();
-                    var durationX = now - this.startTimeX;
-                    var speedX = this.oriSpeedX + (this.aX * durationX) / 1000;
-                    if (this.maxSpeedX < 0) {
-                        this.maxSpeedX *= -1;
-                    }
-                    if (speedX < 0) {
-                        this.speedX = Math.max(speedX, this.maxSpeedX * -1);
-                    } else {
-                        this.speedX = Math.min(speedX, this.maxSpeedX);
-                    }
+            update: function (duration) {
+                //duration:��֡��ʱ ��λ����
+                this.speedX = this.speedX + this.aX * duration;
+                if (this.maxSpeedX < 0) {
+                    this.maxSpeedX *= -1;
                 }
-                if (this.aY != 0) {
-                    var now = new Date().getTime();
-                    var durationY = now - this.startTimeY;
-                    this.speedY = this.oriSpeedY + (this.aY * durationY) / 1000;
+                if (this.speedX < 0) {
+                    this.speedX = Math.max(this.speedX, this.maxSpeedX * -1);
+                } else {
+                    this.speedX = Math.min(this.speedX, this.maxSpeedX);
                 }
-                this.move(this.speedX, this.speedY);
+
+                this.speedY = this.speedY + this.aY * duration;
+                if (this.maxSpeedY < 0) {
+                    this.maxSpeedY *= -1;
+                }
+                if (this.speedY < 0) {
+                    this.speedY = Math.max(this.speedY, this.maxSpeedY * -1);
+                } else {
+                    this.speedY = Math.min(this.speedY, this.maxSpeedY);
+                }
+                this.rotateSpeed = this.rotateSpeed + this.aR * duration;
+
+                this.rotate(this.rotateSpeed).move(this.speedX, this.speedY);
 
                 if (this.spriteSheet) {
                     //����spriteSheet����
@@ -1161,15 +1204,19 @@
              **/
             draw: function () {
                 var context = cg.context;
+                var halfWith;
+                var halfHeight;
                 if (this.spriteSheet) {
                     this.spriteSheet.x = this.x;
                     this.spriteSheet.y = this.y;
                     this.spriteSheet.draw();
                 } else if (this.image) {
                     context.save();
-                    context.translate(this.x, this.y);
-                    context.rotate((this.angle * Math.PI) / 180);
-                    context.drawImage(this.image, this.imgX, this.imgY, this.width, this.height, 0, 0, this.width, this.height);
+                    halfWith = this.width / 2;
+                    halfHeight = this.height / 2;
+                    context.translate(this.x + halfWith, this.y + halfHeight);
+                    context.rotate(((this.angle * Math.PI) / 180) * -1);
+                    context.drawImage(this.image, this.imgX, this.imgY, this.width, this.height, -halfWith, -halfHeight, this.width, this.height);
                     context.restore();
                 }
             },
@@ -1197,14 +1244,17 @@
              *��תһ���Ƕ�
              **/
             rotate: function (da) {
-                this.angle += da;
+                da = da || 0;
+                var angle = this.angle + da;
+
+                this.angle = Math.min(Math.max(this.minAngle, angle), this.maxAngle);
                 return this;
             },
             /**
              *��ת��һ���Ƕ�
              **/
-            rotateTo: function () {
-                this.angle = da;
+            rotateTo: function (a) {
+                this.angle = Math.min(Math.max(this.minAngle, a), this.maxAngle);
                 return this;
             },
             /**
@@ -1229,6 +1279,33 @@
 
     /**
      *
+     *sprite�б�
+     *
+     **/
+    cnGame.register("cnGame", function (cg) {
+        var spriteList = {
+            length: 0,
+            add: function (sprite) {
+                Array.prototype.push.call(this, sprite);
+            },
+            remove: function (sprite) {
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if (this[i] === sprite) {
+                        Array.prototype.splice.call(this, i, 1);
+                    }
+                }
+            },
+            clean: function () {
+                for (var i = 0, len = this.length; i < len; i++) {
+                    Array.prototype.pop.call(this);
+                }
+            },
+        };
+        this.spriteList = spriteList;
+    });
+
+    /**
+     *
      *��Ϸѭ��
      *
      **/
@@ -1242,16 +1319,26 @@
             var self = this;
             return function () {
                 if (!self.pause && !self.stop) {
-                    self.now = new Date().getTime();
-                    self.duration = self.startTime - self.now;
+                    var now = new Date().getTime();
+                    var duration = (now - self.lastTime) / 1000; //֡��ʱ
+                    var spriteList = cg.spriteList;
+                    self.loopDuration = (self.startTime - self.now) / 1000;
 
                     if (self.gameObj.update) {
-                        self.gameObj.update();
+                        //������Ϸ�����update
+                        self.gameObj.update(duration);
                     }
                     if (self.gameObj.draw) {
                         cg.context.clearRect(0, 0, cg.width, cg.height);
                         self.gameObj.draw();
                     }
+                    for (var i = 0, len = spriteList.length; i < len; i++) {
+                        //��������sprite
+
+                        spriteList[i].update(duration);
+                        spriteList[i].draw();
+                    }
+                    self.lastTime = now;
                 }
                 timeId = window.setTimeout(arguments.callee, interval);
             };
@@ -1292,10 +1379,10 @@
                 if (this.stop) {
                     //����ǽ���״̬����Կ�ʼ
                     this.stop = false;
-
-                    this.now = new Date().getTime();
-                    this.startTime = new Date().getTime();
-                    this.duration = 0;
+                    var now = new Date().getTime();
+                    this.startTime = now;
+                    this.lastTime = now;
+                    this.loopDuration = 0;
                     loop.call(this)();
                 }
             },
@@ -1375,6 +1462,8 @@
                     for (var j = beginX, xlen = beginX + mapMatrix[currentRow].length * cellSize[0]; j < xlen; j += cellSize[0]) {
                         currentCol = (j - beginX) / cellSize[0];
                         currentObj = options[mapMatrix[currentRow][currentCol]];
+                        currentObj.x = currentObj.x || 0;
+                        currentObj.y = currentObj.y || 0;
                         img = cg.loader.loadedImgs[currentObj.src];
                         cg.context.drawImage(img, currentObj.x, currentObj.y, cellSize[0], cellSize[1], j, i, cellSize[0], cellSize[1]); //�����ض������ͼ��
                     }
@@ -1383,8 +1472,44 @@
             /**
              *��ȡ�ض������ڵ�ͼ�д��ڵķ����ֵ
              **/
-            getPosValue: function (elem) {
-                return this.mapMatrix[Math.floor(elem.y / this.cellSize[1])][Math.floor(elem.x / this.cellSize[0])];
+            getPosValue: function (x, y) {
+                if (cg.core.isObject(x)) {
+                    y = x.y;
+                    x = x.x;
+                }
+                var isUndefined = cg.core.isUndefined;
+                y = Math.floor(y / this.cellSize[1]);
+                x = Math.floor(x / this.cellSize[0]);
+                if (!isUndefined(this.mapMatrix[y]) && !isUndefined(this.mapMatrix[y][x])) {
+                    return this.mapMatrix[y][x];
+                }
+                return undefined;
+            },
+            /**
+             *��ȡ�ض������ڵ�ͼ�д��ڵķ�������
+             **/
+            getCurrentIndex: function (x, y) {
+                if (cg.core.isObject(x)) {
+                    y = x.y;
+                    x = x.x;
+                }
+                return [Math.floor(x / this.cellSize[0]), Math.floor(y / this.cellSize[1])];
+            },
+            /**
+             *��ȡ�ض������Ƿ�պ�������غ�
+             **/
+            isMatchCell: function (x, y) {
+                if (cg.core.isObject(x)) {
+                    y = x.y;
+                    x = x.x;
+                }
+                return x % this.cellSize[0] == 0 && y % this.cellSize[1] == 0;
+            },
+            /**
+             *���õ�ͼ��Ӧλ�õ�ֵ
+             **/
+            setPosValue: function (x, y, value) {
+                this.mapMatrix[y][x] = value;
             },
         };
         this.Map = map;
@@ -1522,7 +1647,29 @@
     });
 })(window, undefined);
 
-// v1.1
+/* v1.1
 cnGame.clean = function () {
     this.context.clearRect(this.width, this.height);
 };
+
+start(src, gameObj, onLoad)  => start(gameObj, options)
+
+sprite 增加rotateSpeed aR minAngle maxAngle属性
+    update() => update(duration)
+
+增加cnGame.spriteList
+
+map getPosValue(ele) => getPosValue(x, y)
+    增加getCurrentIndex isMatchCell setPosValue方法
+ 
+
+ v1.2
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ */
