@@ -191,6 +191,8 @@
 
             /* �����������ϷԪ�ص���ײ��� */
             var coliDetect = function (player, spriteList) {
+                console.log(player, spriteList);
+
                 var playerRect = player.getRect();
                 var enemyRect;
                 for (var i = 0, len = spriteList.length; i < len; i++) {
@@ -244,8 +246,9 @@
                             player.setMovement({ speedY: 0, aY: 17 });
                         }
                     }
+                    //console.log("spriteList[i]", spriteList[i]);
 
-                    spriteList[i].update();
+                    spriteList[i].update(0.03);
                 }
             };
 
