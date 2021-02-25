@@ -100,6 +100,8 @@
         this.bindHandler = (function () {
             if (window.addEventListener) {
                 return function (elem, type, handler) {
+                    console.log(type, handler);
+                    
                     elem.addEventListener(type, handler, false);
                 };
             } else if (window.attachEvent) {
@@ -357,10 +359,11 @@
              *���ò���
              **/
             setOptions: function (options) {
-                this.x = options.x || this.x;
-                this.y = options.y || this.y;
-                this.width = options.width || this.width;
-                this.height = options.height || this.height;
+                var isUndefined = cg.core.isUndefined;
+                !isUndefined(options.x) && (this.x = options.x);
+                !isUndefined(options.y) && (this.y = options.y);
+                !isUndefined(options.width) && (this.width = options.width);
+                !isUndefined(options.height) && (this.height = options.height);
                 this.style = options.style || this.style;
                 this.isFill = options.isFill || this.isFill;
             },
@@ -716,6 +719,7 @@
          *��¼�����ɿ��ļ�
          **/
         var recordUp = function (eve) {
+            debugger
             eve = cg.core.getEventObj(eve);
             var keyName = k[eve.keyCode];
             pressed_keys[keyName] = false;
@@ -768,6 +772,7 @@
          *�󶨼��̵����¼�
          **/
         this.onKeyUp = function (keyName, handler) {
+            debugger
             keyName = keyName || "allKeys";
             if (cg.core.isUndefined(keyup_callbacks[keyName])) {
                 keyup_callbacks[keyName] = [];
@@ -812,7 +817,10 @@
          *���κ;��μ����ײ
          **/
         this.col_Between_Rects = function (rectObjA, rectObjB) {
-            return ((rectObjA.right >= rectObjB.x && rectObjA.right <= rectObjB.right) || (rectObjA.x >= rectObjB.x && rectObjA.x <= rectObjB.right)) && ((rectObjA.bottom >= rectObjB.y && rectObjA.bottom <= rectObjB.bottom) || (rectObjA.y <= rectObjB.bottom && rectObjA.bottom >= rectObjB.y));
+            //return ((rectObjA.right >= rectObjB.x && rectObjA.right <= rectObjB.right) || (rectObjA.x >= rectObjB.x && rectObjA.x <= rectObjB.right)) && ((rectObjA.bottom >= rectObjB.y && rectObjA.bottom <= rectObjB.bottom) || (rectObjA.y <= rectObjB.bottom && rectObjA.bottom >= rectObjB.y));
+            var a = ((rectObjA.right > rectObjB.x && rectObjA.right < rectObjB.right) || (rectObjA.x > rectObjB.x && rectObjA.x < rectObjB.right)) && ((rectObjA.bottom > rectObjB.y && rectObjA.bottom < rectObjB.bottom) || (rectObjA.y < rectObjB.bottom && rectObjA.bottom > rectObjB.y));
+            
+            return a
         };
         /**
          *���Բ�μ����ײ

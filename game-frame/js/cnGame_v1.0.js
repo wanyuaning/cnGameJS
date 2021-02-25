@@ -775,7 +775,10 @@
          *���κ;��μ����ײ
          **/
         this.col_Between_Rects = function (rectObjA, rectObjB) {
-            return ((rectObjA.right > rectObjB.x && rectObjA.right < rectObjB.right) || (rectObjA.x > rectObjB.x && rectObjA.x < rectObjB.right)) && ((rectObjA.bottom > rectObjB.y && rectObjA.bottom < rectObjB.bottom) || (rectObjA.y < rectObjB.bottom && rectObjA.bottom > rectObjB.y));
+            
+            var a = ((rectObjA.right > rectObjB.x && rectObjA.right < rectObjB.right) || (rectObjA.x > rectObjB.x && rectObjA.x < rectObjB.right)) && ((rectObjA.bottom > rectObjB.y && rectObjA.bottom < rectObjB.bottom) || (rectObjA.y < rectObjB.bottom && rectObjA.bottom > rectObjB.y));
+            debugger
+            return a
         };
         /**
          *���Բ�μ����ײ

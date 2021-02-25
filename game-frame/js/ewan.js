@@ -1441,7 +1441,7 @@
                 }
             },
             /**
-             *返回包含该sprite的矩形对象
+             * 获取碰撞矩形
              **/
             getRect: function () {
                 return new cg.shape.Rect({ x: this.x, y: this.y, width: this.width, height: this.height });
@@ -2342,7 +2342,7 @@ v1.3 升级到 v1.4
        update: function (spritelist) {  =>  update: function () {
        isPartlyInsideView 增加
        applyInView        增加
-       getRect            增加
+       getRect            增加 
        draw               删除
  
 v1.4 升级到 v1.5       
