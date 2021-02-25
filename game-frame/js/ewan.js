@@ -1,16 +1,9 @@
-/**
- *
- * name:cnGame.js
- *`author:cson
- *`date:2012-2-7
- *`version:1.0
- *
- **/
+
 
 (function (win, undefined) {
     var canvasPos;
     /**
-     *��ȡcanvas��ҳ���λ��
+     *获取canvas在页面的位置
      **/
     var getCanvasPos = function (canvas) {
         var left = 0;
@@ -25,14 +18,15 @@
 
     var _cnGame = {
         /**
-         *��ʼ��
+         *初始化
          **/
         init: function (id, options) {
             options = options || {};
             this.canvas = this.core.$(id || "canvas");
             this.context = this.canvas.getContext("2d");
-            this.width = options.width || 800;
-            this.height = options.height || 600;
+            this.canvas.width = this.width = options.width || 800;
+            this.canvas.height = this.height = options.height || 600;
+            this.bgColor = options.bgColor;
             this.title = this.core.$$("title")[0];
             canvasPos = getCanvasPos(this.canvas);
             this.x = canvasPos[0] || 0;
@@ -42,9 +36,10 @@
             this.canvas.style.left = this.x + "px";
             this.canvas.style.top = this.y + "px";
             this.spriteList = new this.SpriteList();
+            this.drawBg();
         },
         /**
-         *���������ռ�,��ִ����Ӧ����
+         *生成命名空间,并执行相应操作
          **/
         register: function (nameSpace, func) {
             var nsArr = nameSpace.split(".");
@@ -59,10 +54,19 @@
             return parent;
         },
         /**
-         *�������
+         *清除画布
          **/
         clean: function () {
-            this.context.clearRect(this.width, this.height);
+            this.context.clearRect(0, 0, this.width, this.height);
+        },
+        /**
+         *绘制画布背景色
+         **/
+        drawBg: function () {
+            if (this.bgColor) {
+                var bgRect = new this.shape.Rect({ width: this.width, height: this.height, style: this.bgColor }); //绘制背景色
+                bgRect.draw();
+            }
         },
     };
 
@@ -70,26 +74,26 @@
 
     /**
      *
-     *�������ߺ���ģ��
+     *基本工具函数模块
      *
      **/
     cnGame.register("cnGame.core", function (cg) {
         /**
-        ��id��ȡԪ��
+        按id获取元素
         **/
         this.$ = function (id) {
             return document.getElementById(id);
         };
         /**
-        ����ǩ����ȡԪ��
-        **/
+		按标签名获取元素
+		**/
         this.$$ = function (tagName, parent) {
             parent = parent || document;
             return parent.getElementsByTagName(tagName);
         };
         /**
-        ��������ȡԪ��
-        **/
+		按类名获取元素
+		**/
         this.$Class = function (className, parent) {
             var arr = [],
                 result = [];
@@ -103,8 +107,8 @@
             return result;
         };
         /**
-        �¼���
-        **/
+		事件绑定
+		**/
         this.bindHandler = (function () {
             if (window.addEventListener) {
                 return function (elem, type, handler) {
@@ -117,8 +121,8 @@
             }
         })();
         /**
-        �¼����
-        **/
+		事件解除
+		**/
         this.removeHandler = (function () {
             if (window.removeEventListerner) {
                 return function (elem, type, handler) {
@@ -131,21 +135,21 @@
             }
         })();
         /**
-        ��ȡ�¼�����
-        **/
+		获取事件对象
+		**/
         this.getEventObj = function (eve) {
             return eve || win.event;
         };
         /**
-        ��ȡ�¼�Ŀ�����
-        **/
+		获取事件目标对象
+		**/
         this.getEventTarget = function (eve) {
             var eve = this.getEventObj(eve);
             return eve.target || eve.srcElement;
         };
         /**
-        ��ֹĬ����Ϊ
-        **/
+	禁止默认行为
+		**/
         this.preventDefault = function (eve) {
             if (eve.preventDefault) {
                 eve.preventDefault();
@@ -154,8 +158,8 @@
             }
         };
         /**
-        ��ȡ����������ʽ
-        **/
+	获取对象计算的样式
+		**/
         this.getComputerStyle = (function () {
             var body = document.body || document.documentElement;
             if (body.currentStyle) {
@@ -169,37 +173,43 @@
             }
         })();
         /**
-        �Ƿ�Ϊundefined
-        **/
+	是否为undefined
+		**/
         (this.isUndefined = function (elem) {
             return typeof elem === "undefined";
         }),
             /**
-        �Ƿ�Ϊ����
-        **/
+	是否为数组
+		**/
             (this.isArray = function (elem) {
                 return Object.prototype.toString.call(elem) === "[object Array]";
             });
         /**
-        �Ƿ�ΪObject����
-        **/
+		是否为Object类型
+		**/
         this.isObject = function (elem) {
             return elem === Object(elem);
         };
         /**
-        �Ƿ�Ϊ�ַ�������
-        **/
+		是否为字符串类型
+		**/
         this.isString = function (elem) {
             return Object.prototype.toString.call(elem) === "[object String]";
         };
         /**
-        �Ƿ�Ϊ��ֵ����
-        **/
+		是否为数值类型
+		**/
         this.isNum = function (elem) {
             return Object.prototype.toString.call(elem) === "[object Number]";
         };
         /**
-         *���ƶ�������
+        是否为function
+        **/
+        this.isFunction = function (elem) {
+            return Object.prototype.toString.call(elem) === "[object Function]";
+        };
+        /**
+         *复制对象属性
          **/
         this.extend = function (destination, source, isCover) {
             var isUndefined = this.isUndefined;
@@ -212,7 +222,13 @@
             return destination;
         };
         /**
-         *ԭ�ͼ̳ж���
+         *扩展prototype
+         **/
+        this.extendProto = function (constructor, obj) {
+            this.extend(constructor.prototype, obj);
+        };
+        /**
+         *原型继承对象
          **/
         this.inherit = function (child, parent) {
             var func = function () {};
@@ -225,11 +241,11 @@
 
     /**
      *
-     *Ajaxģ��
+     *Ajax模块
      *
      **/
     cnGame.register("cnGame.ajax", function (cg) {
-        var activeXString; //ΪIE�ض��汾������activeX�ַ���
+        var activeXString; //为IE特定版本保留的activeX字符串
         var onXHRload = function (xhr, options) {
             return function (eve) {
                 if (xhr.readyState == 4) {
@@ -245,7 +261,7 @@
         };
 
         /**
-         *����XMLHttpRequest����
+         *生成XMLHttpRequest对象
          **/
         this.creatXHR = function () {
             if (!cg.core.isUndefined(XMLHttpRequest)) {
@@ -265,7 +281,7 @@
             }
         };
         /**
-         *��������
+         *发送请求
          **/
         this.request = function (options) {
             var defaultObj = {
@@ -276,7 +292,7 @@
             var xhr = this.creatXHR();
 
             cg.core.bindHandler(xhr, "readystatechange", function (eve) {
-                //��Դ������ɻص�����
+                //资源加载完成回调函数
                 if (xhr.readyState == 4) {
                     if ((xhr.status >= 200 && xhr.state < 300) || xhr.status == 304) {
                         var onSuccess = options.onSuccess;
@@ -292,7 +308,7 @@
             var url = options.url;
 
             if (type == "get") {
-                //get�������ݴ���
+                //get请求数据处理
                 if (url.indexOf("?") < 0) {
                     url += "?";
                 } else {
@@ -308,7 +324,7 @@
                     }
                 }
             } else if (type == "post") {
-                //post�������ݴ���
+                //post请求数据处理
                 var _requestOpt = {};
                 for (name in requestOpt) {
                     if (requestOpt.hasOwnProperty(name)) {
@@ -324,7 +340,7 @@
 
     /**
      *
-     *��Դ������
+     *资源加载器
      *
      **/
     cnGame.register("cnGame", function (cg) {
@@ -342,17 +358,18 @@
         file_type["tiff"] = "image";
         var postfix_regexp = /\.([a-zA-Z0-9]+)/;
         /**
-         *��Դ������ϵĴ�������
+         *资源加载完毕的处理程序
          **/
         var resourceLoad = function (self, type) {
             return function () {
                 self.loadedCount += 1;
                 type == "image" && (self.loadedImgs[this.srcPath] = this);
                 type == "audio" && (self.loadedAudios[this.srcPath] = this);
-                this.onLoad = null; //��֤ͼƬ��onLoadִ��һ�κ�����
+                this.onLoad = null; //保证图片的onLoad执行一次后销毁
                 self.loadedPercent = Math.floor((self.loadedCount / self.sum) * 100);
                 self.onLoad && self.onLoad(self.loadedPercent);
-                if (self.loadedPercent === 100) {
+                if (!type || self.loadedPercent === 100) {
+                    //如果没有资源需要加载或者资源已经加载完毕
                     self.loadedCount = 0;
                     self.loadedPercent = 0;
                     type == "image" && (self.loadingImgs = {});
@@ -360,10 +377,10 @@
                     if (self.gameObj && self.gameObj.initialize) {
                         self.gameObj.initialize(self.startOptions);
                         if (cg.loop && !cg.loop.stop) {
-                            //������һ��ѭ��
+                            //结束上一个循环
                             cg.loop.end();
                         }
-                        cg.loop = new cg.GameLoop(self.gameObj); //��ʼ����Ϸѭ��
+                        cg.loop = new cg.GameLoop(self.gameObj); //开始新游戏循环
                         cg.loop.start();
                     }
                 }
@@ -371,28 +388,31 @@
         };
 
         /**
-         *ͼ�������
+         *图像加载器
          **/
         var loader = {
-            sum: 0, //ͼƬ����
-            loadedCount: 0, //ͼƬ�Ѽ�����
-            loadingImgs: {}, //δ����ͼƬ����
-            loadedImgs: {}, //�Ѽ���ͼƬ����
-            loadingAudios: {}, //δ������Ƶ����
-            loadedAudios: {}, //�Ѽ�����Ƶ����
+            sum: 0, //图片总数
+            loadedCount: 0, //图片已加载数
+            loadingImgs: {}, //未加载图片集合
+            loadedImgs: {}, //已加载图片集合
+            loadingAudios: {}, //未加载音频集合
+            loadedAudios: {}, //已加载音频集合
             /**
-             *ͼ����أ�֮��������Ϸ
+             *图像加载，之后启动游戏
              **/
             start: function (gameObj, options) {
                 //options:srcArray,onload
+                options = options || {};
                 var srcArr = options.srcArray;
-                this.gameObj = gameObj;
-                this.startOptions = options.startOptions; //��Ϸ��ʼ��Ҫ�ĳ�ʼ������
+                this.startOptions = options.startOptions; //游戏开始需要的初始化参数
                 this.onLoad = options.onLoad;
+                this.gameObj = gameObj;
                 this.sum = 0;
                 cg.spriteList.clean();
 
-                if (cg.core.isArray(srcArr) || cg.core.isObject(srcArr)) {
+                if (!srcArr) {
+                    resourceLoad(this)();
+                } else if (cg.core.isArray(srcArr) || cg.core.isObject(srcArr)) {
                     for (var i in srcArr) {
                         if (srcArr.hasOwnProperty(i)) {
                             this.sum++;
@@ -403,15 +423,15 @@
                                 this.loadingImgs[path] = new Image();
                                 cg.core.bindHandler(this.loadingImgs[path], "load", resourceLoad(this, type));
                                 this.loadingImgs[path].src = path;
-                                this.loadingImgs[path].srcPath = path; //û�о����Զ��任��src
+                                this.loadingImgs[path].srcPath = path; //没有经过自动变换的src
                             } else if (type == "audio") {
                                 this.loadingAudios[path] = new Audio(path);
                                 cg.core.bindHandler(this.loadingAudios[path], "canplay", resourceLoad(this, type));
                                 this.loadingAudios[path].onload = resourceLoad(this, type);
                                 this.loadingAudios[path].src = path;
-                                this.loadingAudios[path].srcPath = path; //û�о����Զ��任��src
+                                this.loadingAudios[path].srcPath = path; //没有经过自动变换的src
                             } else if (type == "js") {
-                                //����ǽű������غ�ִ��
+                                //如果是脚本，加载后执行
                                 var head = cg.core.$$("head")[0];
                                 var script = document.createElement("script");
                                 head.appendChild(script);
@@ -429,12 +449,12 @@
 
     /**
      *
-     *canvas������״����
+     *canvas基本形状对象
      *
      **/
     cnGame.register("cnGame.shape", function (cg) {
         /**
-         *���ζ���
+         *矩形对象
          **/
         var rect = function (options) {
             if (!(this instanceof arguments.callee)) {
@@ -444,11 +464,11 @@
         };
         rect.prototype = {
             /**
-             *��ʼ��
+             *初始化
              **/
             init: function (options) {
                 /**
-                 *Ĭ��ֵ����
+                 *默认值对象
                  **/
                 var defaultObj = {
                     x: 0,
@@ -463,7 +483,7 @@
                 this.setOptions(options);
             },
             /**
-             *���ò���
+             *设置参数
              **/
             setOptions: function (options) {
                 var isUndefined = cg.core.isUndefined;
@@ -481,7 +501,7 @@
                 this.bottom = this.height + this.y;
             },
             /**
-             *���ƾ���
+             *绘制矩形
              **/
             draw: function () {
                 var context = cg.context;
@@ -496,7 +516,7 @@
                 return this;
             },
             /**
-             *�������ƶ�һ������
+             *将矩形移动一定距离
              **/
             move: function (dx, dy) {
                 dx = dx || 0;
@@ -507,7 +527,7 @@
                 return this;
             },
             /**
-             *�������ƶ����ض�λ��
+             *将矩形移动到特定位置
              **/
             moveTo: function (x, y) {
                 x = x || this.x;
@@ -518,7 +538,7 @@
                 return this;
             },
             /**
-             *�����θı�һ����С
+             *将矩形改变一定大小
              **/
             resize: function (dWidth, dHeight) {
                 dWidth = dWidth || 0;
@@ -529,7 +549,7 @@
                 return this;
             },
             /**
-             *�����θı䵽�ض���С
+             *将矩形改变到特定大小
              **/
             resizeTo: function (width, height) {
                 width = width || this.width;
@@ -542,7 +562,7 @@
         };
 
         /**
-         *Բ�ζ���
+         *圆形对象
          **/
         var circle = function (options) {
             if (!(this instanceof arguments.callee)) {
@@ -552,41 +572,32 @@
         };
         circle.prototype = {
             /**
-             *��ʼ��
+             *初始化
              **/
             init: function (options) {
                 /**
-                 *Ĭ��ֵ����
+                 *默认值对象
                  **/
-                var defaultObj = {
-                    x: 100,
-                    y: 100,
-                    r: 100,
-                    startAngle: 0,
-                    endAngle: Math.PI * 2,
-                    antiClock: false,
-                    style: "red",
-                    isFill: true,
-                };
+                this.x = 100;
+                this.y = 100;
+                this.r = 100;
+                this.startAngle = 0;
+                this.endAngle = Math.PI * 2;
+                this.antiClock = false;
+                this.style = "red";
+                this.isFill = true;
+
                 options = options || {};
-                options = cg.core.extend(defaultObj, options);
-                this.setOptions(options);
+                cg.core.extend(this, options);
             },
             /**
-             *���ò���
+             *设置参数
              **/
             setOptions: function (options) {
-                this.x = options.x || this.x;
-                this.y = options.y || this.y;
-                this.r = options.r || this.r;
-                this.startAngle = options.startAngle || this.startAngle;
-                this.endAngle = options.endAngle || this.endAngle;
-                this.antiClock = options.antiClock || this.antiClock;
-                this.isFill = options.isFill || this.isFill;
-                this.style = options.style || this.style;
+                cg.core.extend(this, options);
             },
             /**
-             *����Բ��
+             *绘制圆形
              **/
             draw: function () {
                 var context = cg.context;
@@ -602,7 +613,7 @@
                 }
             },
             /**
-             *��Բ���ƶ�һ������
+             *将圆形移动一定距离
              **/
             move: function (dx, dy) {
                 dx = dx || 0;
@@ -612,7 +623,7 @@
                 return this;
             },
             /**
-             *��Բ���ƶ����ض�λ��
+             *将圆形移动到特定位置
              **/
             moveTo: function (x, y) {
                 x = x || this.x;
@@ -622,7 +633,7 @@
                 return this;
             },
             /**
-             *��Բ�θı�һ����С
+             *将圆形改变一定大小
              **/
             resize: function (dr) {
                 dr = dr || 0;
@@ -630,7 +641,7 @@
                 return this;
             },
             /**
-             *��Բ�θı䵽�ض���С
+             *将圆形改变到特定大小
              **/
             resizeTo: function (r) {
                 r = r || this.r;
@@ -639,7 +650,7 @@
             },
         };
         /**
-         *��Բ�θı䵽�ض���С
+         *将圆形改变到特定大小
          **/
         var text = function (text, options) {
             if (!(this instanceof arguments.callee)) {
@@ -649,29 +660,24 @@
         };
         text.prototype = {
             /**
-             *��ʼ��
+             *初始化
              **/
-            init: function (text, options) {
-                /**
-                 *Ĭ��ֵ����
-                 **/
-                var defaultObj = {
-                    x: 100,
-                    y: 100,
-                    style: "red",
-                    isFill: true,
-                    context: cg.context,
-                };
+            init: function (options) {
+                this.text = "test";
+                this.x = 100;
+                this.y = 100;
+                this.style = "red";
+                this.isFill = true;
+                this.context = cg.context;
                 options = options || {};
-                options = cg.core.extend(defaultObj, options);
                 this.setOptions(options);
-                this.text = text;
             },
             /**
-             *����
+             *绘制
              **/
             draw: function () {
                 var context = this.context;
+                context.save();
                 !cg.core.isUndefined(this.font) && (context.font = this.font);
                 !cg.core.isUndefined(this.textBaseline) && (context.textBaseline = this.textBaseline);
                 !cg.core.isUndefined(this.textAlign) && (context.textAlign = this.textAlign);
@@ -683,23 +689,176 @@
                     context.strokeStyle = this.style;
                     this.maxWidth ? context.strokeText(this.text, this.x, this.y, this.maxWidth) : context.strokeText(this.text, this.x, this.y);
                 }
+                context.restore();
             },
             /**
-             *���ò���
+             *设置参数
              **/
             setOptions: function (options) {
-                this.context = options.context || this.context;
-                this.x = options.x || this.x;
-                this.y = options.y || this.y;
-                this.maxWidth = options.maxWidth || this.maxWidth;
-                this.font = options.font || this.font;
-                this.textBaseline = options.textBaseline || this.textBaseline;
-                this.textAlign = options.textAlign || this.textAlign;
-                this.isFill = options.isFill || this.isFill;
-                this.style = options.style || this.style;
+                cg.core.extend(this, options);
+            },
+        };
+        /*	直线	*/
+        var line = function (options) {
+            if (!(this instanceof arguments.callee)) {
+                return new arguments.callee(options);
+            }
+            this.init(options);
+        };
+
+        line.prototype = {
+            /**
+             *初始化
+             **/
+            init: function (options) {
+                this.start = [0, 0];
+                this.end = [0, 0];
+                this.style = "red";
+                this.lineWidth = 1;
+                this.context = cg.context;
+                options = options || {};
+                cg.core.extend(this, options);
+            },
+            /**
+             *判断线段和另一条线段是否相交
+             **/
+            isCross: function (newLine) {
+                var start = this.start;
+                var end = this.end;
+                var newStart = newLine.start;
+                var newEnd = newLine.end;
+                var point = [];
+
+                var k1 = (end[1] - start[1]) / (end[0] - start[0]); //所在直线斜率
+                var b1 = end[1] - end[0] * k1; //所在直线截距
+
+                var k2 = (newEnd[1] - newStart[1]) / (newEnd[0] - newStart[0]); //新线段所在直线斜率
+                var b2 = newEnd[1] - newEnd[0] * k2; //新线段所在直线截距
+
+                if ((newStart[0] * k1 + b1 - newStart[1]) * (newEnd[0] * k1 + b1 - newEnd[1]) <= 0 && (start[0] * k2 + b2 - start[1]) * (end[0] * k2 + b2 - end[1]) <= 0) {
+                    point[0] = (b1 - b2) / (k2 - k1);
+                    point[1] = k2 * point[0] + b2;
+                    return point;
+                }
+                return false;
+            },
+            /**
+             *绘制
+             **/
+            draw: function () {
+                var ctx = cg.context;
+                var start = this.start;
+                var end = this.end;
+                ctx.strokeStyle = this.style;
+                ctx.lineWidth = this.lineWidth;
+                ctx.beginPath();
+                ctx.lineTo(start[0], start[1]);
+                ctx.lineTo(end[0], end[1]);
+                ctx.closePath();
+                ctx.stroke();
+            },
+            /**
+             *设置参数
+             **/
+            setOptions: function (options) {
+                cg.core.extend(this, options);
             },
         };
 
+        /*	多边形	*/
+        var polygon = function (options) {
+            if (!(this instanceof arguments.callee)) {
+                return new arguments.callee(options);
+            }
+            this.init(options);
+        };
+        polygon.prototype = {
+            init: function (options) {
+                this.pointsArr = []; //所有顶点数组
+                this.style = "black";
+                this.lineWidth = 1;
+                this.isFill = true;
+                this.setOptions(options);
+                this.pointsArr.push(this.pointsArr[0]);
+            },
+            /**
+             *设置参数
+             **/
+            setOptions: function (options) {
+                cg.core.extend(this, options);
+            },
+            /**
+             *判断某点是否在多边形内(射线法)
+             **/
+            isInside: function (point) {
+                var lines = this.getLineSegs();
+
+                var count = 0; //相交的边的数量
+                var lLine = new Line({ start: [point[0], point[1]], end: [-9999, point[1]] }); //左射线
+                var crossPointArr = []; //相交的点的数组
+                for (var i = 0, len = lines.length; i < len; i++) {
+                    var crossPoint = lLine.isCross(lines[i]);
+                    if (crossPoint) {
+                        for (var j = 0, len2 = crossPointArr.length; j < len2; j++) {
+                            //如果交点和之前的交点相同，即表明交点为多边形的顶点
+                            if (crossPointArr[j][0] == crossPoint[0] && crossPointArr[j][1] == crossPoint[1]) {
+                                break;
+                            }
+                        }
+                        if (j == len2) {
+                            crossPointArr.push(crossPoint);
+                            count++;
+                        }
+                    }
+                }
+
+                if (count % 2 == 0) {
+                    //不包含
+                    return false;
+                }
+                return true; //包含
+            },
+            /**
+             *获取多边形的线段集合
+             **/
+            getLineSegs: function () {
+                var pointsArr = this.pointsArr; //点集合
+                var lineSegsArr = [];
+                for (var i = 0, len = pointsArr.length; i < len - 1; i++) {
+                    var point = pointsArr[i];
+                    var nextPoint = pointsArr[i + 1];
+                    var newLine = new line({ start: [point[0], point[1]], end: [nextPoint[0], nextPoint[1]] });
+                    lineSegsArr.push(newLine);
+                }
+                return lineSegsArr;
+            },
+            /**
+             *绘制
+             **/
+            draw: function () {
+                var ctx = cg.context;
+                ctx.beginPath();
+
+                for (var i = 0, len = this.pointsArr.length; i < len - 1; i++) {
+                    var start = this.pointsArr[i];
+                    var end = this.pointsArr[i + 1];
+
+                    ctx.lineTo(start[0], start[1]);
+                    ctx.lineTo(end[0], end[1]);
+                }
+                ctx.closePath();
+                if (this.isFill) {
+                    ctx.fillStyle = this.style;
+                    ctx.fill();
+                } else {
+                    ctx.lineWidth = this.lineWidth;
+                    ctx.strokeStyle = this.style;
+                    ctx.stroke();
+                }
+            },
+        };
+        this.Polygon = polygon;
+        this.Line = line;
         this.Text = text;
         this.Rect = rect;
         this.Circle = circle;
@@ -707,45 +866,145 @@
 
     /**
      *
-     *�����¼ģ��
+     *事件模块
+     *
+     **/
+    cnGame.register("cnGame", function (cg) {
+        this.eventManager = {
+            register: function () {},
+        };
+    });
+
+    /**
+     *
+     *输入记录模块
      *
      **/
     cnGame.register("cnGame.input", function (cg) {
-        this.mouseX = 0;
-        this.mouseY = 0;
+        this.mouse = {};
+        this.mouse.x = 0;
+        this.mouse.y = 0;
+        var m = [];
+        m[0] = m[1] = "left";
+        m[2] = "right";
         /**
-         *��¼�����canvas�ڵ�λ��
+         *鼠标按下触发的处理函数
+         **/
+        var mousedown_callbacks = {};
+        /**
+         *鼠标松开触发的处理函数
+         **/
+        var mouseup_callbacks = {};
+        /**
+         *鼠标移动触发的处理函数
+         **/
+        var mousemove_callbacks = [];
+
+        /**
+         *记录鼠标在canvas内的位置
          **/
         var recordMouseMove = function (eve) {
             var pageX, pageY, x, y;
             eve = cg.core.getEventObj(eve);
             pageX = eve.pageX || eve.clientX + document.documentElement.scrollLeft - document.documentElement.clientLeft;
             pageY = eve.pageY || eve.clientY + document.documentElement.scrollTop - document.documentElement.clientTop;
-            cg.input.mouseX = pageX - cg.x;
-            cg.input.mouseY = pageY - cg.y;
+            cg.input.mouse.x = pageX - cg.x;
+            cg.input.mouse.y = pageY - cg.y;
+            for (var i = 0, len = mousemove_callbacks.length; i < len; i++) {
+                mousemove_callbacks[i]();
+            }
         };
-
+        /**
+         *记录鼠标按键
+         **/
+        var recordMouseDown = function (eve) {
+            eve = cg.core.getEventObj(eve);
+            var pressed_btn = m[eve.button];
+            if (pressed_btn == "left") {
+                //左键按下
+                cg.input.mouse.left_pressed = true;
+            } else if (pressed_btn == "right") {
+                //右键按下
+                cg.input.mouse.right_pressed = true;
+            }
+            var callBacksArr = mousedown_callbacks[pressed_btn];
+            if (callBacksArr && callBacksArr.length) {
+                for (var i = 0, len = callBacksArr.length; i < len; i++) {
+                    callBacksArr[i]();
+                }
+            }
+        };
+        /**
+         *记录鼠标松开的键
+         **/
+        var recordMouseUp = function (eve) {
+            eve = cg.core.getEventObj(eve);
+            var pressed_btn = m[eve.button];
+            if (pressed_btn == "left") {
+                //左键松开
+                cg.input.mouse.left_pressed = false;
+            } else if (pressed_btn == "right") {
+                //右键松开
+                btn = cg.input.mouse.right_pressed = false;
+            }
+            var callBacksArr = mouseup_callbacks[pressed_btn];
+            if (callBacksArr && callBacksArr.length) {
+                for (var i = 0, len = callBacksArr.length; i < len; i++) {
+                    callBacksArr[i]();
+                }
+            }
+        };
         cg.core.bindHandler(window, "mousemove", recordMouseMove);
+        cg.core.bindHandler(window, "mousedown", recordMouseDown);
+        cg.core.bindHandler(window, "mouseup", recordMouseUp);
 
         /**
-         *�����µļ��ļ���
+         *绑定鼠标按下事件
+         **/
+        this.onMouseDown = function (buttonName, handler) {
+            buttonName = buttonName || "all";
+            if (cg.core.isUndefined(mousedown_callbacks[buttonName])) {
+                mousedown_callbacks[buttonName] = [];
+            }
+            mousedown_callbacks[buttonName].push(handler);
+        };
+        /**
+         *绑定鼠标松开事件
+         **/
+        this.onMouseUp = function (buttonName, handler) {
+            buttonName = buttonName || "all";
+            if (cg.core.isUndefined(mouseup_callbacks[buttonName])) {
+                mouseup_callbacks[buttonName] = [];
+            }
+
+            mouseup_callbacks[buttonName].push(handler);
+        };
+        /**
+         *绑定鼠标松开事件
+         **/
+        this.onMouseMove = function (handler) {
+            mousemove_callbacks.push(handler);
+        };
+
+        /**
+         *被按下的键的集合
          **/
         var pressed_keys = {};
         /**
-         *Ҫ���ֹĬ����Ϊ�ļ��ļ���
+         *要求禁止默认行为的键的集合
          **/
         var preventDefault_keys = {};
         /**
-         *���̰��´����Ĵ�������
+         *键盘按下触发的处理函数
          **/
         var keydown_callbacks = {};
         /**
-         *���̵��𴥷��Ĵ�������
+         *键盘弹起触发的处理函数
          **/
         var keyup_callbacks = {};
 
         /**
-         *���̰�������ͼ���
+         *键盘按键编码和键名
          **/
         var k = [];
         k[8] = "backspace";
@@ -810,7 +1069,7 @@
         }
 
         /**
-         *��¼���̰��µļ�
+         *记录键盘按下的键
          **/
         var recordPress = function (eve) {
             eve = cg.core.getEventObj(eve);
@@ -831,7 +1090,7 @@
             }
         };
         /**
-         *��¼�����ɿ��ļ�
+         *记录键盘松开的键
          **/
         var recordUp = function (eve) {
             eve = cg.core.getEventObj(eve);
@@ -855,13 +1114,13 @@
         cg.core.bindHandler(window, "keyup", recordUp);
 
         /**
-         *�ж�ĳ�����Ƿ���
+         *判断某个键是否按下
          **/
         this.isPressed = function (keyName) {
             return !!pressed_keys[keyName];
         };
         /**
-         *��ֹĳ�������µ�Ĭ����Ϊ
+         *禁止某个键按下的默认行为
          **/
         this.preventDefault = function (keyName) {
             if (cg.core.isArray(keyName)) {
@@ -873,7 +1132,7 @@
             }
         };
         /**
-         *�󶨼��̰����¼�
+         *绑定键盘按下事件
          **/
         this.onKeyDown = function (keyName, handler) {
             keyName = keyName || "allKeys";
@@ -883,7 +1142,7 @@
             keydown_callbacks[keyName].push(handler);
         };
         /**
-         *�󶨼��̵����¼�
+         *绑定键盘弹起事件
          **/
         this.onKeyUp = function (keyName, handler) {
             keyName = keyName || "allKeys";
@@ -893,7 +1152,7 @@
             keyup_callbacks[keyName].push(handler);
         };
         /**
-         *������̰����¼���������
+         *清除键盘按下事件处理程序
          **/
         this.clearDownCallbacks = function (keyName) {
             if (keyName) {
@@ -903,7 +1162,7 @@
             }
         };
         /**
-         *������̵����¼���������
+         *清除键盘弹起事件处理程序
          **/
         this.clearUpCallbacks = function (keyName) {
             if (keyName) {
@@ -916,30 +1175,30 @@
 
     /**
      *
-     *��ײ���
+     *碰撞检测
      *
      **/
     cnGame.register("cnGame.collision", function (cg) {
         /**
-         *��;��μ����ײ
+         *点和矩形间的碰撞
          **/
         this.col_Point_Rect = function (pointX, pointY, rectObj) {
             return pointX >= rectObj.x && pointX <= rectObj.right && pointY >= rectObj.y && pointY <= rectObj.bottom;
         };
         /**
-         *���κ;��μ����ײ
+         *矩形和矩形间的碰撞
          **/
         this.col_Between_Rects = function (rectObjA, rectObjB) {
             return ((rectObjA.right >= rectObjB.x && rectObjA.right <= rectObjB.right) || (rectObjA.x >= rectObjB.x && rectObjA.x <= rectObjB.right)) && ((rectObjA.bottom >= rectObjB.y && rectObjA.bottom <= rectObjB.bottom) || (rectObjA.y <= rectObjB.bottom && rectObjA.bottom >= rectObjB.y));
         };
         /**
-         *���Բ�μ����ײ
+         *点和圆形间的碰撞
          **/
         this.col_Point_Circle = function (pointX, pointY, circleObj) {
             return Math.pow(pointX - circleObj.x, 2) + Math.pow(pointY - circleObj.y, 2) < Math.pow(circleObj.r, 2);
         };
         /**
-         *Բ�κ�Բ�μ����ײ
+         *圆形和圆形间的碰撞
          **/
         this.col_between_Circles = function (circleObjA, circleObjB) {
             return Math.pow(circleObjA.x - circleObjB.x, 2) + Math.pow(circleObjA.y - circleObjB.y, 2) < Math.pow((circleObjA.r + circleObjB).r, 2);
@@ -948,17 +1207,17 @@
 
     /**
      *
-     *����
+     *动画
      *
      **/
     cnGame.register("cnGame", function (cg) {
         /**
-         *֡������
+         *帧的增量
          **/
         var path = 1;
 
         /**
-         *��ȡ֡����
+         *获取帧集合
          **/
         var caculateFrames = function (options) {
             var frames = [];
@@ -969,7 +1228,7 @@
             var frameSize = options.frameSize;
             var direction = options.direction;
             var x, y;
-            /* ����ÿһ֡�ľ�ȷλ�� */
+            /* 保存每一帧的精确位置 */
             if (direction == "right") {
                 for (var y = beginY; y < height; y += frameSize[1]) {
                     for (var x = beginX; x < width; x += frameSize[0]) {
@@ -992,7 +1251,7 @@
             return frames;
         };
         /**
-         *������֡ͼ��Ĵ�ͼƬ
+         *包含多帧图像的大图片
          **/
         spriteSheet = function (id, src, options) {
             if (!(this instanceof arguments.callee)) {
@@ -1002,11 +1261,11 @@
         };
         spriteSheet.prototype = {
             /**
-             *��ʼ��
+             *初始化
              **/
             init: function (id, src, options) {
                 /**
-                 *Ĭ�϶���
+                 *默认对象
                  **/
                 var defaultObj = {
                     x: 0,
@@ -1015,7 +1274,7 @@
                     height: 40,
                     frameSize: [40, 40],
                     frameDuration: 100,
-                    direction: "right", //������
+                    direction: "right", //从左到右
                     beginX: 0,
                     beginY: 0,
                     scale: 1,
@@ -1024,52 +1283,52 @@
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
-                this.id = id; //spriteSheet��id
-                this.context = options.context || cg.context; //ʹ�õ������Ķ���Ĭ���ǿ�ܵ�context
-                this.src = src; //ͼƬ��ַ
-                this.x = options.x; //����Xλ��
-                this.y = options.y; //����Yλ��
-                this.scale = options.scale; //���ű�
-                this.width = options.width; //ͼƬ�Ŀ���
-                this.height = options.height; //ͼƬ�ĸ߶�
-                this.image = cg.loader.loadedImgs[this.src]; //ͼƬ����
-                this.frameSize = options.frameSize; //ÿ֡�ߴ�
-                this.frameDuration = options.frameDuration; //ÿ֡����ʱ��
-                this.direction = options.direction; //��ȡ֡�ķ��򣨴������һ���ϵ��£�
-                this.currentIndex = 0; //Ŀǰ֡����
-                this.beginX = options.beginX; //��ȡͼƬ����ʼλ��X
-                this.beginY = options.beginY; //��ͼͼƬ����ʼλ��Y
-                this.loop = options.loop; //�Ƿ�ѭ������
-                this.bounce = options.bounce; //�Ƿ���������
-                this.onFinish = options.onFinish; //������Ϻ�Ļص�����
-                this.frames = caculateFrames(options); //֡��Ϣ����
-                this.now = new Date().getTime(); //��ǰʱ��
-                this.last = new Date().getTime(); //��һ֡��ʼʱ��
+                this.id = id; //spriteSheet的id
+                this.context = options.context || cg.context; //使用的上下文对象，默认是框架的context
+                this.src = src; //图片地址
+                this.x = options.x; //动画X位置
+                this.y = options.y; //动画Y位置
+                this.scale = options.scale; //缩放比
+                this.width = options.width; //图片的宽度
+                this.height = options.height; //图片的高度
+                this.image = cg.loader.loadedImgs[this.src]; //图片对象
+                this.frameSize = options.frameSize; //每帧尺寸
+                this.frameDuration = options.frameDuration; //每帧持续时间
+                this.direction = options.direction; //读取帧的方向（从做到右或从上到下）
+                this.currentIndex = 0; //目前帧索引
+                this.beginX = options.beginX; //截取图片的起始位置X
+                this.beginY = options.beginY; //截图图片的起始位置Y
+                this.loop = options.loop; //是否循环播放
+                this.bounce = options.bounce; //是否往返播放
+                this.onFinish = options.onFinish; //播放完毕后的回调函数
+                this.frames = caculateFrames(options); //帧信息集合
+                this.now = new Date().getTime(); //当前时间
+                this.last = new Date().getTime(); //上一帧开始时间
             },
             /**
-             *����֡
+             *更新帧
              **/
             update: function () {
                 this.now = new Date().getTime();
                 var frames = this.frames;
                 if (this.now - this.last >= this.frameDuration) {
-                    //���������ڵ���֡��������update
+                    //如果间隔大于等于帧间间隔，则update
                     var currentIndex = this.currentIndex;
                     var length = this.frames.length;
                     this.last = this.now;
 
                     if (currentIndex >= length - 1) {
                         if (this.loop) {
-                            //ѭ��
+                            //循环
                             return frames[(this.currentIndex = 0)];
                         } else if (!this.bounce) {
-                            //û��ѭ������û��������������ֹͣ�����һ֡
+                            //没有循环并且没有往返滚动，则停止在最后一帧
                             this.onFinish && this.onFinish();
                             return frames[currentIndex];
                         }
                     }
                     if (this.bounce && ((currentIndex >= length - 1 && path > 0) || (currentIndex <= 0 && path < 0))) {
-                        //����
+                        //往返
                         path *= -1;
                     }
                     this.currentIndex += path;
@@ -1077,20 +1336,20 @@
                 return frames[this.currentIndex];
             },
             /**
-             *�����ض�֡
+             *跳到特定帧
              **/
             index: function (index) {
                 this.currentIndex = index;
                 return this.frames[this.currentIndex];
             },
             /**
-             *��ȡ��ʱ֡
+             *获取现时帧
              **/
             getCurrentFrame: function () {
                 return this.frames[this.currentIndex];
             },
             /**
-             *���ض�λ�û��Ƹ�֡
+             *在特定位置绘制该帧
              **/
             draw: function () {
                 var currentFrame = this.getCurrentFrame();
@@ -1104,7 +1363,7 @@
 
     /**
      *
-     *sprite����
+     *sprite对象
      *
      **/
     cnGame.register("cnGame", function (cg) {
@@ -1118,11 +1377,11 @@
         };
         sprite.prototype = {
             /**
-             *��ʼ��
+             *初始化
              **/
             init: function (options) {
                 /**
-                 *Ĭ�϶���
+                 *默认对象
                  **/
                 var defaultObj = {
                     x: 0,
@@ -1173,80 +1432,80 @@
                 this.spriteSheetList = {};
 
                 if (options.src) {
-                    //����ͼƬ·��
+                    //传入图片路径
                     this.setCurrentImage(options.src, options.imgX, options.imgY, options.imgWidth, options.imgHeight);
                 } else if (options.spriteSheet) {
-                    //����spriteSheet����
+                    //传入spriteSheet对象
                     this.addAnimation(options.spriteSheet);
                     setCurrentAnimation(options.spriteSheet);
                 }
             },
             /**
-             *���ذ�����sprite�ľ��ζ���
+             *返回包含该sprite的矩形对象
              **/
             getRect: function () {
                 return new cg.shape.Rect({ x: this.x, y: this.y, width: this.width, height: this.height });
             },
             /**
-             *�����Ƿ���ĳ�������
+             *返回是否在某对象左边
              **/
             isLeftTo: function (obj) {
                 return this.x + this.width < obj.x;
             },
             /**
-             *�����Ƿ���ĳ�����ұ�
+             *返回是否在某对象右边
              **/
             isRightTo: function (obj) {
                 return this.x > obj.x + obj.width;
             },
             /**
-             *�����Ƿ���ĳ�������
+             *返回是否在某对象左边
              **/
             isTopTo: function (obj) {
                 return this.y + this.height < obj.y;
             },
             /**
-             *�����Ƿ���ĳ�������
+             *返回是否在某对象左边
              **/
             isBottomTo: function (obj) {
                 return this.y > obj.y + obj.height;
             },
             /**
-             *�����е��Ƿ���ĳ�����е����
+             *返回中点是否在某对象中点左边
              **/
             isCenterLeftTo: function (obj) {
                 return this.x + this.width / 2 < obj.x + obj.width / 2;
             },
             /**
-             *�����е��Ƿ���ĳ�����е��ұ�
+             *返回中点是否在某对象中点右边
              **/
             isCenterRightTo: function (obj) {
                 return this.x + this.width / 2 > obj.x + obj.width / 2;
             },
             /**
-             *�����е��Ƿ���ĳ�����е����
+             *返回中点是否在某对象中点左边
              **/
             isCenterTopTo: function (obj) {
                 return this.y + this.height / 2 < obj.y + obj.height / 2;
             },
             /**
-             *�����е��Ƿ���ĳ�����е����
+             *返回中点是否在某对象中点左边
              **/
             isCenterBottomTo: function (obj) {
                 return this.y + this.height / 2 > obj.y + obj.height / 2;
             },
             /**
-             *���Ӷ���
+             *添加动画
              **/
             addAnimation: function (spriteSheet) {
                 spriteSheet.relatedSprite = this;
                 this.spriteSheetList[spriteSheet.id] = spriteSheet;
             },
             /**
-             *���õ�ǰ��ʾ����
+             *设置当前显示动画
              **/
             setCurrentAnimation: function (id) {
-                //�ɴ���id��spriteSheet
+                //可传入id或spriteSheet
                 if (!this.isCurrentAnimation(id)) {
                     if (cg.core.isString(id)) {
                         this.spriteSheet = this.spriteSheetList[id];
@@ -1267,7 +1526,7 @@
                 }
             },
             /**
-             *�жϵ�ǰ�����Ƿ�Ϊ��id�Ķ���
+             *判断当前动画是否为该id的动画
              **/
             isCurrentAnimation: function (id) {
                 if (cg.core.isString(id)) {
@@ -1277,7 +1536,7 @@
                 }
             },
             /**
-             *���õ�ǰ��ʾͼ��
+             *设置当前显示图像
              **/
             setCurrentImage: function (src, imgX, imgY, imgWidth, imgHeight) {
                 if (!this.isCurrentImage(src, imgX, imgY, imgWidth, imgHeight)) {
@@ -1292,7 +1551,7 @@
                 }
             },
             /**
-             *�жϵ�ǰͼ���Ƿ�Ϊ��src��ͼ��
+             *判断当前图像是否为该src的图像
              **/
             isCurrentImage: function (src, imgX, imgY, imgWidth, imgHeight) {
                 var image = this.image;
@@ -1312,13 +1571,13 @@
                 return false;
             },
             /**
-             *�����ض�֡
+             *跳到特定帧
              **/
             index: function (index) {
                 this.spriteSheet && this.spriteSheet.index(index);
             },
             /**
-             *�����ƶ�����
+             *设置移动参数
              **/
             setMovement: function (options) {
                 isUndefined = cg.core.isUndefined;
@@ -1338,7 +1597,7 @@
                 isUndefined(options.maxSpeedY) ? (this.maxSpeedY = this.maxSpeedY) : (this.maxSpeedY = options.maxSpeedY);
             },
             /**
-             *�����ƶ������ص���ʼֵ
+             *重置移动参数回到初始值
              **/
             resetMovement: function () {
                 this.speedX = 0;
@@ -1357,10 +1616,10 @@
                 this.minAngle = -postive_infinity;
             },
             /**
-             *����λ�ú�֡����
+             *更新位置和帧动画
              **/
             update: function (duration) {
-                //duration:��֡��ʱ ��λ����
+                //duration:该帧历时 单位：秒
                 this.speedX = this.speedX + this.aX * duration;
                 if (this.maxSpeedX < 0) {
                     this.maxSpeedX *= -1;
@@ -1385,14 +1644,14 @@
                 this.rotate(this.rotateSpeed).move(this.speedX, this.speedY);
 
                 if (this.spriteSheet) {
-                    //����spriteSheet����
+                    //更新spriteSheet动画
                     this.spriteSheet.x = this.x;
                     this.spriteSheet.y = this.y;
                     this.spriteSheet.update();
                 }
             },
             /**
-             *���Ƴ�sprite
+             *绘制出sprite
              **/
             draw: function () {
                 var context = this.context;
@@ -1414,7 +1673,7 @@
                 }
             },
             /**
-             *�ƶ�һ������
+             *移动一定距离
              **/
             move: function (dx, dy) {
                 dx = dx || 0;
@@ -1426,7 +1685,7 @@
                 return this;
             },
             /**
-             *�ƶ���ĳ��
+             *移动到某处
              **/
             moveTo: function (x, y) {
                 this.x = Math.min(Math.max(this.minX, x), this.maxX);
@@ -1434,7 +1693,7 @@
                 return this;
             },
             /**
-             *��תһ���Ƕ�
+             *旋转一定角度
              **/
             rotate: function (da) {
                 da = da || 0;
@@ -1444,14 +1703,14 @@
                 return this;
             },
             /**
-             *��ת��һ���Ƕ�
+             *旋转到一定角度
              **/
             rotateTo: function (a) {
                 this.angle = Math.min(Math.max(this.minAngle, a), this.maxAngle);
                 return this;
             },
             /**
-             *�ı�һ���ߴ�
+             *改变一定尺寸
              **/
             resize: function (dw, dh) {
                 this.width += dw;
@@ -1459,7 +1718,7 @@
                 return this;
             },
             /**
-             *�ı䵽һ���ߴ�
+             *改变到一定尺寸
              **/
             resizeTo: function (width, height) {
                 this.width = width;
@@ -1471,7 +1730,7 @@
     });
     /**
      *
-     *sprite�б�
+     *sprite列表
      *
      **/
     cnGame.register("cnGame", function (cg) {
@@ -1480,14 +1739,26 @@
         };
         spriteList.prototype = {
             get: function (index) {
-                return this.list[index];
+                //传入索引或条件函数
+                if (cg.core.isNum(index)) {
+                    return this.list[index];
+                } else if (cg.core.isFunction(index)) {
+                    var arr = [];
+                    for (var i = 0, len = this.list.length; i < len; i++) {
+                        if (index(this.list[i])) {
+                            arr.push(this.list[i]);
+                        }
+                    }
+                    return arr;
+                }
             },
             add: function (sprite) {
                 this.list.push(sprite);
             },
             remove: function (sprite) {
+                //传入sprite或条件函数
                 for (var i = 0, len = this.list.length; i < len; i++) {
-                    if (this.list[i] === sprite) {
+                    if (this.list[i] === sprite || (cg.core.isFunction(sprite) && sprite(this.list[i]))) {
                         this.list.splice(i, 1);
                         i--;
                         len--;
@@ -1525,37 +1796,39 @@
 
     /**
      *
-     *��Ϸѭ��
+     *游戏循环
      *
      **/
     cnGame.register("cnGame", function (cg) {
         var timeId;
         var delay;
         /**
-         *ѭ������
+         *循环方法
          **/
         var loop = function () {
             var self = this;
             return function () {
                 var now = new Date().getTime();
                 if (!self.pause && !self.stop) {
-                    var duration = now - self.lastTime; //֡��ʱ
+                    var duration = now - self.lastTime; //帧历时
                     var spriteList = cg.spriteList;
                     self.loopDuration = (self.startTime - self.now) / 1000;
 
                     if (self.gameObj.update) {
-                        //������Ϸ�����update
+                        //调用游戏对象的update
                         self.gameObj.update(duration / 1000);
                     }
+
+                    cg.clean();
+                    cg.drawBg(); //绘制背景色
                     if (self.gameObj.draw) {
-                        cg.context.clearRect(0, 0, cg.width, cg.height);
                         self.gameObj.draw(duration / 1000);
                     }
-                    //��������sprite
+                    //更新所有sprite
                     spriteList.update(duration / 1000);
                     spriteList.draw();
 
-                    /*if (duration > self.interval) {//����delayʱ��
+                    /*if (duration > self.interval) {//修正delay时间
                         delay = Math.max(1, self.interval - (duration - self.interval));
 						
 
@@ -1574,11 +1847,11 @@
         };
         gameLoop.prototype = {
             /**
-             *��ʼ��
+             *初始化
              **/
             init: function (gameObj, options) {
                 /**
-                 *Ĭ�϶���
+                 *默认对象
                  **/
                 var defaultObj = {
                     fps: 30,
@@ -1595,11 +1868,11 @@
             },
 
             /**
-             *��ʼѭ��
+             *开始循环
              **/
             start: function () {
                 if (this.stop) {
-                    //����ǽ���״̬����Կ�ʼ
+                    //如果是结束状态则可以开始
                     this.stop = false;
                     var now = new Date().getTime();
                     this.startTime = now;
@@ -1609,18 +1882,18 @@
                 }
             },
             /**
-             *����ѭ��
+             *继续循环
              **/ run: function () {
                 this.pause = false;
             },
             /**
-             *��ͣѭ��
+             *暂停循环
              **/
             pause: function () {
                 this.pause = true;
             },
             /**
-             *ֹͣѭ��
+             *停止循环
              **/
             end: function () {
                 this.stop = true;
@@ -1632,12 +1905,12 @@
 
     /**
      *
-     *��ͼ
+     *地图
      *
      **/
     cnGame.register("cnGame", function (cg) {
         /**
-         *�㰴zIndex��С��������
+         *层按zIndex由小到大排序
          **/
         var sortLayers = function (layersList) {
             layersList.sort(function (layer1, layer2) {
@@ -1651,7 +1924,7 @@
             });
         };
         /**
-         *�����
+         *层对象
          **/
         var layer = function (id, mapMatrix, options) {
             if (!(this instanceof arguments.callee)) {
@@ -1661,16 +1934,16 @@
         };
         layer.prototype = {
             /**
-             *��ʼ��
+             *初始化
              **/
             init: function (id, mapMatrix, options) {
                 /**
-                 *Ĭ�϶���
+                 *默认对象
                  **/
                 var defaultObj = {
-                    cellSize: [32, 32], //���������
-                    x: 0, //layer��ʼx
-                    y: 0, //layer��ʼy
+                    cellSize: [32, 32], //方格宽，高
+                    x: 0, //layer起始x
+                    y: 0, //layer起始y
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
@@ -1679,15 +1952,15 @@
                 this.cellSize = options.cellSize;
                 this.x = options.x;
                 this.y = options.y;
-                this.row = mapMatrix.length; //�ж�����
+                this.row = mapMatrix.length; //有多少行
                 this.width = this.cellSize[0] * mapMatrix[0].length;
                 this.height = this.cellSize[1] * this.row;
-                this.spriteList = new cg.SpriteList(); //�ò��ϵ�sprite�б�
-                this.imgsReference = options.imgsReference; //ͼƬ�����ֵ䣺{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
+                this.spriteList = new cg.SpriteList(); //该层上的sprite列表
+                this.imgsReference = options.imgsReference; //图片引用字典：{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
                 this.zIindex = options.zIndex;
             },
             /**
-             *����sprite
+             *添加sprite
              **/
             addSprites: function (sprites) {
                 if (cg.core.isArray(sprites)) {
@@ -1700,7 +1973,7 @@
                 }
             },
             /**
-             *��ȡ�ض�������layer�д��ڵķ����ֵ
+             *获取特定对象在layer中处于的方格的值
              **/
             getPosValue: function (x, y) {
                 if (cg.core.isObject(x)) {
@@ -1716,7 +1989,7 @@
                 return undefined;
             },
             /**
-             *��ȡ�ض�������layer�д��ڵķ�������
+             *获取特定对象在layer中处于的方格索引
              **/
             getCurrentIndex: function (x, y) {
                 if (cg.core.isObject(x)) {
@@ -1726,7 +1999,7 @@
                 return [Math.floor(x / this.cellSize[0]), Math.floor(y / this.cellSize[1])];
             },
             /**
-             *��ȡ�ض������Ƿ�պ�������غ�
+             *获取特定对象是否刚好与格子重合
              **/
             isMatchCell: function (x, y) {
                 if (cg.core.isObject(x)) {
@@ -1736,19 +2009,19 @@
                 return x % this.cellSize[0] == 0 && y % this.cellSize[1] == 0;
             },
             /**
-             *����layer��Ӧλ�õ�ֵ
+             *设置layer对应位置的值
              **/
             setPosValue: function (x, y, value) {
                 this.mapMatrix[y][x] = value;
             },
             /**
-             *���²��ϵ�sprite�б�
+             *更新层上的sprite列表
              **/
             update: function (duration) {
                 this.spriteList.update(duration);
             },
             /**
-             *����layer�ľ������layer�͸�layer�ϵ�����sprite
+             *根据layer的矩阵绘制layer和该layer上的所有sprite
              **/
             draw: function () {
                 var mapMatrix = this.mapMatrix;
@@ -1762,7 +2035,7 @@
                 var img;
                 var col;
                 for (var i = beginY, ylen = beginY + row * cellSize[1]; i < ylen; i += cellSize[1]) {
-                    //���ݵ�ͼ���󣬻���ÿ������
+                    //根据地图矩阵，绘制每个方格
                     currentRow = (i - beginY) / cellSize[1];
                     col = mapMatrix[currentRow].length;
                     for (var j = beginX, xlen = beginX + col * cellSize[0]; j < xlen; j += cellSize[0]) {
@@ -1772,18 +2045,18 @@
                             currentObj.x = currentObj.x || 0;
                             currentObj.y = currentObj.y || 0;
                             img = cg.loader.loadedImgs[currentObj.src];
-                            //�����ض������ͼ��
+                            //绘制特定坐标的图像
                             cg.context.drawImage(img, currentObj.x, currentObj.y, cellSize[0], cellSize[1], j, i, cellSize[0], cellSize[1]);
                         }
                     }
                 }
-                //���¸�layer������sprite
+                //更新该layer上所有sprite
                 this.spriteList.draw();
             },
         };
 
         /**
-         *��ͼ����
+         *地图对象
          **/
         var map = function (options) {
             if (!(this instanceof arguments.callee)) {
@@ -1793,11 +2066,11 @@
         };
         map.prototype = {
             /**
-             *��ʼ��
+             *初始化
              **/
             init: function (options) {
                 /**
-                 *Ĭ�϶���
+                 *默认对象
                  **/
                 var defaultObj = {
                     layers: [],
@@ -1813,10 +2086,10 @@
                 this.y = options.y;
                 this.width = options.width;
                 this.height = options.height;
-                this.enviroment = options.enviroment; //����layer
+                this.enviroment = options.enviroment; //地形layer
             },
             /**
-             *����layer
+             *添加layer
              **/
             addLayer: function (layers) {
                 if (cg.core.isArray(layers)) {
@@ -1831,7 +2104,7 @@
                 }
             },
             /**
-             *��ȡĳ��layer
+             *获取某个layer
              **/
             getLayer: function (id) {
                 for (var i = 0, len = this.layers.length; i < len; i++) {
@@ -1841,7 +2114,7 @@
                 }
             },
             /**
-             *��������layer
+             *更新所有layer
              **/
             update: function (duration) {
                 for (var i = 0, len = this.layers.length; i < len; i++) {
@@ -1851,7 +2124,7 @@
                 }
             },
             /**
-             *��������layer
+             *绘制所有layer
              **/
             draw: function () {
                 for (var i = 0, len = this.layers.length; i < len; i++) {
@@ -1866,7 +2139,7 @@
 
     /**
      *
-     *����
+     *场景
      *
      **/
     cnGame.register("cnGame", function (cg) {
@@ -1875,11 +2148,11 @@
         };
         view.prototype = {
             /**
-             *��ʼ��
+             *初始化
              **/
             init: function (options) {
                 /**
-                 *Ĭ�϶���
+                 *默认对象
                  **/
                 var defaultObj = {
                     width: cg.width,
@@ -1904,23 +2177,23 @@
                 this.isLoop = false;
                 this.isCenterPlayer = false;
                 this.onEnd = options.onEnd;
-                this.map = options.map; //viewʹ�õĵ�ͼ����
+                this.map = options.map; //view使用的地图对象
             },
             /**
-             *ʹplayer��λ�ñ����ڳ����е�֮ǰ���ƶ�����
+             *使player的位置保持在场景中点之前的移动背景
              **/
             centerElem: function (elem, isInnerView) {
                 this.elemToCenter = elem;
                 this.isInnerView = isInnerView;
             },
             /**
-             *ȡ������ϷԪ�صľ���
+             *取消对游戏元素的居中
              **/
             cancelCenter: function () {
                 this.elemToCenter = undefined;
             },
             /**
-             *����
+             *更新
              **/
             update: function () {
                 var elem = this.elemToCenter;
@@ -1929,11 +2202,11 @@
                     var dir = this.centerDir;
 
                     if (dir != "y") {
-                        //x�������
+                        //x方向居中
                         this.x = Math.max(map.x, Math.min(map.width - this.width, elem.x - this.width / 2));
                     }
                     if (dir != "x") {
-                        //y�������
+                        //y方向居中
                         this.y = Math.max(map.y, Math.min(map.height - this.height, elem.y - this.height / 2));
                     }
                     if (this.isInnerView) {
@@ -1951,7 +2224,7 @@
                 }
             },
             /**
-             *�ж϶����Ƿ���view��
+             *判断对象是否在view内
              **/
             isPartlyInsideView: function (sprite) {
                 var spriteRect = sprite.getRect();
@@ -1959,7 +2232,7 @@
                 return cg.collision.col_Between_Rects(spriteRect, viewRect);
             },
             /**
-             *ʹ���������view
+             *使坐标相对于view
              **/
             applyInView: function (func) {
                 cg.context.save();
@@ -1968,7 +2241,7 @@
                 cg.context.restore();
             },
             /**
-             *���ذ�����view�ľ��ζ���
+             *返回包含该view的矩形对象
              **/
             getRect: function () {
                 return new cg.shape.Rect({ x: this.x, y: this.y, width: this.width, height: this.height });
@@ -1976,4 +2249,111 @@
         };
         this.View = view;
     });
+
+    /**
+     *
+     *UI类
+     *
+     **/
+    cnGame.register("cnGame.ui", function (cg) {
+        /*	点击回调	*/
+        var clickCallBacks = {};
+
+        var recordClick = function () {};
+        /*	按钮	*/
+        var button = function (options) {
+            this.init(options);
+            cg.core.bindHandler(cg.canvas, "click", recordClick);
+        };
+        button.prototype = {
+            init: function (options) {
+                this.setOptions(options);
+            },
+            onClick: function () {},
+            setOptions: function (options) {
+                cg.core.extend(this, options);
+            },
+        };
+    });
 })(window, undefined);
+
+/* 
+v1.0 升级到 v1.1
+    1. cnGame.clean       增加方法clean
+    2. cnGame.loader
+       start(src, gameObj, onLoad)  => start(gameObj, options)
+    3. cnGame.sprite 
+       {rotateSpeed, aR, minAngle, maxAngle}
+       update() => update(duration)
+    4. cnGame.spriteList  增加属性对象spriteList
+    5. cnGame.map 
+       getPosValue(ele) => getPosValue(x, y)
+       getCurrentIndex    增加方法
+       isMatchCell        增加方法
+       setPosValue        增加方法 
+
+v1.1 升级到 v1.2
+    1 cnGame.core.getComputerStyle   var body = document.body => var body = document.body || document.documentElement;
+
+v1.2 升级到 v1.3
+    1. cnGame.ajax        增加方法ajax
+    2. cnGame.sprite
+       setCurrentImage: function (src, imgX, imgY) => setCurrentImage: function (src, imgX, imgY, imgWidth, imgHeight)
+       isCurrentImage: function (src, imgX, imgY) => isCurrentImage: function (src, imgX, imgY, imgWidth, imgHeight)
+       index              增加方法 
+    3. cnGame.spriteList
+       sort               增加方法
+    4. cnGame.map
+       setIndexValue      增加方法
+
+v1.3 升级到 v1.4
+    1. cnGame.spriteList  增加实例属性对象
+    2. cnGame.SpriteList  由对象字面量 改造为 构造函数
+       get                增加方法
+       getLength          增加方法
+       update             增加方法
+       draw               增加方法
+    3. cnGame.sprite
+       isLeftTo           增加方法
+       isRightTo          增加方法
+       isTopTo            增加方法
+       isBottomTo         增加方法
+       isCenterLeftTo     增加方法
+       isCenterRightTo    增加方法
+       isCenterTopTo      增加方法
+       isCenterBottomTo   增加方法
+    4. cnGame.Layer 增加实例属性对象   
+    5. cnGame.Map  function (mapMatrix, options) => function (options)
+       init: function (mapMatrix, options) => init: function (options)
+       draw: function (options) => draw: function ()
+       getPosValue        删除
+       getCurrentIndex    删除
+       setIndexValue      删除
+       isMatchCell        删除
+       setPosValue        删除
+       
+       addLayer
+       getLayer
+       update             增加
+    6. cnGame.View  
+       centerPlayer: function (isLoop) {  =>  centerElem: function (elem, isInnerView) {  
+       insideView         删除
+       cancelCenter       增加
+       update: function (spritelist) {  =>  update: function () {
+       isPartlyInsideView 增加
+       applyInView        增加
+       getRect            增加
+       draw               删除
+ 
+v1.4 升级到 v1.5       
+    cnGame.bgColor        新增属性
+    cnGame.drawBg         新增方法
+    cnGame.core.isFunction  新增方法
+    cnGame.core.extendProto 新增方法
+    cnGame.shape.Text
+       init: function (text, options)  =>  init: function (options) {
+    cnGame.shape.Line       新增对象属性
+    cnGame.shape.Polygon    新增对象属性
+    cnGame.eventManager     新增对象属性
+    cnGame.ui               新增对象属性    
+ */

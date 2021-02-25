@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+
+        <script type="text/javascript" src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script type="text/javascript">
+$(function(){
+    $(".char-btn").click(function(){
+        var start=parseInt($(this).attr('data-start'));
+        var end=parseInt($(this).attr('data-end'));
+        var _html="";
+        for(var i=start;i<end;i++){
+            _html += '&#'+i+';';
+            if (i%100==0){
+                _html += '<br><h3>【'+i+'  --  '+(i+100)+':】</h3>\n';
+            }
+        }
+        $('#result').html(_html);
+    });
+    $(".char2-btn").click(function(){
+        var start=parseInt($(this).attr('data-start'));
+        var end=parseInt($(this).attr('data-end'));
+        var _html="";
+        for(var i=start;i<end;i++){
+            _html += '&#'+i+';';
+            _html += ' --['+i+']<br>\n';
+        }
+        $('#result').html(_html);
+    });
+});
+</script>
+<style type="text/css">
+#p1{font-size:20px;font-family:Arial;}
+#result{font-family:Arial;background:#f8f8f8;border:1px solid #000;font-size:20px;min-height:800px;}
+</style>
+<h2>字符集   font-family:Arial;（js生成）</h2>
+<input type="button" name="" value="生成 0-10000" class="char-btn" data-start="0" data-end="10000">
+<input type="button" name="" value="生成 10000-20000" class="char-btn" data-start="10000" data-end="20000">
+<input type="button" name="" value="生成 20000-30000" class="char-btn" data-start="20000" data-end="30000">
+<input type="button" name="" value="生成 30000-40000" class="char-btn" data-start="30000" data-end="40000">
+<input type="button" name="" value="生成 40000-50000" class="char-btn" data-start="40000" data-end="50000">
+<input type="button" name="" value="生成 50000-60000" class="char-btn" data-start="50000" data-end="60000">
+<input type="button" name="" value="生成 60000-70000" class="char-btn" data-start="60000" data-end="70000">
+<hr>
+<input type="button" name="" value="生成" class="char2-btn" data-start="9600" data-end="9800">
+<p id="p1">示例： &#9660; &#9650; &#9658; &#9668; </p>
+<div id="result"></div>
+    </body>
+</html>

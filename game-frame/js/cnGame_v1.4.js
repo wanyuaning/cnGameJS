@@ -1,11 +1,4 @@
-/**
- *
- * name:cnGame.js
- *`author:cson
- *`date:2012-2-7
- *`version:1.0
- *
- **/
+
 
 (function (win, undefined) {
     var canvasPos;
@@ -41,6 +34,7 @@
             this.canvas.height = this.height;
             this.canvas.style.left = this.x + "px";
             this.canvas.style.top = this.y + "px";
+            this.spriteList = new this.SpriteList();
         },
         /**
          *���������ռ�,��ִ����Ӧ����
@@ -69,26 +63,26 @@
 
     /**
      *
-     *�������ߺ���
+     *�������ߺ���ģ��
      *
      **/
     cnGame.register("cnGame.core", function (cg) {
         /**
-		��id��ȡԪ��
-		**/
+        ��id��ȡԪ��
+        **/
         this.$ = function (id) {
             return document.getElementById(id);
         };
         /**
-		����ǩ����ȡԪ��
-		**/
+        ����ǩ����ȡԪ��
+        **/
         this.$$ = function (tagName, parent) {
             parent = parent || document;
             return parent.getElementsByTagName(tagName);
         };
         /**
-		��������ȡԪ��
-		**/
+        ��������ȡԪ��
+        **/
         this.$Class = function (className, parent) {
             var arr = [],
                 result = [];
@@ -102,8 +96,8 @@
             return result;
         };
         /**
-		�¼���
-		**/
+        �¼���
+        **/
         this.bindHandler = (function () {
             if (window.addEventListener) {
                 return function (elem, type, handler) {
@@ -116,8 +110,8 @@
             }
         })();
         /**
-		�¼����
-		**/
+        �¼����
+        **/
         this.removeHandler = (function () {
             if (window.removeEventListerner) {
                 return function (elem, type, handler) {
@@ -130,21 +124,21 @@
             }
         })();
         /**
-		��ȡ�¼�����
-		**/
+        ��ȡ�¼�����
+        **/
         this.getEventObj = function (eve) {
             return eve || win.event;
         };
         /**
-		��ȡ�¼�Ŀ�����
-		**/
+        ��ȡ�¼�Ŀ�����
+        **/
         this.getEventTarget = function (eve) {
             var eve = this.getEventObj(eve);
             return eve.target || eve.srcElement;
         };
         /**
-		��ֹĬ����Ϊ
-		**/
+        ��ֹĬ����Ϊ
+        **/
         this.preventDefault = function (eve) {
             if (eve.preventDefault) {
                 eve.preventDefault();
@@ -153,10 +147,10 @@
             }
         };
         /**
-		��ȡ����������ʽ
-		**/
+        ��ȡ����������ʽ
+        **/
         this.getComputerStyle = (function () {
-            var body = document.body;
+            var body = document.body || document.documentElement;
             if (body.currentStyle) {
                 return function (elem) {
                     return elem.currentStyle;
@@ -168,32 +162,32 @@
             }
         })();
         /**
-		�Ƿ�Ϊundefined
-		**/
+        �Ƿ�Ϊundefined
+        **/
         (this.isUndefined = function (elem) {
             return typeof elem === "undefined";
         }),
             /**
-		�Ƿ�Ϊ����
-		**/
+        �Ƿ�Ϊ����
+        **/
             (this.isArray = function (elem) {
                 return Object.prototype.toString.call(elem) === "[object Array]";
             });
         /**
-		�Ƿ�ΪObject����
-		**/
+        �Ƿ�ΪObject����
+        **/
         this.isObject = function (elem) {
             return elem === Object(elem);
         };
         /**
-		�Ƿ�Ϊ�ַ�������
-		**/
+        �Ƿ�Ϊ�ַ�������
+        **/
         this.isString = function (elem) {
             return Object.prototype.toString.call(elem) === "[object String]";
         };
         /**
-		�Ƿ�Ϊ��ֵ����
-		**/
+        �Ƿ�Ϊ��ֵ����
+        **/
         this.isNum = function (elem) {
             return Object.prototype.toString.call(elem) === "[object Number]";
         };
@@ -224,11 +218,111 @@
 
     /**
      *
+     *Ajaxģ��
+     *
+     **/
+    cnGame.register("cnGame.ajax", function (cg) {
+        var activeXString; //ΪIE�ض��汾������activeX�ַ���
+        var onXHRload = function (xhr, options) {
+            return function (eve) {
+                if (xhr.readyState == 4) {
+                    if ((xhr.status >= 200 && xhr.state < 300) || xhr.status == 304) {
+                        var onSuccess = options.onSuccess;
+                        onSuccess && onSuccess();
+                    } else {
+                        var onError = options.onError;
+                        onError && onError();
+                    }
+                }
+            };
+        };
+
+        /**
+         *����XMLHttpRequest����
+         **/
+        this.creatXHR = function () {
+            if (!cg.core.isUndefined(XMLHttpRequest)) {
+                return new XMLHttpRequest();
+            } else if (!cg.core.isUndefined(ActiveXObject)) {
+                if (!cg.core.isString(activeXString)) {
+                    var versions = ["MSXML2.XMLHttp.6.0", "MSXML2.XMLHttp.3.0", "MSXML2.XMLHttp"];
+                    for (var i = 0, len = versions.length; i < len; i++) {
+                        try {
+                            var xhr = new ActiveXObject(versions[i]);
+                            activeXString = versions[i];
+                            return xhr;
+                        } catch (e) {}
+                    }
+                }
+                return new ActiveXObject(activeXString);
+            }
+        };
+        /**
+         *��������
+         **/
+        this.request = function (options) {
+            var defaultObj = {
+                type: "get",
+            };
+            cg.core.extend(defaultObj, options);
+            var type = options.type;
+            var xhr = this.creatXHR();
+
+            cg.core.bindHandler(xhr, "readystatechange", function (eve) {
+                //��Դ������ɻص�����
+                if (xhr.readyState == 4) {
+                    if ((xhr.status >= 200 && xhr.state < 300) || xhr.status == 304) {
+                        var onSuccess = options.onSuccess;
+                        onSuccess && onSuccess();
+                    } else {
+                        var onError = options.onError;
+                        onError && onError();
+                    }
+                }
+            });
+
+            var requestOpt = options.requestOpt;
+            var url = options.url;
+
+            if (type == "get") {
+                //get�������ݴ���
+                if (url.indexOf("?") < 0) {
+                    url += "?";
+                } else {
+                    url += "&";
+                }
+
+                for (name in requestOpt) {
+                    if (requestOpt.hasOwnProperty(name)) {
+                        url += encodeURIComponent(name) + "=" + encodeURIComponent(requestOpt[name]) + "&";
+                        url = url.slice(0, -1);
+                        xhr.open(type, url, true);
+                        xhr.send(null);
+                    }
+                }
+            } else if (type == "post") {
+                //post�������ݴ���
+                var _requestOpt = {};
+                for (name in requestOpt) {
+                    if (requestOpt.hasOwnProperty(name)) {
+                        _requestOpt[encodeURIComponent(name)] = encodeURIComponent(requestOpt[name]);
+                    }
+                }
+                xhr.open(type, url, true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.send(_requestOpt);
+            }
+        };
+    });
+
+    /**
+     *
      *��Դ������
      *
      **/
     cnGame.register("cnGame", function (cg) {
         var file_type = {};
+        file_type["js"] = "js";
         file_type["json"] = "json";
         file_type["wav"] = "audio";
         file_type["mp3"] = "audio";
@@ -288,25 +382,35 @@
                 this.gameObj = gameObj;
                 this.startOptions = options.startOptions; //��Ϸ��ʼ��Ҫ�ĳ�ʼ������
                 this.onLoad = options.onLoad;
+                this.sum = 0;
                 cg.spriteList.clean();
 
-                if (cg.core.isArray(srcArr)) {
-                    this.sum = srcArr.length;
-                    for (var i = 0, len = srcArr.length; i < len; i++) {
-                        var path = srcArr[i];
-                        var suffix = srcArr[i].substring(srcArr[i].lastIndexOf(".") + 1);
-                        var type = file_type[suffix];
-                        if (type == "image") {
-                            this.loadingImgs[path] = new Image();
-                            cg.core.bindHandler(this.loadingImgs[path], "load", resourceLoad(this, type));
-                            this.loadingImgs[path].src = path;
-                            this.loadingImgs[path].srcPath = path; //û�о����Զ��任��src
-                        } else if (type == "audio") {
-                            this.loadingAudios[path] = new Audio(path);
-                            cg.core.bindHandler(this.loadingAudios[path], "canplay", resourceLoad(this, type));
-                            this.loadingAudios[path].onload = resourceLoad(this, type);
-                            this.loadingAudios[path].src = path;
-                            this.loadingAudios[path].srcPath = path; //û�о����Զ��任��src
+                if (cg.core.isArray(srcArr) || cg.core.isObject(srcArr)) {
+                    for (var i in srcArr) {
+                        if (srcArr.hasOwnProperty(i)) {
+                            this.sum++;
+                            var path = srcArr[i];
+                            var suffix = srcArr[i].substring(srcArr[i].lastIndexOf(".") + 1);
+                            var type = file_type[suffix];
+                            if (type == "image") {
+                                this.loadingImgs[path] = new Image();
+                                cg.core.bindHandler(this.loadingImgs[path], "load", resourceLoad(this, type));
+                                this.loadingImgs[path].src = path;
+                                this.loadingImgs[path].srcPath = path; //û�о����Զ��任��src
+                            } else if (type == "audio") {
+                                this.loadingAudios[path] = new Audio(path);
+                                cg.core.bindHandler(this.loadingAudios[path], "canplay", resourceLoad(this, type));
+                                this.loadingAudios[path].onload = resourceLoad(this, type);
+                                this.loadingAudios[path].src = path;
+                                this.loadingAudios[path].srcPath = path; //û�о����Զ��任��src
+                            } else if (type == "js") {
+                                //����ǽű������غ�ִ��
+                                var head = cg.core.$$("head")[0];
+                                var script = document.createElement("script");
+                                head.appendChild(script);
+                                cg.core.bindHandler(script, "load", resourceLoad(this, type));
+                                script.src = path;
+                            }
                         }
                     }
                 }
@@ -322,13 +426,6 @@
      *
      **/
     cnGame.register("cnGame.shape", function (cg) {
-        /**
-         *����right��bottom
-         **/
-        var resetRightBottom = function (elem) {
-            elem.right = elem.x + elem.width;
-            elem.bottom = elem.y + elem.height;
-        };
         /**
          *���ζ���
          **/
@@ -357,19 +454,24 @@
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
                 this.setOptions(options);
-
-                resetRightBottom(this);
             },
             /**
              *���ò���
              **/
             setOptions: function (options) {
-                this.x = options.x || this.x;
-                this.y = options.y || this.y;
-                this.width = options.width || this.width;
-                this.height = options.height || this.height;
-                this.style = options.style || this.style;
-                this.isFill = options.isFill || this.isFill;
+                var isUndefined = cg.core.isUndefined;
+                !isUndefined(options.x) && (this.x = options.x);
+                !isUndefined(options.y) && (this.y = options.y);
+                !isUndefined(options.width) && (this.width = options.width);
+                !isUndefined(options.height) && (this.height = options.height);
+                !isUndefined(options.style) && (this.style = options.style);
+                !isUndefined(options.isFill) && (this.isFill = options.isFill);
+                this.leftTop = [this.x, this.y];
+                this.rightTop = [this.x + this.width, this.y];
+                this.leftBottom = [this.x, this.y + this.height];
+                this.rightBottom = [this.x + this.width, this.y + this.height];
+                this.right = this.width + this.x;
+                this.bottom = this.height + this.y;
             },
             /**
              *���ƾ���
@@ -551,6 +653,7 @@
                     y: 100,
                     style: "red",
                     isFill: true,
+                    context: cg.context,
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
@@ -561,7 +664,7 @@
              *����
              **/
             draw: function () {
-                var context = cg.context;
+                var context = this.context;
                 !cg.core.isUndefined(this.font) && (context.font = this.font);
                 !cg.core.isUndefined(this.textBaseline) && (context.textBaseline = this.textBaseline);
                 !cg.core.isUndefined(this.textAlign) && (context.textAlign = this.textAlign);
@@ -578,6 +681,7 @@
              *���ò���
              **/
             setOptions: function (options) {
+                this.context = options.context || this.context;
                 this.x = options.x || this.x;
                 this.y = options.y || this.y;
                 this.maxWidth = options.maxWidth || this.maxWidth;
@@ -813,7 +917,7 @@
          *��;��μ����ײ
          **/
         this.col_Point_Rect = function (pointX, pointY, rectObj) {
-            return (pointX >= rectObj.x && pointX <= rectObj.right) || (pointY >= rectObj.y && pointY <= rectObj.bottom);
+            return pointX >= rectObj.x && pointX <= rectObj.right && pointY >= rectObj.y && pointY <= rectObj.bottom;
         };
         /**
          *���κ;��μ����ײ
@@ -907,15 +1011,18 @@
                     direction: "right", //������
                     beginX: 0,
                     beginY: 0,
+                    scale: 1,
                     loop: false,
                     bounce: false,
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
                 this.id = id; //spriteSheet��id
+                this.context = options.context || cg.context; //ʹ�õ������Ķ���Ĭ���ǿ�ܵ�context
                 this.src = src; //ͼƬ��ַ
                 this.x = options.x; //����Xλ��
                 this.y = options.y; //����Yλ��
+                this.scale = options.scale; //���ű�
                 this.width = options.width; //ͼƬ�Ŀ���
                 this.height = options.height; //ͼƬ�ĸ߶�
                 this.image = cg.loader.loadedImgs[this.src]; //ͼƬ����
@@ -938,8 +1045,8 @@
             update: function () {
                 this.now = new Date().getTime();
                 var frames = this.frames;
-                if (this.now - this.last > this.frameDuration) {
-                    //����������֡��������update
+                if (this.now - this.last >= this.frameDuration) {
+                    //���������ڵ���֡��������update
                     var currentIndex = this.currentIndex;
                     var length = this.frames.length;
                     this.last = this.now;
@@ -951,7 +1058,6 @@
                         } else if (!this.bounce) {
                             //û��ѭ������û��������������ֹͣ�����һ֡
                             this.onFinish && this.onFinish();
-                            this.onFinish = undefined;
                             return frames[currentIndex];
                         }
                     }
@@ -983,7 +1089,7 @@
                 var currentFrame = this.getCurrentFrame();
                 var width = this.frameSize[0];
                 var height = this.frameSize[1];
-                cg.context.drawImage(this.image, currentFrame.x, currentFrame.y, width, height, this.x, this.y, width, height);
+                this.context.drawImage(this.image, currentFrame.x, currentFrame.y, width, height, this.x, this.y, width * this.scale, height * this.scale);
             },
         };
         this.SpriteSheet = spriteSheet;
@@ -1036,6 +1142,7 @@
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
+                this.context = options.context || cg.context;
                 this.x = options.x;
                 this.y = options.y;
                 this.angle = options.angle;
@@ -1060,7 +1167,7 @@
 
                 if (options.src) {
                     //����ͼƬ·��
-                    this.setCurrentImage(options.src, options.imgX, options.imgY);
+                    this.setCurrentImage(options.src, options.imgX, options.imgY, options.imgWidth, options.imgHeight);
                 } else if (options.spriteSheet) {
                     //����spriteSheet����
                     this.addAnimation(options.spriteSheet);
@@ -1074,9 +1181,58 @@
                 return new cg.shape.Rect({ x: this.x, y: this.y, width: this.width, height: this.height });
             },
             /**
+             *�����Ƿ���ĳ�������
+             **/
+            isLeftTo: function (obj) {
+                return this.x + this.width < obj.x;
+            },
+            /**
+             *�����Ƿ���ĳ�����ұ�
+             **/
+            isRightTo: function (obj) {
+                return this.x > obj.x + obj.width;
+            },
+            /**
+             *�����Ƿ���ĳ�������
+             **/
+            isTopTo: function (obj) {
+                return this.y + this.height < obj.y;
+            },
+            /**
+             *�����Ƿ���ĳ�������
+             **/
+            isBottomTo: function (obj) {
+                return this.y > obj.y + obj.height;
+            },
+            /**
+             *�����е��Ƿ���ĳ�����е����
+             **/
+            isCenterLeftTo: function (obj) {
+                return this.x + this.width / 2 < obj.x + obj.width / 2;
+            },
+            /**
+             *�����е��Ƿ���ĳ�����е��ұ�
+             **/
+            isCenterRightTo: function (obj) {
+                return this.x + this.width / 2 > obj.x + obj.width / 2;
+            },
+            /**
+             *�����е��Ƿ���ĳ�����е����
+             **/
+            isCenterTopTo: function (obj) {
+                return this.y + this.height / 2 < obj.y + obj.height / 2;
+            },
+            /**
+             *�����е��Ƿ���ĳ�����е����
+             **/
+            isCenterBottomTo: function (obj) {
+                return this.y + this.height / 2 > obj.y + obj.height / 2;
+            },
+            /**
              *���Ӷ���
              **/
             addAnimation: function (spriteSheet) {
+                spriteSheet.relatedSprite = this;
                 this.spriteSheetList[spriteSheet.id] = spriteSheet;
             },
             /**
@@ -1087,11 +1243,19 @@
                 if (!this.isCurrentAnimation(id)) {
                     if (cg.core.isString(id)) {
                         this.spriteSheet = this.spriteSheetList[id];
-                        this.image = this.imgX = this.imgY = undefined;
+                        if (this.spriteSheet) {
+                            this.width = this.spriteSheet.frameSize[0];
+                            this.height = this.spriteSheet.frameSize[1];
+                            this.image = this.imgX = this.imgY = undefined;
+                        }
                     } else if (cg.core.isObject(id)) {
                         this.spriteSheet = id;
-                        this.addAnimation(id);
-                        this.image = this.imgX = this.imgY = undefined;
+                        if (this.spriteSheet) {
+                            this.width = this.spriteSheet.frameSize[0];
+                            this.height = this.spriteSheet.frameSize[1];
+                            this.addAnimation(id);
+                            this.image = this.imgX = this.imgY = undefined;
+                        }
                     }
                 }
             },
@@ -1108,26 +1272,43 @@
             /**
              *���õ�ǰ��ʾͼ��
              **/
-            setCurrentImage: function (src, imgX, imgY) {
-                if (!this.isCurrentImage(src, imgX, imgY)) {
+            setCurrentImage: function (src, imgX, imgY, imgWidth, imgHeight) {
+                if (!this.isCurrentImage(src, imgX, imgY, imgWidth, imgHeight)) {
                     imgX = imgX || 0;
                     imgY = imgY || 0;
                     this.image = cg.loader.loadedImgs[src];
                     this.imgX = imgX;
                     this.imgY = imgY;
+                    this.width = this.imgWidth = imgWidth || this.image.width;
+                    this.height = this.imgHeight = imgHeight || this.image.height;
                     this.spriteSheet = undefined;
                 }
             },
             /**
              *�жϵ�ǰͼ���Ƿ�Ϊ��src��ͼ��
              **/
-            isCurrentImage: function (src, imgX, imgY) {
-                imgX = imgX || 0;
-                imgY = imgY || 0;
+            isCurrentImage: function (src, imgX, imgY, imgWidth, imgHeight) {
                 var image = this.image;
-                if (cg.core.isString(src)) {
-                    return image && image.srcPath === src && this.imgX === imgX && this.imgY === imgY;
+                if (image && src) {
+                    imgX = imgX || 0;
+                    imgY = imgY || 0;
+                    imgWidth = imgWidth || image.width;
+                    imgHeight = imgHeight || image.height;
+                    if (this.imgX === imgX && this.imgY === imgY && this.imgWidth === imgWidth && this.imgHeight === imgHeight) {
+                        if (cg.core.isString(src)) {
+                            return image.srcPath === src;
+                        } else {
+                            return image == src;
+                        }
+                    }
                 }
+                return false;
+            },
+            /**
+             *�����ض�֡
+             **/
+            index: function (index) {
+                this.spriteSheet && this.spriteSheet.index(index);
             },
             /**
              *�����ƶ�����
@@ -1137,7 +1318,7 @@
                 isUndefined(options.speedX) ? (this.speedX = this.speedX) : (this.speedX = options.speedX);
                 isUndefined(options.speedY) ? (this.speedY = this.speedY) : (this.speedY = options.speedY);
                 isUndefined(options.rotateSpeed) ? (this.rotateSpeed = this.rotateSpeed) : (this.rotateSpeed = options.rotateSpeed);
-                isUndefined(options.aX) ? (this.aR = this.aR) : (this.aR = options.aR);
+                isUndefined(options.aR) ? (this.aR = this.aR) : (this.aR = options.aR);
                 isUndefined(options.aX) ? (this.aX = this.aX) : (this.aX = options.aX);
                 isUndefined(options.aY) ? (this.aY = this.aY) : (this.aY = options.aY);
                 isUndefined(options.maxX) ? (this.maxX = this.maxX) : (this.maxX = options.maxX);
@@ -1207,7 +1388,7 @@
              *���Ƴ�sprite
              **/
             draw: function () {
-                var context = cg.context;
+                var context = this.context;
                 var halfWith;
                 var halfHeight;
                 if (this.spriteSheet) {
@@ -1220,7 +1401,8 @@
                     halfHeight = this.height / 2;
                     context.translate(this.x + halfWith, this.y + halfHeight);
                     context.rotate(((this.angle * Math.PI) / 180) * -1);
-                    context.drawImage(this.image, this.imgX, this.imgY, this.width, this.height, -halfWith, -halfHeight, this.width, this.height);
+
+                    context.drawImage(this.image, this.imgX, this.imgY, this.imgWidth, this.imgHeight, -halfWith, -halfHeight, this.width, this.height);
                     context.restore();
                 }
             },
@@ -1286,25 +1468,52 @@
      *
      **/
     cnGame.register("cnGame", function (cg) {
-        var spriteList = {
-            length: 0,
+        var spriteList = function () {
+            this.list = [];
+        };
+        spriteList.prototype = {
+            get: function (index) {
+                return this.list[index];
+            },
             add: function (sprite) {
-                Array.prototype.push.call(this, sprite);
+                this.list.push(sprite);
             },
             remove: function (sprite) {
-                for (var i = 0, len = this.length; i < len; i++) {
-                    if (this[i] === sprite) {
-                        Array.prototype.splice.call(this, i, 1);
+                for (var i = 0, len = this.list.length; i < len; i++) {
+                    if (this.list[i] === sprite) {
+                        this.list.splice(i, 1);
+                        i--;
+                        len--;
                     }
                 }
             },
             clean: function () {
-                for (var i = 0, len = this.length; i < len; i++) {
-                    Array.prototype.pop.call(this);
+                for (var i = 0, len = this.list.length; i < len; i++) {
+                    this.list.pop();
+                }
+            },
+            sort: function (func) {
+                this.list.sort(func);
+            },
+            getLength: function () {
+                return this.list.length;
+            },
+            update: function (duration) {
+                for (var i = 0; i < this.list.length; i++) {
+                    if (this.list[i] && this.list[i].update) {
+                        this.list[i].update(duration);
+                    }
+                }
+            },
+            draw: function () {
+                for (var i = 0; i < this.list.length; i++) {
+                    if (this.list[i] && this.list[i].draw) {
+                        this.list[i].draw();
+                    }
                 }
             },
         };
-        this.spriteList = spriteList;
+        this.SpriteList = spriteList;
     });
 
     /**
@@ -1314,36 +1523,39 @@
      **/
     cnGame.register("cnGame", function (cg) {
         var timeId;
-        var interval;
+        var delay;
         /**
          *ѭ������
          **/
         var loop = function () {
             var self = this;
             return function () {
+                var now = new Date().getTime();
                 if (!self.pause && !self.stop) {
-                    var now = new Date().getTime();
-                    var duration = (now - self.lastTime) / 1000; //֡��ʱ
+                    var duration = now - self.lastTime; //֡��ʱ
                     var spriteList = cg.spriteList;
                     self.loopDuration = (self.startTime - self.now) / 1000;
 
                     if (self.gameObj.update) {
                         //������Ϸ�����update
-                        self.gameObj.update(duration);
+                        self.gameObj.update(duration / 1000);
                     }
                     if (self.gameObj.draw) {
                         cg.context.clearRect(0, 0, cg.width, cg.height);
-                        self.gameObj.draw();
+                        self.gameObj.draw(duration / 1000);
                     }
-                    for (var i = 0, len = spriteList.length; i < len; i++) {
-                        //��������sprite
+                    //��������sprite
+                    spriteList.update(duration / 1000);
+                    spriteList.draw();
 
-                        spriteList[i].update(duration);
-                        spriteList[i].draw();
-                    }
-                    self.lastTime = now;
+                    /*if (duration > self.interval) {//����delayʱ��
+                        delay = Math.max(1, self.interval - (duration - self.interval));
+						
+
+                    }*/
                 }
-                timeId = window.setTimeout(arguments.callee, interval);
+                self.lastTime = now;
+                timeId = window.setTimeout(arguments.callee, delay);
             };
         };
 
@@ -1369,7 +1581,7 @@
                 options = cg.core.extend(defaultObj, options);
                 this.gameObj = gameObj;
                 this.fps = options.fps;
-                interval = 1000 / this.fps;
+                this.interval = delay = 1000 / this.fps;
 
                 this.pause = false;
                 this.stop = true;
@@ -1417,62 +1629,71 @@
      *
      **/
     cnGame.register("cnGame", function (cg) {
-        var map = function (mapMatrix, options) {
-            if (!(this instanceof arguments.callee)) {
-                return new arguments.callee(mapMatrix, options);
-            }
-            this.init(mapMatrix, options);
+        /**
+         *�㰴zIndex��С��������
+         **/
+        var sortLayers = function (layersList) {
+            layersList.sort(function (layer1, layer2) {
+                if (layer1.zIndex > layer2.zIndex) {
+                    return 1;
+                } else if (layer1.zIndex < layer2.zIndex) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
         };
-        map.prototype = {
+        /**
+         *�����
+         **/
+        var layer = function (id, mapMatrix, options) {
+            if (!(this instanceof arguments.callee)) {
+                return new arguments.callee(id, mapMatrix, options);
+            }
+            this.init(id, mapMatrix, options);
+        };
+        layer.prototype = {
             /**
              *��ʼ��
              **/
-            init: function (mapMatrix, options) {
+            init: function (id, mapMatrix, options) {
                 /**
                  *Ĭ�϶���
                  **/
                 var defaultObj = {
                     cellSize: [32, 32], //���������
-                    beginX: 0, //��ͼ��ʼx
-                    beginY: 0, //��ͼ��ʼy
+                    x: 0, //layer��ʼx
+                    y: 0, //layer��ʼy
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
+                this.id = options.id;
                 this.mapMatrix = mapMatrix;
                 this.cellSize = options.cellSize;
-                this.beginX = options.beginX;
-                this.beginY = options.beginY;
+                this.x = options.x;
+                this.y = options.y;
                 this.row = mapMatrix.length; //�ж�����
+                this.width = this.cellSize[0] * mapMatrix[0].length;
+                this.height = this.cellSize[1] * this.row;
+                this.spriteList = new cg.SpriteList(); //�ò��ϵ�sprite�б�
+                this.imgsReference = options.imgsReference; //ͼƬ�����ֵ䣺{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
+                this.zIindex = options.zIndex;
             },
             /**
-             *����map�������map
+             *����sprite
              **/
-            draw: function (options) {
-                //options��{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
-                var mapMatrix = this.mapMatrix;
-                var beginX = this.beginX;
-                var beginY = this.beginY;
-                var cellSize = this.cellSize;
-                var currentRow;
-                var currentCol;
-                var currentObj;
-                var row = this.row;
-                var img;
-                for (var i = beginY, ylen = beginY + row * cellSize[1]; i < ylen; i += cellSize[1]) {
-                    //���ݵ�ͼ���󣬻���ÿ������
-                    currentRow = (i - beginY) / cellSize[1];
-                    for (var j = beginX, xlen = beginX + mapMatrix[currentRow].length * cellSize[0]; j < xlen; j += cellSize[0]) {
-                        currentCol = (j - beginX) / cellSize[0];
-                        currentObj = options[mapMatrix[currentRow][currentCol]];
-                        currentObj.x = currentObj.x || 0;
-                        currentObj.y = currentObj.y || 0;
-                        img = cg.loader.loadedImgs[currentObj.src];
-                        cg.context.drawImage(img, currentObj.x, currentObj.y, cellSize[0], cellSize[1], j, i, cellSize[0], cellSize[1]); //�����ض������ͼ��
+            addSprites: function (sprites) {
+                if (cg.core.isArray(sprites)) {
+                    for (var i = 0, len = sprites.length; i < len; i++) {
+                        arguments.callee.call(this, sprites[i]);
                     }
+                } else {
+                    this.spriteList.add(sprites);
+                    sprites.layer = this;
                 }
             },
             /**
-             *��ȡ�ض������ڵ�ͼ�д��ڵķ����ֵ
+             *��ȡ�ض�������layer�д��ڵķ����ֵ
              **/
             getPosValue: function (x, y) {
                 if (cg.core.isObject(x)) {
@@ -1488,7 +1709,7 @@
                 return undefined;
             },
             /**
-             *��ȡ�ض������ڵ�ͼ�д��ڵķ�������
+             *��ȡ�ض�������layer�д��ڵķ�������
              **/
             getCurrentIndex: function (x, y) {
                 if (cg.core.isObject(x)) {
@@ -1508,12 +1729,131 @@
                 return x % this.cellSize[0] == 0 && y % this.cellSize[1] == 0;
             },
             /**
-             *���õ�ͼ��Ӧλ�õ�ֵ
+             *����layer��Ӧλ�õ�ֵ
              **/
             setPosValue: function (x, y, value) {
                 this.mapMatrix[y][x] = value;
             },
+            /**
+             *���²��ϵ�sprite�б�
+             **/
+            update: function (duration) {
+                this.spriteList.update(duration);
+            },
+            /**
+             *����layer�ľ������layer�͸�layer�ϵ�����sprite
+             **/
+            draw: function () {
+                var mapMatrix = this.mapMatrix;
+                var beginX = this.x;
+                var beginY = this.y;
+                var cellSize = this.cellSize;
+                var currentRow;
+                var currentCol;
+                var currentObj;
+                var row = this.row;
+                var img;
+                var col;
+                for (var i = beginY, ylen = beginY + row * cellSize[1]; i < ylen; i += cellSize[1]) {
+                    //���ݵ�ͼ���󣬻���ÿ������
+                    currentRow = (i - beginY) / cellSize[1];
+                    col = mapMatrix[currentRow].length;
+                    for (var j = beginX, xlen = beginX + col * cellSize[0]; j < xlen; j += cellSize[0]) {
+                        currentCol = (j - beginX) / cellSize[0];
+                        currentObj = this.imgsReference[mapMatrix[currentRow][currentCol]];
+                        if (currentObj) {
+                            currentObj.x = currentObj.x || 0;
+                            currentObj.y = currentObj.y || 0;
+                            img = cg.loader.loadedImgs[currentObj.src];
+                            //�����ض������ͼ��
+                            cg.context.drawImage(img, currentObj.x, currentObj.y, cellSize[0], cellSize[1], j, i, cellSize[0], cellSize[1]);
+                        }
+                    }
+                }
+                //���¸�layer������sprite
+                this.spriteList.draw();
+            },
         };
+
+        /**
+         *��ͼ����
+         **/
+        var map = function (options) {
+            if (!(this instanceof arguments.callee)) {
+                return new arguments.callee(options);
+            }
+            this.init(options);
+        };
+        map.prototype = {
+            /**
+             *��ʼ��
+             **/
+            init: function (options) {
+                /**
+                 *Ĭ�϶���
+                 **/
+                var defaultObj = {
+                    layers: [],
+                    x: 0,
+                    y: 0,
+                    width: 100,
+                    height: 100,
+                };
+                options = options || {};
+                options = cg.core.extend(defaultObj, options);
+                this.layers = options.layers;
+                this.x = options.x;
+                this.y = options.y;
+                this.width = options.width;
+                this.height = options.height;
+                this.enviroment = options.enviroment; //����layer
+            },
+            /**
+             *����layer
+             **/
+            addLayer: function (layers) {
+                if (cg.core.isArray(layers)) {
+                    for (var i = 0, len = layers.length; i < len; i++) {
+                        arguments.callee.call(this, layers[i]);
+                    }
+                } else {
+                    layers.x = this.x;
+                    layers.y = this.y;
+                    this.layers.push(layers);
+                    sortLayers(this.layers);
+                }
+            },
+            /**
+             *��ȡĳ��layer
+             **/
+            getLayer: function (id) {
+                for (var i = 0, len = this.layers.length; i < len; i++) {
+                    if (this.layers[i].id == id) {
+                        return this.layers[i];
+                    }
+                }
+            },
+            /**
+             *��������layer
+             **/
+            update: function (duration) {
+                for (var i = 0, len = this.layers.length; i < len; i++) {
+                    this.layers[i].x = this.x;
+                    this.layers[i].y = this.y;
+                    this.layers[i].update(duration);
+                }
+            },
+            /**
+             *��������layer
+             **/
+            draw: function () {
+                for (var i = 0, len = this.layers.length; i < len; i++) {
+                    this.layers[i].draw();
+                }
+            },
+        };
+
+        this.Layer = layer;
         this.Map = map;
     });
 
@@ -1523,27 +1863,6 @@
      *
      **/
     cnGame.register("cnGame", function (cg) {
-        /**
-         *ʹָ�������ڿ�������view��
-         **/
-        var inside = function (sprite) {
-            var dir = sprite.insideDir;
-            if (dir != "y") {
-                if (sprite.x < 0) {
-                    sprite.x = 0;
-                } else if (sprite.x > this.width - sprite.width) {
-                    sprite.x = this.width - sprite.width;
-                }
-            }
-            if (dir != "x") {
-                if (sprite.y < 0) {
-                    sprite.y = 0;
-                } else if (sprite.y > this.height - sprite.height) {
-                    sprite.y = this.height - sprite.height;
-                }
-            }
-        };
-
         var view = function (options) {
             this.init(options);
         };
@@ -1578,71 +1897,74 @@
                 this.isLoop = false;
                 this.isCenterPlayer = false;
                 this.onEnd = options.onEnd;
+                this.map = options.map; //viewʹ�õĵ�ͼ����
             },
             /**
              *ʹplayer��λ�ñ����ڳ����е�֮ǰ���ƶ�����
              **/
-            centerPlayer: function (isLoop) {
-                isLoop = isLoop || false;
-                this.isLoop = isLoop;
-                this.isCenterPlayer = true;
+            centerElem: function (elem, isInnerView) {
+                this.elemToCenter = elem;
+                this.isInnerView = isInnerView;
             },
             /**
-             *ʹ�����λ�ñ����ڳ�����
+             *ȡ������ϷԪ�صľ���
              **/
-            insideView: function (sprite, dir) {
-                //dirΪ�޶��ĸ�������view�ڣ�ֵΪx��y������������������޶�
-                if (cg.core.isArray(sprite)) {
-                    for (var i = 0, len = sprite.length; i < len; i++) {
-                        arguments.callee.call(this, sprite[i], dir);
+            cancelCenter: function () {
+                this.elemToCenter = undefined;
+            },
+            /**
+             *����
+             **/
+            update: function () {
+                var elem = this.elemToCenter;
+                if (elem) {
+                    var map = this.map;
+                    var dir = this.centerDir;
+
+                    if (dir != "y") {
+                        //x�������
+                        this.x = Math.max(map.x, Math.min(map.width - this.width, elem.x - this.width / 2));
                     }
-                } else {
-                    sprite.insideDir = dir;
-                    this.insideArr.push(sprite);
-                }
-            },
-            /**
-             *�����ƶ�ʱ�ĸ���
-             **/
-            update: function (spritelist) {
-                //��������sprite������
-                if (this.isCenterPlayer) {
-                    if (this.player.x > this.centerX) {
-                        if (this.x < this.imgWidth - this.width) {
-                            var marginX = this.player.x - this.centerX;
-                            this.x += marginX;
-                            if (spritelist) {
-                                for (var i = 0, len = spritelist.length; i < len; i++) {
-                                    if (spritelist[i] == this.player) {
-                                        spritelist[i].x = this.centerX;
-                                    } else {
-                                        spritelist[i].x -= marginX;
-                                    }
-                                }
-                            }
-                        } else if (this.isLoop) {
-                            if (spritelist) {
-                                for (var i = 0, len = spritelist.length; i < len; i++) {
-                                    if (spritelist[i] != this.player) {
-                                        spritelist[i].move(this.imgWidth - this.width);
-                                    }
-                                }
-                            }
-                            this.x = 0;
-                        } else {
-                            this.onEnd && this.onEnd();
+                    if (dir != "x") {
+                        //y�������
+                        this.y = Math.max(map.y, Math.min(map.height - this.height, elem.y - this.height / 2));
+                    }
+                    if (this.isInnerView) {
+                        if (elem.x < this.x) {
+                            elem.x = this.x;
+                        } else if (elem.x > this.x + this.width - elem.width) {
+                            elem.x = this.x + this.width - elem.width;
+                        }
+                        if (elem.y < this.y) {
+                            elem.y = this.y;
+                        } else if (elem.y > this.y + this.height - elem.height) {
+                            elem.y = this.y + this.height - elem.height;
                         }
                     }
                 }
-                for (var i = 0, len = this.insideArr.length; i < len; i++) {
-                    inside.call(this, this.insideArr[i]);
-                }
             },
             /**
-             *���Ƴ���
+             *�ж϶����Ƿ���view��
              **/
-            draw: function () {
-                cg.context.drawImage(cg.loader.loadedImgs[this.src], this.x, this.y, this.width, this.height, 0, 0, this.width, this.height);
+            isPartlyInsideView: function (sprite) {
+                var spriteRect = sprite.getRect();
+                var viewRect = this.getRect();
+                return cg.collision.col_Between_Rects(spriteRect, viewRect);
+            },
+            /**
+             *ʹ���������view
+             **/
+            applyInView: function (func) {
+                cg.context.save();
+                cg.context.translate(-this.x, -this.y);
+                func();
+                cg.context.restore();
+            },
+            /**
+             *���ذ�����view�ľ��ζ���
+             **/
+            getRect: function () {
+                return new cg.shape.Rect({ x: this.x, y: this.y, width: this.width, height: this.height });
             },
         };
         this.View = view;

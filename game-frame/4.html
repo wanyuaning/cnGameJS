@@ -1,23 +1,24 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
-        <title>�ޱ����ĵ�</title>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>无标题文档</title>
     </head>
 
     <body>
         <div id="wrap"></div>
     </body>
-    <!-- <script src="js/cnGame_v1.4.js"></script> -->
-    <script src="js/ewan.js"></script>
+    <script src="js/cnGame_v1.4.js"></script>
     <script>
         var canvas = document.createElement("canvas");
-        canvas.innerHTML = "��ʹ��֧��canvas��������鿴";
+        canvas.innerHTML = "请使用支持canvas的浏览器查看";
         canvas.id = "canvas";
         document.getElementById("wrap").appendChild(canvas);
     </script>
     <script>
-        /*	���ص�ͼƬ��Դ�ֵ�	*/
+        /*	加载的图片资源字典	*/
         var srcObj = {
             bg: "images/v4/bg.png",
             begin: "images/v4/begin.png",
@@ -56,14 +57,14 @@
             line1: "images/v4/line1.png",
             tube: "images/v4/tube.png",
         };
-        /*	��������	*/
+        /*	背景矩阵	*/
         var bgMatrix = [
             [1, 1, 1],
             [1, 1, 1],
             [1, 1, 1],
         ];
 
-        /*	ʯͷ����	*/
+        /*	石头矩阵	*/
         var blockMatrix = [
             [4, 5, 5, 5, 5, 5, 8, 8, 8, 8, 8, 8, 8, 5, 6],
             [4, 5, 8, 8, 5, 6, 0, 0, 0, 0, 0, 0, 0, 4, 6],
@@ -81,8 +82,8 @@
             [6, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2],
             [5, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5],
         ];
-        cnGame.init("canvas", { width: 700, height: 500 }); //��ʼ�����
-        /*	player���캯��	*/
+        cnGame.init("canvas", { width: 700, height: 500 }); //初始化框架
+        /*	player构造函数	*/
         var player = function (options) {
             this.init(options);
             this.moveSpeed = 14;
@@ -94,7 +95,7 @@
             this.lastHurtTime = new Date().getTime();
         };
         cnGame.core.inherit(player, cnGame.Sprite);
-        /*	player����	*/
+        /*	player受伤	*/
         player.prototype.hurt = function () {
             var now = new Date().getTime();
             var floorY = this.y + this.height;
@@ -116,11 +117,11 @@
                 this.lastHurtTime = now;
             }
         };
-        /*	player�ָ�	*/
+        /*	player恢复	*/
         player.prototype.recover = function () {
             this.isHurt = false;
         };
-        /*	player����	*/
+        /*	player死亡	*/
         player.prototype.die = function () {
             var bottomPoint = [this.x + this.width / 2, this.y + this.height];
             this.setMovement({ speedX: 0 });
@@ -132,7 +133,7 @@
 
             this.isDead = true;
         };
-        /*	���	*/
+        /*	射击	*/
         player.prototype.shoot = function () {
             var now = new Date().getTime();
             if (now - this.lastShootTime > this.shootDuration) {
@@ -153,14 +154,14 @@
             }
         };
 
-        /*	���˹��캯��	*/
+        /*	敌人构造函数	*/
         var ghost = function (options) {
             this.init(options);
             this.moveSpeed = options.moveSpeed || 8;
             this.life = options.life || 5;
         };
         cnGame.core.inherit(ghost, cnGame.Sprite);
-        /*	��ʬ�ƶ�	*/
+        /*	僵尸移动	*/
         ghost.prototype.run = function (dir) {
             var ghostSpeed = this.moveSpeed;
             var floorY = this.y + this.height;
@@ -188,7 +189,7 @@
             this.setMovement({ speedX: ghostSpeed * dir });
             this.y = floorY - this.height;
         };
-        /*	��ʬ����	*/
+        /*	僵尸死亡	*/
         ghost.prototype.die = function () {
             var floorY = this.y + this.height;
             if (isToLeft(this)) {
@@ -199,7 +200,7 @@
             this.y = floorY - this.height;
             this.isDead = true;
         };
-        /*	��ʬ������	*/
+        /*	僵尸被击中	*/
         ghost.prototype.hurt = function () {
             var floorY = this.y + this.height;
             this.life -= 1;
@@ -225,7 +226,7 @@
             this.isHurt = true;
             this.y = floorY - this.height;
         };
-        /*	��ʬ�ָ�	*/
+        /*	僵尸恢复	*/
         ghost.prototype.recover = function () {
             var floorY = this.y + this.height;
             if (isToLeft(this)) {
@@ -237,18 +238,18 @@
             this.isHurt = false;
             this.y = floorY - this.height;
         };
-        /*	�ӵ����캯��	*/
+        /*	子弹构造函数	*/
         var bullet = function (options) {
             this.init(options);
             this.moveSpeed = 40;
         };
         cnGame.core.inherit(bullet, cnGame.Sprite);
-        /*	�ӵ���	*/
+        /*	子弹飞	*/
         bullet.prototype.run = function (dir) {
             this.setMovement({ speedX: this.moveSpeed * dir });
         };
 
-        /*	�Ƿ����ұ�	*/
+        /*	是否朝向右边	*/
         var isToRight = function (obj) {
             if (obj instanceof player) {
                 return obj.isCurrentAnimation("playerStayRight") || obj.isCurrentAnimation("playerRunRight") || obj.isCurrentImage(srcObj.playerJumpRight) || obj.isCurrentImage(srcObj.playerSitRight) || obj.isCurrentAnimation("playerHurtRight");
@@ -256,7 +257,7 @@
                 return obj.isCurrentAnimation("ghostRunRight") || obj.isCurrentAnimation("ghostHurtRight");
             }
         };
-        /*	�Ƿ������	*/
+        /*	是否朝向左边	*/
         var isToLeft = function (obj) {
             if (obj instanceof player) {
                 return obj.isCurrentAnimation("playerStayLeft") || obj.isCurrentAnimation("playerRunLeft") || obj.isCurrentImage(srcObj.playerJumpLeft) || obj.isCurrentImage(srcObj.playerSitLeft) || obj.isCurrentAnimation("playerHurtLeft");
@@ -321,7 +322,7 @@
             );
             return newGhost;
         };
-        /*	����Ѫ����Ϣ	*/
+        /*	画出血条信息	*/
         var drawLife = function () {
             this.lifeText.draw();
             var lifeImg = cnGame.loader.loadedImgs[srcObj.life];
@@ -447,7 +448,7 @@
                     var playerSpeed = this.player.moveSpeed;
                     if (!this.player.isHurt) {
                         if (input.isPressed("left") || input.isPressed("a")) {
-                            //����ת
+                            //向左转
                             var floorY = this.player.y + this.player.height;
                             this.player.setMovement({ speedX: -playerSpeed });
                             if (!this.player.isJump) {
@@ -455,7 +456,7 @@
                             }
                             this.player.y = floorY - this.player.height;
                         } else if (input.isPressed("right") || input.isPressed("d")) {
-                            //����ת
+                            //向右转
                             var floorY = this.player.y + this.player.height;
                             this.player.setMovement({ speedX: playerSpeed });
                             if (!this.player.isJump) {
@@ -528,7 +529,7 @@
                         }
                     }
                     if (!coliObj["bottom"] && !_player.isJump) {
-                        //�ж�����Ƿ�����ʯ���ڵ���
+                        //判断玩家是否脱离石级在跌落
                         this.player.setMovement({ aY: 30 });
                         this.player.isJump = true;
                     } else if (coliObj["bottom"] && this.player.speedY > 0) {
@@ -548,7 +549,7 @@
                     var list = enviroment.spriteList;
 
                     for (var i = 0; i < list.getLength(); i++) {
-                        //����ӵ��Ƿ���н�ʬ
+                        //检测子弹是否击中僵尸
 
                         var obj = list.get(i);
                         if (obj && obj instanceof bullet) {
@@ -567,7 +568,7 @@
                                 }
                             }
                         } else if (obj && obj instanceof ghost) {
-                            //���½�ʬ���ƶ�����
+                            //更新僵尸的移动方向
                             if (obj.isDead || !this.view.isPartlyInsideView(obj)) {
                                 obj.run(0, enviroment);
                             } else if (Math.abs(obj.x - this.player.x) < 10 && this.view.isPartlyInsideView(obj)) {

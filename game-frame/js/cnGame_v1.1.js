@@ -1,11 +1,4 @@
-/**
- *
- * name:cnGame.js
- *`author:cson
- *`date:2012-2-7
- *`version:1.0
- *
- **/
+
 
 (function (win, undefined) {
     var canvasPos;
@@ -156,7 +149,7 @@
 		��ȡ����������ʽ
 		**/
         this.getComputerStyle = (function () {
-            var body = document.body || document.documentElement;
+            var body = document.body;
             if (body.currentStyle) {
                 return function (elem) {
                     return elem.currentStyle;

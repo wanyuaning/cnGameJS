@@ -1,11 +1,4 @@
-/**
- *
- * name:cnGame.js
- *`author:cson
- *`date:2012-2-7
- *`version:1.0
- *
- **/
+
 
 (function (win, undefined) {
     var canvasPos;
@@ -57,32 +50,38 @@
             }
             return parent;
         },
+        /**
+         *�������
+         **/
+        clean: function () {
+            this.context.clearRect(this.width, this.height);
+        },
     };
 
     win["cnGame"] = _cnGame;
 
     /**
      *
-     *�������ߺ���
+     *�������ߺ���ģ��
      *
      **/
     cnGame.register("cnGame.core", function (cg) {
         /**
-		��id��ȡԪ��
-		**/
+        ��id��ȡԪ��
+        **/
         this.$ = function (id) {
             return document.getElementById(id);
         };
         /**
-		����ǩ����ȡԪ��
-		**/
+        ����ǩ����ȡԪ��
+        **/
         this.$$ = function (tagName, parent) {
             parent = parent || document;
             return parent.getElementsByTagName(tagName);
         };
         /**
-		��������ȡԪ��
-		**/
+        ��������ȡԪ��
+        **/
         this.$Class = function (className, parent) {
             var arr = [],
                 result = [];
@@ -96,8 +95,8 @@
             return result;
         };
         /**
-		�¼���
-		**/
+        �¼���
+        **/
         this.bindHandler = (function () {
             if (window.addEventListener) {
                 return function (elem, type, handler) {
@@ -110,8 +109,8 @@
             }
         })();
         /**
-		�¼����
-		**/
+        �¼����
+        **/
         this.removeHandler = (function () {
             if (window.removeEventListerner) {
                 return function (elem, type, handler) {
@@ -124,21 +123,21 @@
             }
         })();
         /**
-		��ȡ�¼�����
-		**/
+        ��ȡ�¼�����
+        **/
         this.getEventObj = function (eve) {
             return eve || win.event;
         };
         /**
-		��ȡ�¼�Ŀ�����
-		**/
+        ��ȡ�¼�Ŀ�����
+        **/
         this.getEventTarget = function (eve) {
             var eve = this.getEventObj(eve);
             return eve.target || eve.srcElement;
         };
         /**
-		��ֹĬ����Ϊ
-		**/
+        ��ֹĬ����Ϊ
+        **/
         this.preventDefault = function (eve) {
             if (eve.preventDefault) {
                 eve.preventDefault();
@@ -147,10 +146,10 @@
             }
         };
         /**
-		��ȡ����������ʽ
-		**/
+        ��ȡ����������ʽ
+        **/
         this.getComputerStyle = (function () {
-            var body = document.body;
+            var body = document.body || document.documentElement;
             if (body.currentStyle) {
                 return function (elem) {
                     return elem.currentStyle;
@@ -162,32 +161,32 @@
             }
         })();
         /**
-		�Ƿ�Ϊundefined
-		**/
+        �Ƿ�Ϊundefined
+        **/
         (this.isUndefined = function (elem) {
             return typeof elem === "undefined";
         }),
             /**
-		�Ƿ�Ϊ����
-		**/
+        �Ƿ�Ϊ����
+        **/
             (this.isArray = function (elem) {
                 return Object.prototype.toString.call(elem) === "[object Array]";
             });
         /**
-		�Ƿ�ΪObject����
-		**/
+        �Ƿ�ΪObject����
+        **/
         this.isObject = function (elem) {
             return elem === Object(elem);
         };
         /**
-		�Ƿ�Ϊ�ַ�������
-		**/
+        �Ƿ�Ϊ�ַ�������
+        **/
         this.isString = function (elem) {
             return Object.prototype.toString.call(elem) === "[object String]";
         };
         /**
-		�Ƿ�Ϊ��ֵ����
-		**/
+        �Ƿ�Ϊ��ֵ����
+        **/
         this.isNum = function (elem) {
             return Object.prototype.toString.call(elem) === "[object Number]";
         };
@@ -218,26 +217,140 @@
 
     /**
      *
+     *Ajaxģ��
+     *
+     **/
+    cnGame.register("cnGame.ajax", function (cg) {
+        var activeXString; //ΪIE�ض��汾������activeX�ַ���
+        var onXHRload = function (xhr, options) {
+            return function (eve) {
+                if (xhr.readyState == 4) {
+                    if ((xhr.status >= 200 && xhr.state < 300) || xhr.status == 304) {
+                        var onSuccess = options.onSuccess;
+                        onSuccess && onSuccess();
+                    } else {
+                        var onError = options.onError;
+                        onError && onError();
+                    }
+                }
+            };
+        };
+
+        /**
+         *����XMLHttpRequest����
+         **/
+        this.creatXHR = function () {
+            if (!cg.core.isUndefined(XMLHttpRequest)) {
+                return new XMLHttpRequest();
+            } else if (!cg.core.isUndefined(ActiveXObject)) {
+                if (!cg.core.isString(activeXString)) {
+                    var versions = ["MSXML2.XMLHttp.6.0", "MSXML2.XMLHttp.3.0", "MSXML2.XMLHttp"];
+                    for (var i = 0, len = versions.length; i < len; i++) {
+                        try {
+                            var xhr = new ActiveXObject(versions[i]);
+                            activeXString = versions[i];
+                            return xhr;
+                        } catch (e) {}
+                    }
+                }
+                return new ActiveXObject(activeXString);
+            }
+        };
+        /**
+         *��������
+         **/
+        this.request = function (options) {
+            var defaultObj = {
+                type: "get",
+            };
+            cg.core.extend(defaultObj, options);
+            var type = options.type;
+            var xhr = this.creatXHR();
+
+            cg.core.bindHandler(xhr, "readystatechange", function (eve) {
+                //��Դ������ɻص�����
+                if (xhr.readyState == 4) {
+                    if ((xhr.status >= 200 && xhr.state < 300) || xhr.status == 304) {
+                        var onSuccess = options.onSuccess;
+                        onSuccess && onSuccess();
+                    } else {
+                        var onError = options.onError;
+                        onError && onError();
+                    }
+                }
+            });
+
+            var requestOpt = options.requestOpt;
+            var url = options.url;
+
+            if (type == "get") {
+                //get�������ݴ���
+                if (url.indexOf("?") < 0) {
+                    url += "?";
+                } else {
+                    url += "&";
+                }
+
+                for (name in requestOpt) {
+                    if (requestOpt.hasOwnProperty(name)) {
+                        url += encodeURIComponent(name) + "=" + encodeURIComponent(requestOpt[name]) + "&";
+                        url = url.slice(0, -1);
+                        xhr.open(type, url, true);
+                        xhr.send(null);
+                    }
+                }
+            } else if (type == "post") {
+                //post�������ݴ���
+                var _requestOpt = {};
+                for (name in requestOpt) {
+                    if (requestOpt.hasOwnProperty(name)) {
+                        _requestOpt[encodeURIComponent(name)] = encodeURIComponent(requestOpt[name]);
+                    }
+                }
+                xhr.open(type, url, true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.send(_requestOpt);
+            }
+        };
+    });
+
+    /**
+     *
      *��Դ������
      *
      **/
     cnGame.register("cnGame", function (cg) {
+        var file_type = {};
+        file_type["js"] = "js";
+        file_type["json"] = "json";
+        file_type["wav"] = "audio";
+        file_type["mp3"] = "audio";
+        file_type["ogg"] = "audio";
+        file_type["png"] = "image";
+        file_type["jpg"] = "image";
+        file_type["jpeg"] = "image";
+        file_type["gif"] = "image";
+        file_type["bmp"] = "image";
+        file_type["tiff"] = "image";
+        var postfix_regexp = /\.([a-zA-Z0-9]+)/;
         /**
-         *ͼ�������ϵĴ�������
+         *��Դ������ϵĴ�������
          **/
-        var imgLoad = function (self) {
+        var resourceLoad = function (self, type) {
             return function () {
                 self.loadedCount += 1;
-                self.loadedImgs[this.srcPath] = this;
+                type == "image" && (self.loadedImgs[this.srcPath] = this);
+                type == "audio" && (self.loadedAudios[this.srcPath] = this);
                 this.onLoad = null; //��֤ͼƬ��onLoadִ��һ�κ�����
                 self.loadedPercent = Math.floor((self.loadedCount / self.sum) * 100);
                 self.onLoad && self.onLoad(self.loadedPercent);
                 if (self.loadedPercent === 100) {
                     self.loadedCount = 0;
                     self.loadedPercent = 0;
-                    loadingImgs = {};
+                    type == "image" && (self.loadingImgs = {});
+                    type == "audio" && (self.loadingAudios = {});
                     if (self.gameObj && self.gameObj.initialize) {
-                        self.gameObj.initialize();
+                        self.gameObj.initialize(self.startOptions);
                         if (cg.loop && !cg.loop.stop) {
                             //������һ��ѭ��
                             cg.loop.end();
@@ -248,6 +361,7 @@
                 }
             };
         };
+
         /**
          *ͼ�������
          **/
@@ -256,21 +370,47 @@
             loadedCount: 0, //ͼƬ�Ѽ�����
             loadingImgs: {}, //δ����ͼƬ����
             loadedImgs: {}, //�Ѽ���ͼƬ����
+            loadingAudios: {}, //δ������Ƶ����
+            loadedAudios: {}, //�Ѽ�����Ƶ����
             /**
              *ͼ����أ�֮��������Ϸ
              **/
-            start: function (src, gameObj, onLoad) {
-                //�ɴ���src����򵥸�src "xxx.jpg" or ["xxx.jpg","ggg,gif","www.png"]
+            start: function (gameObj, options) {
+                //options:srcArray,onload
+                var srcArr = options.srcArray;
+                this.gameObj = gameObj;
+                this.startOptions = options.startOptions; //��Ϸ��ʼ��Ҫ�ĳ�ʼ������
+                this.onLoad = options.onLoad;
+                this.sum = 0;
+                cg.spriteList.clean();
 
-                if (cg.core.isArray(src)) {
-                    this.sum = src.length;
-                    for (var i = 0, len = src.length; i < len; i++) {
-                        this.gameObj = gameObj;
-                        this.onLoad = onLoad;
-                        this.loadingImgs[src[i]] = new Image();
-                        this.loadingImgs[src[i]].onload = imgLoad(this);
-                        this.loadingImgs[src[i]].src = src[i];
-                        this.loadingImgs[src[i]].srcPath = src[i]; //û�о����Զ��任��src
+                if (cg.core.isArray(srcArr) || cg.core.isObject(srcArr)) {
+                    for (var i in srcArr) {
+                        if (srcArr.hasOwnProperty(i)) {
+                            this.sum++;
+                            var path = srcArr[i];
+                            var suffix = srcArr[i].substring(srcArr[i].lastIndexOf(".") + 1);
+                            var type = file_type[suffix];
+                            if (type == "image") {
+                                this.loadingImgs[path] = new Image();
+                                cg.core.bindHandler(this.loadingImgs[path], "load", resourceLoad(this, type));
+                                this.loadingImgs[path].src = path;
+                                this.loadingImgs[path].srcPath = path; //û�о����Զ��任��src
+                            } else if (type == "audio") {
+                                this.loadingAudios[path] = new Audio(path);
+                                cg.core.bindHandler(this.loadingAudios[path], "canplay", resourceLoad(this, type));
+                                this.loadingAudios[path].onload = resourceLoad(this, type);
+                                this.loadingAudios[path].src = path;
+                                this.loadingAudios[path].srcPath = path; //û�о����Զ��任��src
+                            } else if (type == "js") {
+                                //����ǽű������غ�ִ��
+                                var head = cg.core.$$("head")[0];
+                                var script = document.createElement("script");
+                                head.appendChild(script);
+                                cg.core.bindHandler(script, "load", resourceLoad(this, type));
+                                script.src = path;
+                            }
+                        }
                     }
                 }
             },
@@ -285,13 +425,6 @@
      *
      **/
     cnGame.register("cnGame.shape", function (cg) {
-        /**
-         *����right��bottom
-         **/
-        var resetRightBottom = function (elem) {
-            elem.right = elem.x + elem.width;
-            elem.bottom = elem.y + elem.height;
-        };
         /**
          *���ζ���
          **/
@@ -320,8 +453,6 @@
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
                 this.setOptions(options);
-
-                resetRightBottom(this);
             },
             /**
              *���ò���
@@ -333,6 +464,12 @@
                 this.height = options.height || this.height;
                 this.style = options.style || this.style;
                 this.isFill = options.isFill || this.isFill;
+                this.leftTop = [this.x, this.y];
+                this.rightTop = [this.x + this.width, this.y];
+                this.leftBottom = [this.x, this.y + this.height];
+                this.rightBottom = [this.x + this.width, this.y + this.height];
+                this.right = this.width + this.x;
+                this.bottom = this.height + this.y;
             },
             /**
              *���ƾ���
@@ -514,6 +651,7 @@
                     y: 100,
                     style: "red",
                     isFill: true,
+                    context: cg.context,
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
@@ -524,7 +662,7 @@
              *����
              **/
             draw: function () {
-                var context = cg.context;
+                var context = this.context;
                 !cg.core.isUndefined(this.font) && (context.font = this.font);
                 !cg.core.isUndefined(this.textBaseline) && (context.textBaseline = this.textBaseline);
                 !cg.core.isUndefined(this.textAlign) && (context.textAlign = this.textAlign);
@@ -541,6 +679,7 @@
              *���ò���
              **/
             setOptions: function (options) {
+                this.context = options.context || this.context;
                 this.x = options.x || this.x;
                 this.y = options.y || this.y;
                 this.maxWidth = options.maxWidth || this.maxWidth;
@@ -776,13 +915,13 @@
          *��;��μ����ײ
          **/
         this.col_Point_Rect = function (pointX, pointY, rectObj) {
-            return (pointX > rectObj.x && pointX < rectObj.right) || (pointY > rectObj.y && pointY < rectObj.bottom);
+            return pointX >= rectObj.x && pointX <= rectObj.right && pointY >= rectObj.y && pointY <= rectObj.bottom;
         };
         /**
          *���κ;��μ����ײ
          **/
         this.col_Between_Rects = function (rectObjA, rectObjB) {
-            return ((rectObjA.right > rectObjB.x && rectObjA.right < rectObjB.right) || (rectObjA.x > rectObjB.x && rectObjA.x < rectObjB.right)) && ((rectObjA.bottom > rectObjB.y && rectObjA.bottom < rectObjB.bottom) || (rectObjA.y < rectObjB.bottom && rectObjA.bottom > rectObjB.y));
+            return ((rectObjA.right >= rectObjB.x && rectObjA.right <= rectObjB.right) || (rectObjA.x >= rectObjB.x && rectObjA.x <= rectObjB.right)) && ((rectObjA.bottom >= rectObjB.y && rectObjA.bottom <= rectObjB.bottom) || (rectObjA.y <= rectObjB.bottom && rectObjA.bottom >= rectObjB.y));
         };
         /**
          *���Բ�μ����ײ
@@ -870,15 +1009,18 @@
                     direction: "right", //������
                     beginX: 0,
                     beginY: 0,
+                    scale: 1,
                     loop: false,
                     bounce: false,
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
                 this.id = id; //spriteSheet��id
+                this.context = options.context || cg.context; //ʹ�õ������Ķ���Ĭ���ǿ�ܵ�context
                 this.src = src; //ͼƬ��ַ
                 this.x = options.x; //����Xλ��
                 this.y = options.y; //����Yλ��
+                this.scale = options.scale; //���ű�
                 this.width = options.width; //ͼƬ�Ŀ���
                 this.height = options.height; //ͼƬ�ĸ߶�
                 this.image = cg.loader.loadedImgs[this.src]; //ͼƬ����
@@ -890,7 +1032,7 @@
                 this.beginY = options.beginY; //��ͼͼƬ����ʼλ��Y
                 this.loop = options.loop; //�Ƿ�ѭ������
                 this.bounce = options.bounce; //�Ƿ���������
-                this.onFinsh = options.onFinsh; //������Ϻ�Ļص�����
+                this.onFinish = options.onFinish; //������Ϻ�Ļص�����
                 this.frames = caculateFrames(options); //֡��Ϣ����
                 this.now = new Date().getTime(); //��ǰʱ��
                 this.last = new Date().getTime(); //��һ֡��ʼʱ��
@@ -901,8 +1043,8 @@
             update: function () {
                 this.now = new Date().getTime();
                 var frames = this.frames;
-                if (this.now - this.last > this.frameDuration) {
-                    //����������֡��������update
+                if (this.now - this.last >= this.frameDuration) {
+                    //���������ڵ���֡��������update
                     var currentIndex = this.currentIndex;
                     var length = this.frames.length;
                     this.last = this.now;
@@ -913,8 +1055,8 @@
                             return frames[(this.currentIndex = 0)];
                         } else if (!this.bounce) {
                             //û��ѭ������û��������������ֹͣ�����һ֡
-                            this.onFinsh && this.onFinsh();
-                            this.onFinsh = undefined;
+                            this.onFinish && this.onFinish();
+                            this.onFinish = undefined;
                             return frames[currentIndex];
                         }
                     }
@@ -946,7 +1088,7 @@
                 var currentFrame = this.getCurrentFrame();
                 var width = this.frameSize[0];
                 var height = this.frameSize[1];
-                cg.context.drawImage(this.image, currentFrame.x, currentFrame.y, width, height, this.x, this.y, width, height);
+                this.context.drawImage(this.image, currentFrame.x, currentFrame.y, width, height, this.x, this.y, width * this.scale, height * this.scale);
             },
         };
         this.SpriteSheet = spriteSheet;
@@ -984,6 +1126,8 @@
                     angle: 0,
                     speedX: 0,
                     speedY: 0,
+                    rotateSpeed: 0,
+                    aR: 0,
                     aX: 0,
                     aY: 0,
                     maxSpeedX: postive_infinity,
@@ -992,9 +1136,12 @@
                     maxY: postive_infinity,
                     minX: -postive_infinity,
                     minY: -postive_infinity,
+                    minAngle: -postive_infinity,
+                    maxAngle: postive_infinity,
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
+                this.context = options.context || cg.context;
                 this.x = options.x;
                 this.y = options.y;
                 this.angle = options.angle;
@@ -1003,19 +1150,23 @@
                 this.angle = options.angle;
                 this.speedX = options.speedX;
                 this.speedY = options.speedY;
+                this.rotateSpeed = options.rotateSpeed;
+                this.aR = options.aR;
                 this.aX = options.aX;
                 this.aY = options.aY;
                 this.maxSpeedX = options.maxSpeedX;
                 this.maxSpeedY = options.maxSpeedY;
                 this.maxX = options.maxX;
                 this.maxY = options.maxY;
+                this.maxAngle = options.maxAngle;
+                this.minAngle = options.minAngle;
                 this.minX = options.minX;
                 this.minY = options.minY;
-
                 this.spriteSheetList = {};
+
                 if (options.src) {
                     //����ͼƬ·��
-                    this.setCurrentImage(options.src, options.imgX, options.imgY);
+                    this.setCurrentImage(options.src, options.imgX, options.imgY, options.imgWidth, options.imgHeight);
                 } else if (options.spriteSheet) {
                     //����spriteSheet����
                     this.addAnimation(options.spriteSheet);
@@ -1032,6 +1183,7 @@
              *���Ӷ���
              **/
             addAnimation: function (spriteSheet) {
+                spriteSheet.relatedSprite = this;
                 this.spriteSheetList[spriteSheet.id] = spriteSheet;
             },
             /**
@@ -1063,26 +1215,40 @@
             /**
              *���õ�ǰ��ʾͼ��
              **/
-            setCurrentImage: function (src, imgX, imgY) {
-                if (!this.isCurrentImage(src, imgX, imgY)) {
+            setCurrentImage: function (src, imgX, imgY, imgWidth, imgHeight) {
+                if (!this.isCurrentImage(src, imgX, imgY, imgWidth, imgHeight)) {
                     imgX = imgX || 0;
                     imgY = imgY || 0;
                     this.image = cg.loader.loadedImgs[src];
                     this.imgX = imgX;
                     this.imgY = imgY;
+                    this.imgWidth = imgWidth || this.image.width;
+                    this.imgHeight = imgHeight || this.image.height;
                     this.spriteSheet = undefined;
                 }
             },
             /**
              *�жϵ�ǰͼ���Ƿ�Ϊ��src��ͼ��
              **/
-            isCurrentImage: function (src, imgX, imgY) {
-                imgX = imgX || 0;
-                imgY = imgY || 0;
+            isCurrentImage: function (src, imgX, imgY, imgWidth, imgHeight) {
                 var image = this.image;
-                if (cg.core.isString(src)) {
-                    return image && image.srcPath === src && this.imgX === imgX && this.imgY === imgY;
+                if (image) {
+                    imgX = imgX || 0;
+                    imgY = imgY || 0;
+                    imgWidth = imgWidth || image.width;
+                    imgHeight = imgHeight || image.height;
+
+                    if (cg.core.isString(src)) {
+                        return image.srcPath === src && this.imgX === imgX && this.imgY === imgY && this.imgWidth === imgWidth && this.imgHeight === imgHeight;
+                    }
                 }
+                return image == src;
+            },
+            /**
+             *�����ض�֡
+             **/
+            index: function (index) {
+                this.spriteSheet && this.spriteSheet.index(index);
             },
             /**
              *�����ƶ�����
@@ -1091,24 +1257,18 @@
                 isUndefined = cg.core.isUndefined;
                 isUndefined(options.speedX) ? (this.speedX = this.speedX) : (this.speedX = options.speedX);
                 isUndefined(options.speedY) ? (this.speedY = this.speedY) : (this.speedY = options.speedY);
-
+                isUndefined(options.rotateSpeed) ? (this.rotateSpeed = this.rotateSpeed) : (this.rotateSpeed = options.rotateSpeed);
+                isUndefined(options.aX) ? (this.aR = this.aR) : (this.aR = options.aR);
                 isUndefined(options.aX) ? (this.aX = this.aX) : (this.aX = options.aX);
                 isUndefined(options.aY) ? (this.aY = this.aY) : (this.aY = options.aY);
                 isUndefined(options.maxX) ? (this.maxX = this.maxX) : (this.maxX = options.maxX);
                 isUndefined(options.maxY) ? (this.maxY = this.maxY) : (this.maxY = options.maxY);
+                isUndefined(options.maxAngle) ? (this.maxAngle = this.maxAngle) : (this.maxAngle = options.maxAngle);
+                isUndefined(options.minAngle) ? (this.minAngle = this.minAngle) : (this.minAngle = options.minAngle);
                 isUndefined(options.minX) ? (this.minX = this.minX) : (this.minX = options.minX);
                 isUndefined(options.minY) ? (this.minY = this.minY) : (this.minY = options.minY);
-
-                if (this.aX != 0) {
-                    this.startTimeX = new Date().getTime();
-                    this.oriSpeedX = this.speedX;
-                    isUndefined(options.maxSpeedX) ? (this.maxSpeedX = this.maxSpeedX) : (this.maxSpeedX = options.maxSpeedX);
-                }
-                if (this.aY != 0) {
-                    this.startTimeY = new Date().getTime();
-                    this.oriSpeedY = this.speedY;
-                    isUndefined(options.maxSpeedY) ? (this.maxSpeedY = this.maxSpeedY) : (this.maxSpeedY = options.maxSpeedY);
-                }
+                isUndefined(options.maxSpeedX) ? (this.maxSpeedX = this.maxSpeedX) : (this.maxSpeedX = options.maxSpeedX);
+                isUndefined(options.maxSpeedY) ? (this.maxSpeedY = this.maxSpeedY) : (this.maxSpeedY = options.maxSpeedY);
             },
             /**
              *�����ƶ������ص���ʼֵ
@@ -1116,38 +1276,46 @@
             resetMovement: function () {
                 this.speedX = 0;
                 this.speedY = 0;
+                this.rotateSpeed = 0;
                 this.aX = 0;
                 this.aY = 0;
+                this.aR = 0;
                 this.maxSpeedX = postive_infinity;
                 this.maxSpeedY = postive_infinity;
                 this.maxX = postive_infinity;
                 this.minX = -postive_infinity;
                 this.maxY = postive_infinity;
                 this.minY = -postive_infinity;
+                this.maxAngle = postive_infinity;
+                this.minAngle = -postive_infinity;
             },
             /**
              *����λ�ú�֡����
              **/
-            update: function () {
-                if (this.aX != 0) {
-                    var now = new Date().getTime();
-                    var durationX = now - this.startTimeX;
-                    var speedX = this.oriSpeedX + (this.aX * durationX) / 1000;
-                    if (this.maxSpeedX < 0) {
-                        this.maxSpeedX *= -1;
-                    }
-                    if (speedX < 0) {
-                        this.speedX = Math.max(speedX, this.maxSpeedX * -1);
-                    } else {
-                        this.speedX = Math.min(speedX, this.maxSpeedX);
-                    }
+            update: function (duration) {
+                //duration:��֡��ʱ ��λ����
+                this.speedX = this.speedX + this.aX * duration;
+                if (this.maxSpeedX < 0) {
+                    this.maxSpeedX *= -1;
                 }
-                if (this.aY != 0) {
-                    var now = new Date().getTime();
-                    var durationY = now - this.startTimeY;
-                    this.speedY = this.oriSpeedY + (this.aY * durationY) / 1000;
+                if (this.speedX < 0) {
+                    this.speedX = Math.max(this.speedX, this.maxSpeedX * -1);
+                } else {
+                    this.speedX = Math.min(this.speedX, this.maxSpeedX);
                 }
-                this.move(this.speedX, this.speedY);
+
+                this.speedY = this.speedY + this.aY * duration;
+                if (this.maxSpeedY < 0) {
+                    this.maxSpeedY *= -1;
+                }
+                if (this.speedY < 0) {
+                    this.speedY = Math.max(this.speedY, this.maxSpeedY * -1);
+                } else {
+                    this.speedY = Math.min(this.speedY, this.maxSpeedY);
+                }
+                this.rotateSpeed = this.rotateSpeed + this.aR * duration;
+
+                this.rotate(this.rotateSpeed).move(this.speedX, this.speedY);
 
                 if (this.spriteSheet) {
                     //����spriteSheet����
@@ -1160,16 +1328,21 @@
              *���Ƴ�sprite
              **/
             draw: function () {
-                var context = cg.context;
+                var context = this.context;
+                var halfWith;
+                var halfHeight;
                 if (this.spriteSheet) {
                     this.spriteSheet.x = this.x;
                     this.spriteSheet.y = this.y;
                     this.spriteSheet.draw();
                 } else if (this.image) {
                     context.save();
-                    context.translate(this.x, this.y);
-                    context.rotate((this.angle * Math.PI) / 180);
-                    context.drawImage(this.image, this.imgX, this.imgY, this.width, this.height, 0, 0, this.width, this.height);
+                    halfWith = this.width / 2;
+                    halfHeight = this.height / 2;
+                    context.translate(this.x + halfWith, this.y + halfHeight);
+                    context.rotate(((this.angle * Math.PI) / 180) * -1);
+
+                    context.drawImage(this.image, this.imgX, this.imgY, this.imgWidth, this.imgHeight, -halfWith, -halfHeight, this.width, this.height);
                     context.restore();
                 }
             },
@@ -1197,14 +1370,17 @@
              *��תһ���Ƕ�
              **/
             rotate: function (da) {
-                this.angle += da;
+                da = da || 0;
+                var angle = this.angle + da;
+
+                this.angle = Math.min(Math.max(this.minAngle, angle), this.maxAngle);
                 return this;
             },
             /**
              *��ת��һ���Ƕ�
              **/
-            rotateTo: function () {
-                this.angle = da;
+            rotateTo: function (a) {
+                this.angle = Math.min(Math.max(this.minAngle, a), this.maxAngle);
                 return this;
             },
             /**
@@ -1226,6 +1402,37 @@
         };
         this.Sprite = sprite;
     });
+    /**
+     *
+     *sprite�б�
+     *
+     **/
+    cnGame.register("cnGame", function (cg) {
+        var spriteList = {
+            length: 0,
+            add: function (sprite) {
+                Array.prototype.push.call(this, sprite);
+            },
+            remove: function (sprite) {
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if (this[i] === sprite) {
+                        Array.prototype.splice.call(this, i, 1);
+                        i--;
+                        len--;
+                    }
+                }
+            },
+            clean: function () {
+                for (var i = 0, len = this.length; i < len; i++) {
+                    Array.prototype.pop.call(this);
+                }
+            },
+            sort: function (func) {
+                Array.prototype.sort.call(this, func);
+            },
+        };
+        this.spriteList = spriteList;
+    });
 
     /**
      *
@@ -1234,26 +1441,42 @@
      **/
     cnGame.register("cnGame", function (cg) {
         var timeId;
-        var interval;
+        var delay;
         /**
          *ѭ������
          **/
         var loop = function () {
             var self = this;
             return function () {
+                var now = new Date().getTime();
                 if (!self.pause && !self.stop) {
-                    self.now = new Date().getTime();
-                    self.duration = self.startTime - self.now;
+                    var duration = now - self.lastTime; //֡��ʱ
+                    var spriteList = cg.spriteList;
+                    self.loopDuration = (self.startTime - self.now) / 1000;
 
                     if (self.gameObj.update) {
-                        self.gameObj.update();
+                        //������Ϸ�����update
+                        self.gameObj.update(duration / 1000);
                     }
                     if (self.gameObj.draw) {
                         cg.context.clearRect(0, 0, cg.width, cg.height);
-                        self.gameObj.draw();
+                        self.gameObj.draw(duration / 1000);
+                    }
+                    for (var i = 0; i < spriteList.length; i++) {
+                        //��������sprite
+                        spriteList[i].update(duration / 1000);
+                        if (spriteList[i]) {
+                            spriteList[i].draw();
+                        }
+                    }
+
+                    if (duration > self.interval) {
+                        //����delayʱ��
+                        delay = Math.max(1, self.interval - (duration - self.interval));
                     }
                 }
-                timeId = window.setTimeout(arguments.callee, interval);
+                timeId = window.setTimeout(arguments.callee, delay);
+                self.lastTime = now;
             };
         };
 
@@ -1279,7 +1502,7 @@
                 options = cg.core.extend(defaultObj, options);
                 this.gameObj = gameObj;
                 this.fps = options.fps;
-                interval = 1000 / this.fps;
+                this.interval = delay = 1000 / this.fps;
 
                 this.pause = false;
                 this.stop = true;
@@ -1292,17 +1515,16 @@
                 if (this.stop) {
                     //����ǽ���״̬����Կ�ʼ
                     this.stop = false;
-
-                    this.now = new Date().getTime();
-                    this.startTime = new Date().getTime();
-                    this.duration = 0;
+                    var now = new Date().getTime();
+                    this.startTime = now;
+                    this.lastTime = now;
+                    this.loopDuration = 0;
                     loop.call(this)();
                 }
             },
             /**
              *����ѭ��
-             **/
-            run: function () {
+             **/ run: function () {
                 this.pause = false;
             },
             /**
@@ -1375,6 +1597,8 @@
                     for (var j = beginX, xlen = beginX + mapMatrix[currentRow].length * cellSize[0]; j < xlen; j += cellSize[0]) {
                         currentCol = (j - beginX) / cellSize[0];
                         currentObj = options[mapMatrix[currentRow][currentCol]];
+                        currentObj.x = currentObj.x || 0;
+                        currentObj.y = currentObj.y || 0;
                         img = cg.loader.loadedImgs[currentObj.src];
                         cg.context.drawImage(img, currentObj.x, currentObj.y, cellSize[0], cellSize[1], j, i, cellSize[0], cellSize[1]); //�����ض������ͼ��
                     }
@@ -1383,8 +1607,50 @@
             /**
              *��ȡ�ض������ڵ�ͼ�д��ڵķ����ֵ
              **/
-            getPosValue: function (elem) {
-                return this.mapMatrix[Math.floor(elem.y / this.cellSize[1])][Math.floor(elem.x / this.cellSize[0])];
+            getPosValue: function (x, y) {
+                if (cg.core.isObject(x)) {
+                    y = x.y;
+                    x = x.x;
+                }
+                var isUndefined = cg.core.isUndefined;
+                y = Math.floor(y / this.cellSize[1]);
+                x = Math.floor(x / this.cellSize[0]);
+                if (!isUndefined(this.mapMatrix[y]) && !isUndefined(this.mapMatrix[y][x])) {
+                    return this.mapMatrix[y][x];
+                }
+                return undefined;
+            },
+            /**
+             *��ȡ�ض������ڵ�ͼ�д��ڵķ�������
+             **/
+            getCurrentIndex: function (x, y) {
+                if (cg.core.isObject(x)) {
+                    y = x.y;
+                    x = x.x;
+                }
+                return [Math.floor(x / this.cellSize[0]), Math.floor(y / this.cellSize[1])];
+            },
+            /**
+             *
+             */
+            setIndexValue: function (index, value) {
+                this.mapMatrix[index[1]][index[0]] = value;
+            },
+            /**
+             *��ȡ�ض������Ƿ�պ�������غ�
+             **/
+            isMatchCell: function (x, y) {
+                if (cg.core.isObject(x)) {
+                    y = x.y;
+                    x = x.x;
+                }
+                return x % this.cellSize[0] == 0 && y % this.cellSize[1] == 0;
+            },
+            /**
+             *���õ�ͼ��Ӧλ�õ�ֵ
+             **/
+            setPosValue: function (x, y, value) {
+                this.mapMatrix[y][x] = value;
             },
         };
         this.Map = map;
