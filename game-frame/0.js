@@ -1,4 +1,5 @@
 var canvas = document.createElement("canvas"); canvas.innerHTML = "请使用支持canvas的浏览器查看"; canvas.id = "gameCanvas"; document.getElementById("wrap").appendChild(canvas);
+var floorY = 360
 /* 初始化 */
 cnGame.init("gameCanvas", { width: 500, height: 400 });
 /**
@@ -24,18 +25,18 @@ cnGame.loader.start({
                 initialize: function () {
                     cnGame.input.preventDefault(["left", "right", "up", "down"]);  
 
-                    this.spriteList.push(new stone({ src: "images/v0/stone2.png", width: 128, height: 33, x: 550, y: this.floorY - 100 }));
-                    this.spriteList.push(new stone({ src: "images/v0/stone.png", width: 219, height: 30, x: 720, y: this.floorY - 200 }));
-                    this.spriteList.push(new stone({ src: "images/v0/stone.png", width: 219, height: 30, x: 1000, y: this.floorY - 120 }));
-                    this.spriteList.push(new stone({ src: "images/v0/stone.png", width: 219, height: 30, x: 1190, y: this.floorY - 240 }));
-                    this.spriteList.push(new stone({ src: "images/v0/stone2.png", width: 128, height: 33, x: 1700, y: this.floorY - 220 }));
-                    this.spriteList.push(new stone({ src: "images/v0/stone2.png", width: 128, height: 33, x: 1900, y: this.floorY - 240 }));
-                    this.spriteList.push(new stone({ src: "images/v0/pillar.png", width: 91, height: 75, x: 200, y: this.floorY - 75 }));
-                    this.spriteList.push(new stone({ src: "images/v0/pillar.png", width: 91, height: 75, x: 900, y: this.floorY - 75 }));
-                    this.spriteList.push(new stone({ src: "images/v0/pillar.png", width: 91, height: 75, x: 1500, y: this.floorY - 75 }));
+                    this.spriteList.push(new stone({ src: "images/v0/stone2.png", width: 128, height: 33, x: 550, y: floorY - 100 }));
+                    this.spriteList.push(new stone({ src: "images/v0/stone.png", width: 219, height: 30, x: 720, y: floorY - 200 }));
+                    this.spriteList.push(new stone({ src: "images/v0/stone.png", width: 219, height: 30, x: 1000, y: floorY - 120 }));
+                    this.spriteList.push(new stone({ src: "images/v0/stone.png", width: 219, height: 30, x: 1190, y: floorY - 240 }));
+                    this.spriteList.push(new stone({ src: "images/v0/stone2.png", width: 128, height: 33, x: 1700, y: floorY - 220 }));
+                    this.spriteList.push(new stone({ src: "images/v0/stone2.png", width: 128, height: 33, x: 1900, y: floorY - 240 }));
+                    this.spriteList.push(new stone({ src: "images/v0/pillar.png", width: 91, height: 75, x: 200, y: floorY - 75 }));
+                    this.spriteList.push(new stone({ src: "images/v0/pillar.png", width: 91, height: 75, x: 900, y: floorY - 75 }));
+                    this.spriteList.push(new stone({ src: "images/v0/pillar.png", width: 91, height: 75, x: 1500, y: floorY - 75 }));
                     
 
-                    this.player = new player({ src: "images/v0/player.png", width: 50, height: 60, x: 0, y: this.floorY - 60 });
+                    this.player = new player({ src: "images/v0/player.png", width: 50, height: 60, x: 0, y: floorY - 60 });
                     this.player.initialize(); this.spriteList.push(this.player);
                     
 
@@ -43,25 +44,25 @@ cnGame.loader.start({
                     this.background.centerPlayer(true); 
                     this.background.insideView(this.player, "x");
                     
-                    var newEnemy = new enemy({ src: "images/v0/enemy.png", width: 50, height: 48, x: cnGame.width, y: this.floorY - 48, speedX: -3 }); 
+                    var newEnemy = new enemy({ src: "images/v0/enemy.png", width: 50, height: 48, x: cnGame.width, y: floorY - 48, speedX: -3 }); 
                     newEnemy.addAnimation(new cnGame.SpriteSheet("enemyDie", "images/v0/enemy.png", { frameSize: [50, 48], width: 150, height: 48 }));
                     this.spriteList.push(newEnemy);
                 },
-                update: function () {
+                update: function (duration) {                    
                     this.times++; this.times2++;
                     if (this.times == 100) { 
                         this.times = 0;
-                        var newEnemy = new enemy({ src: "images/v0/enemy.png", width: 50, height: 48, x: cnGame.width, y: this.floorY - 48, speedX: -3 }); 
+                        var newEnemy = new enemy({ src: "images/v0/enemy.png", width: 50, height: 48, x: cnGame.width, y: floorY - 48, speedX: -3 }); 
                         newEnemy.addAnimation(new cnGame.SpriteSheet("enemyDie", "images/v0/enemy.png", { frameSize: [50, 48], width: 150, height: 48 })); 
                         this.spriteList.push(newEnemy);
                     }
                     if (this.times2 == 150) { 
                         this.times2 = 0;
                         var ranNum = [45, 130, 180][Math.floor(Math.random() * 3)];
-                        var newBullet = new bullet({ src: "images/v0/bullet.png", width: 56, height: 35, x: cnGame.width, y: this.floorY - ranNum, speedX: -15 });
+                        var newBullet = new bullet({ src: "images/v0/bullet.png", width: 56, height: 35, x: cnGame.width, y: floorY - ranNum, speedX: -15 });
                         this.spriteList.push(newBullet)   
                     }
-                    coliDetect(this.player, this.spriteList, this.floorY);
+                    coliDetect(this.player, this.spriteList, duration);
                     //this.background.update(this.spriteList);
                 },
                 draw: function () { this.background.draw(); for (var i = 0, len = this.spriteList.length; i < len; i++) { this.spriteList[i].draw() } },
