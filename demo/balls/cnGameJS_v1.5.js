@@ -1942,6 +1942,7 @@
 
                     var duration = (now - self.lastTime); //帧历时
                     var spriteList = cg.spriteList;
+                    console.log('loop.now',self.now);
                     self.loopDuration = (self.startTime - self.now) / 1000;
 
                     if (self.gameObj.update) {//调用游戏对象的update
@@ -1988,7 +1989,7 @@
                 *默认对象
                 **/
                 var defaultObj = {
-                    fps: 30
+                    fps: 1
                 };
                 options = options || {};
 

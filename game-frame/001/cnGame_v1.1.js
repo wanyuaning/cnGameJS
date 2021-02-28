@@ -1,31 +1,21 @@
-Function.prototype.getName = function(){
-    return this.name || this.toString().match(/function\s*([^(]*)\(/)[1]
-}
-Function.prototype.before = function(fn){
-	var __self = this;	
-    console.log(__self.getName(), arguments);
-	return function(){
-		if(fn.apply(__self, arguments) == false) return false;
-		return __self.apply(__self, arguments);
-	}	
-}
-Function.prototype.after = function(fn){
-	var __self = this;
-	return function(){
-		var result = __self.apply(__self, arguments);		
-		if(result == false) return false;		
-		if(fn.apply(__self, arguments) == false) return false;
-		if(result) return result;
-		return true;	
-	}	
-};
+
 (function(win,undefined){
 	var ps, Ps=function(canvas){ var left = 0, top = 0; while (canvas.offsetParent) { left += canvas.offsetLeft; top += canvas.offsetTop; canvas = canvas.offsetParent }; return [left, top] }	
 	var _cnGame={
 		init:function(id,o){
-			o=o||{}; var $ = this.core.$, $$ = this.core.$$;
-			this.canvas = $(id||"canvas"); this.context = this.canvas.getContext('2d'); this.width = o.width||800; this.height = o.height||600; this.title = $$('title')[0]; ps=Ps(this.canvas);
-			this.x=ps[0]||0; this.y=ps[1]||0; this.canvas.width=this.width; this.canvas.height=this.height; this.canvas.style.left=this.x +"px"; this.canvas.style.top=this.y +"px";			
+			o=o||{}; 
+            var $ = this.core.$, $$ = this.core.$$;
+			this.canvas = $(id||"canvas"); 
+            this.context = this.canvas.getContext('2d'); 
+            this.width = o.width||800; 
+            this.height = o.height||600; 
+            this.title = $$('title')[0]; ps=Ps(this.canvas);
+			this.x=ps[0]||0; 
+            this.y=ps[1]||0; 
+            this.canvas.width=this.width; 
+            this.canvas.height=this.height; 
+            this.canvas.style.left=this.x +"px"; 
+            this.canvas.style.top=this.y +"px";			
 		},
 		register:function(nameSpace,func){ 
             var A=nameSpace.split("."), p=win; 
@@ -46,22 +36,40 @@ Function.prototype.after = function(fn){
     });
     cnGame.register("cnGame",function(cg){	
         var f = {"json": "json", "wav": "audio", "mp3": "audio", "ogg":"audio", "png": "image", "jpg": "image", "jpeg": "image", "gif": "image", "bmp": "image", "tiff": "image"}
-        var resourceLoad=function(l,t){
+        var resourceLoad=function(l,t){ // loader type
             return function(){
-                l.loadedCount+=1; t=="image"&&(l.loadedImgs[this.srcPath]=this); t=="audio"&&(l.loadedAudios[this.srcPath]=this);
-                this.onLoad=null; l.loadedPercent=Math.floor(l.loadedCount/l.sum*100); l.onLoad&&l.onLoad(l.loadedPercent);
+                l.loadedCount+=1; 
+                t=="image"&&(l.loadedImgs[this.srcPath]=this); 
+                t=="audio"&&(l.loadedAudios[this.srcPath]=this);
+                this.onLoad=null; l.loadedPercent=Math.floor(l.loadedCount/l.sum*100); 
+                l.onLoad&&l.onLoad(l.loadedPercent);
                 if(l.loadedPercent<100) return;
                 l.loadedCount=0; l.loadedPercent=0; t=="image"&&(l.loadingImgs={}); t=="audio"&&(l.loadingAudios={});
-                if(l.gameObj&&l.gameObj.initialize){ l.gameObj.initialize(l.startOptions); if(cg.loop&&!cg.loop.stop) cg.loop.end(); cg.loop=new cg.GameLoop(l.gameObj); cg.loop.start() }
+                if(l.gameObj&&l.gameObj.initialize){ 
+                    l.gameObj.initialize(l.startOptions);
+                    if(cg.loop&&!cg.loop.stop) cg.loop.end();
+                    cg.loop=new cg.GameLoop(l.gameObj);
+                    cg.loop.start() 
+                }
             }
         }        
         this.loader={
             sum:0, loadedCount:0, loadingImgs:{}, loadedImgs:{}, loadingAudios:{}, loadedAudios:{},            
             start:function(gameObj,options){
-                var A=options.srcArray; this.gameObj=gameObj; this.startOptions=options.startOptions; this.onLoad=options.onLoad; cg.spriteList.clean(); this.sum=A.length;
+                var A=options.srcArray; 
+                this.gameObj=gameObj; 
+                this.startOptions=options.startOptions; 
+                this.onLoad=options.onLoad; 
+                cg.spriteList.clean(); 
+                this.sum=A.length;
                 for(var i=0;i<A.length;i++){
                     var p=A[i], s=A[i].substring(A[i].lastIndexOf(".")+1), t=f[s], b = cg.core.bindHandler, r = resourceLoad;
-                    if(t=="image"){ this.loadingImgs[p]=new Image(); b(this.loadingImgs[p],"load",r(this,t)); this.loadingImgs[p].src=p; this.loadingImgs[p].srcPath=p } 
+                    if(t=="image"){ 
+                        this.loadingImgs[p]=new Image(); 
+                        b(this.loadingImgs[p],"load",r(this,t)); 
+                        this.loadingImgs[p].src=p; 
+                        this.loadingImgs[p].srcPath=p 
+                    } 
                     else if(t=="audio"){ this.loadingAudios[p]=new Audio(p); b(this.loadingAudios[p],"canplay",r(this,t)); this.loadingAudios[p].onload=r(this,t); this.loadingAudios[p].src=p; this.loadingAudios[p].srcPath=p}
                 }
             }
@@ -92,35 +100,43 @@ Function.prototype.after = function(fn){
         this.Sprite = sprite    
     });
     cnGame.register("cnGame",function(cg){ var spriteList={ length:0, clean:function(){ for(var i=0;i<this.length;i++){ Array.prototype.pop.call(this) } } }; this.spriteList=spriteList });
+    
     cnGame.register("cnGame",function(cg){
         var timeId, interval, loop=function(){
-            var t=this;
+            var gLoop=this;
             return function(){
-                if(!t.pause&&!t.stop){ 
-                    var n=new Date().getTime(), d=(n-t.lastTime)/1000, s=cg.spriteList; t.loopDuration=(t.startTime-t.now)/1000;            
-                    if(t.gameObj.update){ t.gameObj.update(d) } if(t.gameObj.draw){ cg.context.clearRect(0,0,cg.width,cg.height); t.gameObj.draw() }; for(var i=0;i<s.length;i++){ s[i].update(d); s[i].draw() }; t.lastTime=n;
+                if(!gLoop.pause&&!gLoop.stop){ 
+                    var n=new Date().getTime(), d=(n-gLoop.lastTime)/1000, spriteList=cg.spriteList; 
+                    gLoop.loopDuration = d;            
+                    if(gLoop.gameObj.update){ gLoop.gameObj.update(d) } 
+                    if(gLoop.gameObj.draw){ cg.context.clearRect(0,0,cg.width,cg.height); gLoop.gameObj.draw() }; 
+                    for(var i=0;i<spriteList.length;i++){ spriteList[i].update(d); spriteList[i].draw() }; 
+                    gLoop.lastTime=n;
                 }
                 timeId=window.setTimeout(arguments.callee,interval);
             }
         }        
         function gameLoop(gameObj,options){ if(!(this instanceof arguments.callee)){ return new arguments.callee(gameObj,options) }; this.init(gameObj,options) }
         gameLoop.prototype={ 
-            fps:30, 
-            init:function(gameObj,o){ o=o||{}; cg.core.extend(this,o); this.gameObj=gameObj; interval=1000/this.fps; this.pause=false; this.stop=true },
-            start:function(){ if(this.stop){ this.stop=false; var now=new Date().getTime(); this.startTime=now; this.lastTime=now; this.loopDuration=0; loop.call(this)() }	},	
+            fps:1, 
+            init:function(gameObj,o){ 
+                o=o||{}; cg.core.extend(this,o); 
+                this.gameObj=gameObj; 
+                interval=1000/this.fps; 
+                this.pause=false; 
+                this.stop=true 
+            },
+            start:function(){ 
+                if(this.stop){ 
+                    this.stop=false; 
+                    var now=new Date().getTime(); 
+                    this.startTime=now; 
+                    this.lastTime=now; 
+                    this.loopDuration=0; 
+                    loop.call(this)() 
+                }	
+            },	
         }
         this.GameLoop = gameLoop
     });
 })(window,undefined);
-
-
-
-
-
-
-
-
-
-
-
-

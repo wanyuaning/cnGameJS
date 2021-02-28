@@ -1,11 +1,6 @@
 var canvas = document.createElement("canvas"); canvas.innerHTML = "请使用支持canvas的浏览器查看"; canvas.id = "gameCanvas"; document.getElementById("wrap").appendChild(canvas);
 
-cnGame.init.before(function(){ console.log('cnGame.init 开始') })
-cnGame.init.after(function(){ console.log('cnGame.init 结束') })
-cnGame.register.before(function(){ console.log('注册' + arguments[0] + '开始') })
-cnGame.register.after(function(){ console.log('注册' + arguments[0] + '结束') } )
-cnGame.clean.before(function(){ console.log('清理画布') })
-cnGame.loader.start.before(function(){ console.log('加载资源' + arguments[0]) })
+
 
 /* 初始化 */
 cnGame.init("gameCanvas", { width: 500, height: 400 });

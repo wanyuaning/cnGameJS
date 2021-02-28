@@ -10,7 +10,7 @@
 (function(win, undefined) {
     var canvasPos;
     /**
-    *»ñÈ¡canvasÔÚÒ³ÃæµÄÎ»ÖÃ
+    *ï¿½ï¿½È¡canvasï¿½ï¿½Ò³ï¿½ï¿½ï¿½Î»ï¿½ï¿½
     **/
     var getCanvasPos = function(canvas) {
         var left = 0;
@@ -27,7 +27,7 @@
 
     var _cnGame = {
         /**
-        *³õÊ¼»¯
+        *ï¿½ï¿½Ê¼ï¿½ï¿½
         **/
         init: function(id, options) {
             options = options || {};
@@ -46,7 +46,7 @@
 
         },
         /**
-        *Éú³ÉÃüÃû¿Õ¼ä,²¢Ö´ÐÐÏàÓ¦²Ù×÷
+        *ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½,ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
         **/
         register: function(nameSpace, func) {
             var nsArr = nameSpace.split(".");
@@ -61,7 +61,7 @@
             return parent;
         },
         /**
-        *Çå³ý»­²¼
+        *ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         clean: function() {
             this.context.clearRect(this.width, this.height);
@@ -81,25 +81,25 @@
 
     /**
     *
-    *»ù±¾¹¤¾ßº¯ÊýÄ£¿é
+    *ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ßºï¿½ï¿½ï¿½Ä£ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame.core", function(cg) {
         /**
-        °´id»ñÈ¡ÔªËØ
+        ï¿½ï¿½idï¿½ï¿½È¡Ôªï¿½ï¿½
         **/
         this.$ = function(id) {
             return document.getElementById(id);
         };
         /**
-        °´±êÇ©Ãû»ñÈ¡ÔªËØ
+        ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½È¡Ôªï¿½ï¿½
         **/
         this.$$ = function(tagName, parent) {
             parent = parent || document;
             return parent.getElementsByTagName(tagName);
         };
         /**
-        °´ÀàÃû»ñÈ¡ÔªËØ
+        ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡Ôªï¿½ï¿½
         **/
         this.$Class = function(className, parent) {
             var arr = [], result = [];
@@ -113,7 +113,7 @@
             return result;
         };
         /**
-        ÊÂ¼þ°ó¶¨
+        ï¿½Â¼ï¿½ï¿½ï¿½
         **/
         this.bindHandler = (function() {
 
@@ -130,7 +130,7 @@
             }
         })();
         /**
-        ÊÂ¼þ½â³ý
+        ï¿½Â¼ï¿½ï¿½ï¿½ï¿½
         **/
         this.removeHandler = (function() {
             if (window.removeEventListerner) {
@@ -146,20 +146,20 @@
             }
         })();
         /**
-        »ñÈ¡ÊÂ¼þ¶ÔÏó
+        ï¿½ï¿½È¡ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         this.getEventObj = function(eve) {
             return eve || win.event;
         };
         /**
-        »ñÈ¡ÊÂ¼þÄ¿±ê¶ÔÏó
+        ï¿½ï¿½È¡ï¿½Â¼ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         this.getEventTarget = function(eve) {
             var eve = this.getEventObj(eve);
             return eve.target || eve.srcElement;
         };
         /**
-        ½ûÖ¹Ä¬ÈÏÐÐÎª
+        ï¿½ï¿½Ö¹Ä¬ï¿½ï¿½ï¿½ï¿½Îª
         **/
         this.preventDefault = function(eve) {
             if (eve.preventDefault) {
@@ -171,7 +171,7 @@
 
         };
         /**
-        »ñÈ¡¶ÔÏó¼ÆËãµÄÑùÊ½
+        ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
         **/
         this.getComputerStyle = (function() {
             var body = document.body || document.documentElement;
@@ -188,37 +188,37 @@
 
         })();
         /**
-        ÊÇ·ñÎªundefined
+        ï¿½Ç·ï¿½Îªundefined
         **/
         this.isUndefined = function(elem) {
             return typeof elem === 'undefined';
         },
         /**
-        ÊÇ·ñÎªÊý×é
+        ï¿½Ç·ï¿½Îªï¿½ï¿½ï¿½ï¿½
         **/
 		this.isArray = function(elem) {
 		    return Object.prototype.toString.call(elem) === "[object Array]";
 		};
         /**
-        ÊÇ·ñÎªObjectÀàÐÍ
+        ï¿½Ç·ï¿½ÎªObjectï¿½ï¿½ï¿½ï¿½
         **/
         this.isObject = function(elem) {
             return elem === Object(elem);
         };
         /**
-        ÊÇ·ñÎª×Ö·û´®ÀàÐÍ
+        ï¿½Ç·ï¿½Îªï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         this.isString = function(elem) {
             return Object.prototype.toString.call(elem) === "[object String]";
         };
         /**
-        ÊÇ·ñÎªÊýÖµÀàÐÍ
+        ï¿½Ç·ï¿½Îªï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½
         **/
         this.isNum = function(elem) {
             return Object.prototype.toString.call(elem) === "[object Number]";
         };
         /**
-        *¸´ÖÆ¶ÔÏóÊôÐÔ
+        *ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         this.extend = function(destination, source, isCover) {
             var isUndefined = this.isUndefined;
@@ -232,7 +232,7 @@
             return destination;
         };
         /**
-        *Ô­ÐÍ¼Ì³Ð¶ÔÏó
+        *Ô­ï¿½Í¼Ì³Ð¶ï¿½ï¿½ï¿½
         **/
         this.inherit = function(child, parent) {
             var func = function() { };
@@ -246,11 +246,11 @@
 
     /**
     *
-    *AjaxÄ£¿é
+    *AjaxÄ£ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame.ajax", function(cg) {
-        var activeXString; //ÎªIEÌØ¶¨°æ±¾±£ÁôµÄactiveX×Ö·û´®
+        var activeXString; //ÎªIEï¿½Ø¶ï¿½ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½activeXï¿½Ö·ï¿½ï¿½ï¿½
         var onXHRload = function(xhr, options) {
             return function(eve) {
 
@@ -270,7 +270,7 @@
 
 
         /**
-        *Éú³ÉXMLHttpRequest¶ÔÏó
+        *ï¿½ï¿½ï¿½ï¿½XMLHttpRequestï¿½ï¿½ï¿½ï¿½
         **/
         this.creatXHR = function() {
             if (!cg.core.isUndefined(XMLHttpRequest)) {
@@ -294,7 +294,7 @@
             }
         }
         /**
-        *·¢ËÍÇëÇó
+        *ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         this.request = function(options) {
             var defaultObj = {
@@ -304,7 +304,7 @@
             var type = options.type;
             var xhr = this.creatXHR();
 
-            cg.core.bindHandler(xhr, "readystatechange", function(eve) {//×ÊÔ´¼ÓÔØÍê³É»Øµ÷º¯Êý
+            cg.core.bindHandler(xhr, "readystatechange", function(eve) {//ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É»Øµï¿½ï¿½ï¿½ï¿½ï¿½
                 if (xhr.readyState == 4) {
                     if ((xhr.status >= 200 && xhr.state < 300) || xhr.status == 304) {
                         var onSuccess = options.onSuccess;
@@ -321,7 +321,7 @@
             var requestOpt = options.requestOpt;
             var url = options.url;
 
-            if (type == "get") {//getÇëÇóÊý¾Ý´¦Àí
+            if (type == "get") {//getï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½
                 if (url.indexOf("?") < 0) {
                     url += "?";
                 }
@@ -338,7 +338,7 @@
                     }
                 }
             }
-            else if (type == "post") {//postÇëÇóÊý¾Ý´¦Àí
+            else if (type == "post") {//postï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½
                 var _requestOpt = {}
                 for (name in requestOpt) {
                     if (requestOpt.hasOwnProperty(name)) {
@@ -358,7 +358,7 @@
 
     /**
     *
-    *×ÊÔ´¼ÓÔØÆ÷
+    *ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame", function(cg) {
@@ -377,14 +377,14 @@
         file_type["tiff"] = "image"
         var postfix_regexp = /\.([a-zA-Z0-9]+)/;
         /**
-        *×ÊÔ´¼ÓÔØÍê±ÏµÄ´¦Àí³ÌÐò
+        *ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÏµÄ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         var resourceLoad = function(self, type) {
             return function() {
                 self.loadedCount += 1;
                 type == "image" && (self.loadedImgs[this.srcPath] = this);
                 type == "audio" && (self.loadedAudios[this.srcPath] = this);
-                this.onLoad = null; 				//±£Ö¤Í¼Æ¬µÄonLoadÖ´ÐÐÒ»´ÎºóÏú»Ù
+                this.onLoad = null; 				//ï¿½ï¿½Ö¤Í¼Æ¬ï¿½ï¿½onLoadÖ´ï¿½ï¿½Ò»ï¿½Îºï¿½ï¿½ï¿½ï¿½ï¿½
                 self.loadedPercent = Math.floor(self.loadedCount / self.sum * 100);
                 self.onLoad && self.onLoad(self.loadedPercent);
                 if (self.loadedPercent === 100) {
@@ -394,10 +394,10 @@
                     type == "audio" && (self.loadingAudios = {});
                     if (self.gameObj && self.gameObj.initialize) {
                         self.gameObj.initialize(self.startOptions);
-                        if (cg.loop && !cg.loop.stop) {//½áÊøÉÏÒ»¸öÑ­»·
+                        if (cg.loop && !cg.loop.stop) {//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ñ­ï¿½ï¿½
                             cg.loop.end();
                         }
-                        cg.loop = new cg.GameLoop(self.gameObj); //¿ªÊ¼ÐÂÓÎÏ·Ñ­»·
+                        cg.loop = new cg.GameLoop(self.gameObj); //ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ï·Ñ­ï¿½ï¿½
                         cg.loop.start();
                     }
                 }
@@ -405,22 +405,22 @@
         }
 
         /**
-        *Í¼Ïñ¼ÓÔØÆ÷
+        *Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         var loader = {
-            sum: 0, 		//Í¼Æ¬×ÜÊý
-            loadedCount: 0, //Í¼Æ¬ÒÑ¼ÓÔØÊý
-            loadingImgs: {}, //Î´¼ÓÔØÍ¼Æ¬¼¯ºÏ
-            loadedImgs: {}, //ÒÑ¼ÓÔØÍ¼Æ¬¼¯ºÏ
-            loadingAudios: {}, //Î´¼ÓÔØÒôÆµ¼¯ºÏ
-            loadedAudios: {}, //ÒÑ¼ÓÔØÒôÆµ¼¯ºÏ
+            sum: 0, 		//Í¼Æ¬ï¿½ï¿½ï¿½ï¿½
+            loadedCount: 0, //Í¼Æ¬ï¿½Ñ¼ï¿½ï¿½ï¿½ï¿½ï¿½
+            loadingImgs: {}, //Î´ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½
+            loadedImgs: {}, //ï¿½Ñ¼ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½
+            loadingAudios: {}, //Î´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½
+            loadedAudios: {}, //ï¿½Ñ¼ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½
             /**
-            *Í¼Ïñ¼ÓÔØ£¬Ö®ºóÆô¶¯ÓÎÏ·
+            *Í¼ï¿½ï¿½ï¿½ï¿½Ø£ï¿½Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·
             **/
             start: function(gameObj, options) {//options:srcArray,onload
                 var srcArr = options.srcArray;
                 this.gameObj = gameObj;
-                this.startOptions = options.startOptions; //ÓÎÏ·¿ªÊ¼ÐèÒªµÄ³õÊ¼»¯²ÎÊý
+                this.startOptions = options.startOptions; //ï¿½ï¿½Ï·ï¿½ï¿½Ê¼ï¿½ï¿½Òªï¿½Ä³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 this.onLoad = options.onLoad;
                 this.sum = 0;
                 cg.spriteList.clean();
@@ -437,16 +437,16 @@
                                 this.loadingImgs[path] = new Image();
                                 cg.core.bindHandler(this.loadingImgs[path], "load", resourceLoad(this, type));
                                 this.loadingImgs[path].src = path;
-                                this.loadingImgs[path].srcPath = path; //Ã»ÓÐ¾­¹ý×Ô¶¯±ä»»µÄsrc
+                                this.loadingImgs[path].srcPath = path; //Ã»ï¿½Ð¾ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ä»»ï¿½ï¿½src
                             }
                             else if (type == "audio") {
                                 this.loadingAudios[path] = new Audio(path);
                                 cg.core.bindHandler(this.loadingAudios[path], "canplay", resourceLoad(this, type));
                                 this.loadingAudios[path].onload = resourceLoad(this, type);
                                 this.loadingAudios[path].src = path;
-                                this.loadingAudios[path].srcPath = path; //Ã»ÓÐ¾­¹ý×Ô¶¯±ä»»µÄsrc
+                                this.loadingAudios[path].srcPath = path; //Ã»ï¿½Ð¾ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ä»»ï¿½ï¿½src
                             }
-                            else if (type == "js") {//Èç¹ûÊÇ½Å±¾£¬¼ÓÔØºóÖ´ÐÐ
+                            else if (type == "js") {//ï¿½ï¿½ï¿½ï¿½Ç½Å±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øºï¿½Ö´ï¿½ï¿½
                                 var head = cg.core.$$("head")[0];
                                 var script = document.createElement("script");
                                 head.appendChild(script);
@@ -472,13 +472,13 @@
 
     /**
     *
-    *canvas»ù±¾ÐÎ×´¶ÔÏó
+    *canvasï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´ï¿½ï¿½ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame.shape", function(cg) {
 
         /**
-        *¾ØÐÎ¶ÔÏó
+        *ï¿½ï¿½ï¿½Î¶ï¿½ï¿½ï¿½
         **/
         var rect = function(options) {
             if (!(this instanceof arguments.callee)) {
@@ -488,11 +488,11 @@
         }
         rect.prototype = {
             /**
-            *³õÊ¼»¯
+            *ï¿½ï¿½Ê¼ï¿½ï¿½
             **/
             init: function(options) {
                 /**
-                *Ä¬ÈÏÖµ¶ÔÏó
+                *Ä¬ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½
                 **/
                 var defaultObj = {
                     x: 0,
@@ -508,7 +508,7 @@
                 this.setOptions(options);
             },
             /**
-            *ÉèÖÃ²ÎÊý
+            *ï¿½ï¿½ï¿½Ã²ï¿½ï¿½ï¿½
             **/
             setOptions: function(options) {
                 this.x = options.x || this.x;
@@ -525,7 +525,7 @@
                 this.bottom = this.height + this.y;
             },
             /**
-            *»æÖÆ¾ØÐÎ
+            *ï¿½ï¿½ï¿½Æ¾ï¿½ï¿½ï¿½
             **/
             draw: function() {
                 var context = cg.context;
@@ -542,7 +542,7 @@
 
             },
             /**
-            *½«¾ØÐÎÒÆ¶¯Ò»¶¨¾àÀë
+            *ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             **/
             move: function(dx, dy) {
                 dx = dx || 0;
@@ -553,7 +553,7 @@
                 return this;
             },
             /**
-            *½«¾ØÐÎÒÆ¶¯µ½ÌØ¶¨Î»ÖÃ
+            *ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Î»ï¿½ï¿½
             **/
             moveTo: function(x, y) {
                 x = x || this.x;
@@ -564,7 +564,7 @@
                 return this;
             },
             /**
-            *½«¾ØÐÎ¸Ä±äÒ»¶¨´óÐ¡
+            *ï¿½ï¿½ï¿½ï¿½ï¿½Î¸Ä±ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ð¡
             **/
             resize: function(dWidth, dHeight) {
                 dWidth = dWidth || 0;
@@ -576,7 +576,7 @@
 
             },
             /**
-            *½«¾ØÐÎ¸Ä±äµ½ÌØ¶¨´óÐ¡
+            *ï¿½ï¿½ï¿½ï¿½ï¿½Î¸Ä±äµ½ï¿½Ø¶ï¿½ï¿½ï¿½Ð¡
             **/
             resizeTo: function(width, height) {
                 width = width || this.width;
@@ -589,7 +589,7 @@
         }
 
         /**
-        *Ô²ÐÎ¶ÔÏó
+        *Ô²ï¿½Î¶ï¿½ï¿½ï¿½
         **/
         var circle = function(options) {
             if (!(this instanceof arguments.callee)) {
@@ -599,11 +599,11 @@
         }
         circle.prototype = {
             /**
-            *³õÊ¼»¯
+            *ï¿½ï¿½Ê¼ï¿½ï¿½
             **/
             init: function(options) {
                 /**
-                *Ä¬ÈÏÖµ¶ÔÏó
+                *Ä¬ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½
                 **/
                 var defaultObj = {
                     x: 100,
@@ -621,7 +621,7 @@
 
             },
             /**
-            *ÉèÖÃ²ÎÊý
+            *ï¿½ï¿½ï¿½Ã²ï¿½ï¿½ï¿½
             **/
             setOptions: function(options) {
                 this.x = options.x || this.x;
@@ -634,7 +634,7 @@
                 this.style = options.style || this.style;
             },
             /**
-            *»æÖÆÔ²ÐÎ
+            *ï¿½ï¿½ï¿½ï¿½Ô²ï¿½ï¿½
             **/
             draw: function() {
                 var context = cg.context;
@@ -652,7 +652,7 @@
 
             },
             /**
-            *½«Ô²ÐÎÒÆ¶¯Ò»¶¨¾àÀë
+            *ï¿½ï¿½Ô²ï¿½ï¿½ï¿½Æ¶ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             **/
             move: function(dx, dy) {
                 dx = dx || 0;
@@ -662,7 +662,7 @@
                 return this;
             },
             /**
-            *½«Ô²ÐÎÒÆ¶¯µ½ÌØ¶¨Î»ÖÃ
+            *ï¿½ï¿½Ô²ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Î»ï¿½ï¿½
             **/
             moveTo: function(x, y) {
                 x = x || this.x;
@@ -672,7 +672,7 @@
                 return this;
             },
             /**
-            *½«Ô²ÐÎ¸Ä±äÒ»¶¨´óÐ¡
+            *ï¿½ï¿½Ô²ï¿½Î¸Ä±ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ð¡
             **/
             resize: function(dr) {
                 dr = dr || 0;
@@ -681,7 +681,7 @@
 
             },
             /**
-            *½«Ô²ÐÎ¸Ä±äµ½ÌØ¶¨´óÐ¡
+            *ï¿½ï¿½Ô²ï¿½Î¸Ä±äµ½ï¿½Ø¶ï¿½ï¿½ï¿½Ð¡
             **/
             resizeTo: function(r) {
                 r = r || this.r;
@@ -690,7 +690,7 @@
             }
         }
         /**
-        *½«Ô²ÐÎ¸Ä±äµ½ÌØ¶¨´óÐ¡
+        *ï¿½ï¿½Ô²ï¿½Î¸Ä±äµ½ï¿½Ø¶ï¿½ï¿½ï¿½Ð¡
         **/
         var text = function(text, options) {
             if (!(this instanceof arguments.callee)) {
@@ -701,11 +701,11 @@
         }
         text.prototype = {
             /**
-            *³õÊ¼»¯
+            *ï¿½ï¿½Ê¼ï¿½ï¿½
             **/
             init: function(text, options) {
                 /**
-                *Ä¬ÈÏÖµ¶ÔÏó
+                *Ä¬ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½
                 **/
                 var defaultObj = {
                     x: 100,
@@ -721,7 +721,7 @@
                 this.text = text;
             },
             /**
-            *»æÖÆ
+            *ï¿½ï¿½ï¿½ï¿½
             **/
             draw: function() {
                 var context = this.context;
@@ -739,7 +739,7 @@
                 }
             },
             /**
-            *ÉèÖÃ²ÎÊý
+            *ï¿½ï¿½ï¿½Ã²ï¿½ï¿½ï¿½
             **/
             setOptions: function(options) {
 				this.context=options.context||this.context;
@@ -765,7 +765,7 @@
 
     /**
     *
-    *ÊäÈë¼ÇÂ¼Ä£¿é
+    *ï¿½ï¿½ï¿½ï¿½ï¿½Â¼Ä£ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame.input", function(cg) {
@@ -773,7 +773,7 @@
         this.mouseX = 0;
         this.mouseY = 0;
         /**
-        *¼ÇÂ¼Êó±êÔÚcanvasÄÚµÄÎ»ÖÃ
+        *ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½canvasï¿½Úµï¿½Î»ï¿½ï¿½
         **/
         var recordMouseMove = function(eve) {
             var pageX, pageY, x, y;
@@ -788,25 +788,25 @@
         cg.core.bindHandler(window, "mousemove", recordMouseMove);
 
         /**
-        *±»°´ÏÂµÄ¼üµÄ¼¯ºÏ
+        *ï¿½ï¿½ï¿½ï¿½ï¿½ÂµÄ¼ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
         **/
         var pressed_keys = {};
         /**
-        *ÒªÇó½ûÖ¹Ä¬ÈÏÐÐÎªµÄ¼üµÄ¼¯ºÏ
+        *Òªï¿½ï¿½ï¿½Ö¹Ä¬ï¿½ï¿½ï¿½ï¿½Îªï¿½Ä¼ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
         **/
         var preventDefault_keys = {};
         /**
-        *¼üÅÌ°´ÏÂ´¥·¢µÄ´¦Àíº¯Êý
+        *ï¿½ï¿½ï¿½Ì°ï¿½ï¿½Â´ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         var keydown_callbacks = {};
         /**
-        *¼üÅÌµ¯Æð´¥·¢µÄ´¦Àíº¯Êý
+        *ï¿½ï¿½ï¿½Ìµï¿½ï¿½ð´¥·ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         var keyup_callbacks = {};
 
 
         /**
-        *¼üÅÌ°´¼ü±àÂëºÍ¼üÃû
+        *ï¿½ï¿½ï¿½Ì°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½
         **/
         var k = [];
         k[8] = "backspace"
@@ -863,7 +863,7 @@
         for (var i = 0; fkeys[i]; i++) { k[112 + i] = fkeys[i] }
 
         /**
-        *¼ÇÂ¼¼üÅÌ°´ÏÂµÄ¼ü
+        *ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ì°ï¿½ï¿½ÂµÄ¼ï¿½
         **/
         var recordPress = function(eve) {
             eve = cg.core.getEventObj(eve);
@@ -887,7 +887,7 @@
             }
         }
         /**
-        *¼ÇÂ¼¼üÅÌËÉ¿ªµÄ¼ü
+        *ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½É¿ï¿½ï¿½Ä¼ï¿½
         **/
         var recordUp = function(eve) {
             eve = cg.core.getEventObj(eve);
@@ -913,13 +913,13 @@
         cg.core.bindHandler(window, "keyup", recordUp);
 
         /**
-        *ÅÐ¶ÏÄ³¸ö¼üÊÇ·ñ°´ÏÂ
+        *ï¿½Ð¶ï¿½Ä³ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½
         **/
         this.isPressed = function(keyName) {
             return !!pressed_keys[keyName];
         };
         /**
-        *½ûÖ¹Ä³¸ö¼ü°´ÏÂµÄÄ¬ÈÏÐÐÎª
+        *ï¿½ï¿½Ö¹Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½Ä¬ï¿½ï¿½ï¿½ï¿½Îª
         **/
         this.preventDefault = function(keyName) {
             if (cg.core.isArray(keyName)) {
@@ -932,7 +932,7 @@
             }
         }
         /**
-        *°ó¶¨¼üÅÌ°´ÏÂÊÂ¼þ
+        *ï¿½ó¶¨¼ï¿½ï¿½Ì°ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
         **/
         this.onKeyDown = function(keyName, handler) {
             keyName = keyName || "allKeys";
@@ -943,7 +943,7 @@
 
         }
         /**
-        *°ó¶¨¼üÅÌµ¯ÆðÊÂ¼þ
+        *ï¿½ó¶¨¼ï¿½ï¿½Ìµï¿½ï¿½ï¿½ï¿½Â¼ï¿½
         **/
         this.onKeyUp = function(keyName, handler) {
             keyName = keyName || "allKeys";
@@ -954,7 +954,7 @@
 
         }
         /**
-        *Çå³ý¼üÅÌ°´ÏÂÊÂ¼þ´¦Àí³ÌÐò
+        *ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì°ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         this.clearDownCallbacks = function(keyName) {
             if (keyName) {
@@ -966,7 +966,7 @@
 
         }
         /**
-        *Çå³ý¼üÅÌµ¯ÆðÊÂ¼þ´¦Àí³ÌÐò
+        *ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         this.clearUpCallbacks = function(keyName) {
             if (keyName) {
@@ -981,32 +981,32 @@
 
     /**
     *
-    *Åö×²¼ì²â
+    *ï¿½ï¿½×²ï¿½ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame.collision", function(cg) {
         /**
-        *µãºÍ¾ØÐÎ¼äµÄÅö×²
+        *ï¿½ï¿½Í¾ï¿½ï¿½Î¼ï¿½ï¿½ï¿½ï¿½×²
         **/
         this.col_Point_Rect = function(pointX, pointY, rectObj) {
             return (pointX >= rectObj.x && pointX <= rectObj.right && pointY >= rectObj.y && pointY <= rectObj.bottom);
         }
         /**
-        *¾ØÐÎºÍ¾ØÐÎ¼äµÄÅö×²
+        *ï¿½ï¿½ï¿½ÎºÍ¾ï¿½ï¿½Î¼ï¿½ï¿½ï¿½ï¿½×²
         **/
         this.col_Between_Rects = function(rectObjA, rectObjB) {
 
             return ((rectObjA.right >= rectObjB.x && rectObjA.right <= rectObjB.right || rectObjA.x >= rectObjB.x && rectObjA.x <= rectObjB.right) && (rectObjA.bottom >= rectObjB.y && rectObjA.bottom <= rectObjB.bottom || rectObjA.y <= rectObjB.bottom && rectObjA.bottom >= rectObjB.y));
         }
         /**
-        *µãºÍÔ²ÐÎ¼äµÄÅö×²
+        *ï¿½ï¿½ï¿½Ô²ï¿½Î¼ï¿½ï¿½ï¿½ï¿½×²
         **/
         this.col_Point_Circle = function(pointX, pointY, circleObj) {
             return (Math.pow((pointX - circleObj.x), 2) + Math.pow((pointY - circleObj.y), 2) < Math.pow(circleObj.r, 2));
 
         }
         /**
-        *Ô²ÐÎºÍÔ²ÐÎ¼äµÄÅö×²
+        *Ô²ï¿½Îºï¿½Ô²ï¿½Î¼ï¿½ï¿½ï¿½ï¿½×²
         **/
         this.col_between_Circles = function(circleObjA, circleObjB) {
             return (Math.pow((circleObjA.x - circleObjB.x), 2) + Math.pow((circleObjA.y - circleObjB.y), 2) < Math.pow((circleObjA.r + circleObjB).r, 2));
@@ -1017,18 +1017,18 @@
 
     /**
     *
-    *¶¯»­
+    *ï¿½ï¿½ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame", function(cg) {
 
         /**
-        *Ö¡µÄÔöÁ¿
+        *Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         var path = 1;
 
         /**
-        *»ñÈ¡Ö¡¼¯ºÏ
+        *ï¿½ï¿½È¡Ö¡ï¿½ï¿½ï¿½ï¿½
         **/
         var caculateFrames = function(options) {
             var frames = [];
@@ -1039,7 +1039,7 @@
             var frameSize = options.frameSize;
             var direction = options.direction;
             var x, y;
-            /* ±£´æÃ¿Ò»Ö¡µÄ¾«È·Î»ÖÃ */
+            /* ï¿½ï¿½ï¿½ï¿½Ã¿Ò»Ö¡ï¿½Ä¾ï¿½È·Î»ï¿½ï¿½ */
             if (direction == "right") {
                 for (var y = beginY; y < height; y += frameSize[1]) {
                     for (var x = beginX; x < width; x += frameSize[0]) {
@@ -1069,7 +1069,7 @@
 
         }
         /**
-        *°üº¬¶àÖ¡Í¼ÏñµÄ´óÍ¼Æ¬
+        *ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¡Í¼ï¿½ï¿½Ä´ï¿½Í¼Æ¬
         **/
         spriteSheet = function(id, src, options) {
             if (!(this instanceof arguments.callee)) {
@@ -1079,12 +1079,12 @@
         }
         spriteSheet.prototype = {
             /**
-            *³õÊ¼»¯
+            *ï¿½ï¿½Ê¼ï¿½ï¿½
             **/
             init: function(id, src, options) {
 
                 /**
-                *Ä¬ÈÏ¶ÔÏó
+                *Ä¬ï¿½Ï¶ï¿½ï¿½ï¿½
                 **/
                 var defaultObj = {
                     x: 0,
@@ -1093,7 +1093,7 @@
                     height: 40,
                     frameSize: [40, 40],
                     frameDuration: 100,
-                    direction: "right", //´Ó×óµ½ÓÒ
+                    direction: "right", //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     beginX: 0,
                     beginY: 0,
 					scale:1,
@@ -1102,51 +1102,51 @@
                 };
                 options = options || {};
                 options = cg.core.extend(defaultObj, options);
-                this.id = id; 								//spriteSheetµÄid
-				this.context=options.context||cg.context;	//Ê¹ÓÃµÄÉÏÏÂÎÄ¶ÔÏó£¬Ä¬ÈÏÊÇ¿ò¼ÜµÄcontext
-                this.src = src; 							//Í¼Æ¬µØÖ·
-                this.x = options.x; 						//¶¯»­XÎ»ÖÃ
-                this.y = options.y; 						//¶¯»­YÎ»ÖÃ
-				this.scale=options.scale;					//Ëõ·Å±È
-                this.width = options.width; 				//Í¼Æ¬µÄ¿í¶È
-                this.height = options.height; 				//Í¼Æ¬µÄ¸ß¶È
-                this.image = cg.loader.loadedImgs[this.src]; //Í¼Æ¬¶ÔÏó
-                this.frameSize = options.frameSize; 		//Ã¿Ö¡³ß´ç
-                this.frameDuration = options.frameDuration; //Ã¿Ö¡³ÖÐøÊ±¼ä
-                this.direction = options.direction; 		//¶ÁÈ¡Ö¡µÄ·½Ïò£¨´Ó×öµ½ÓÒ»ò´ÓÉÏµ½ÏÂ£©
-                this.currentIndex = 0; 					//Ä¿Ç°Ö¡Ë÷Òý
-                this.beginX = options.beginX; 				//½ØÈ¡Í¼Æ¬µÄÆðÊ¼Î»ÖÃX
-                this.beginY = options.beginY; 				//½ØÍ¼Í¼Æ¬µÄÆðÊ¼Î»ÖÃY
-                this.loop = options.loop; 					//ÊÇ·ñÑ­»·²¥·Å
-                this.bounce = options.bounce; 				//ÊÇ·ñÍù·µ²¥·Å
-                this.onFinish = options.onFinish; 			//²¥·ÅÍê±ÏºóµÄ»Øµ÷º¯Êý
-                this.frames = caculateFrames(options); 	//Ö¡ÐÅÏ¢¼¯ºÏ
-                this.now = new Date().getTime(); 			//µ±Ç°Ê±¼ä
-                this.last = new Date().getTime(); 		//ÉÏÒ»Ö¡¿ªÊ¼Ê±¼ä
+                this.id = id; 								//spriteSheetï¿½ï¿½id
+				this.context=options.context||cg.context;	//Ê¹ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½ï¿½Ç¿ï¿½Üµï¿½context
+                this.src = src; 							//Í¼Æ¬ï¿½ï¿½Ö·
+                this.x = options.x; 						//ï¿½ï¿½ï¿½ï¿½XÎ»ï¿½ï¿½
+                this.y = options.y; 						//ï¿½ï¿½ï¿½ï¿½YÎ»ï¿½ï¿½
+				this.scale=options.scale;					//ï¿½ï¿½ï¿½Å±ï¿½
+                this.width = options.width; 				//Í¼Æ¬ï¿½Ä¿ï¿½ï¿½ï¿½
+                this.height = options.height; 				//Í¼Æ¬ï¿½Ä¸ß¶ï¿½
+                this.image = cg.loader.loadedImgs[this.src]; //Í¼Æ¬ï¿½ï¿½ï¿½ï¿½
+                this.frameSize = options.frameSize; 		//Ã¿Ö¡ï¿½ß´ï¿½
+                this.frameDuration = options.frameDuration; //Ã¿Ö¡ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+                this.direction = options.direction; 		//ï¿½ï¿½È¡Ö¡ï¿½Ä·ï¿½ï¿½ò£¨´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ïµï¿½ï¿½Â£ï¿½
+                this.currentIndex = 0; 					//Ä¿Ç°Ö¡ï¿½ï¿½ï¿½ï¿½
+                this.beginX = options.beginX; 				//ï¿½ï¿½È¡Í¼Æ¬ï¿½ï¿½ï¿½ï¿½Ê¼Î»ï¿½ï¿½X
+                this.beginY = options.beginY; 				//ï¿½ï¿½Í¼Í¼Æ¬ï¿½ï¿½ï¿½ï¿½Ê¼Î»ï¿½ï¿½Y
+                this.loop = options.loop; 					//ï¿½Ç·ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                this.bounce = options.bounce; 				//ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                this.onFinish = options.onFinish; 			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïºï¿½Ä»Øµï¿½ï¿½ï¿½ï¿½ï¿½
+                this.frames = caculateFrames(options); 	//Ö¡ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
+                this.now = new Date().getTime(); 			//ï¿½ï¿½Ç°Ê±ï¿½ï¿½
+                this.last = new Date().getTime(); 		//ï¿½ï¿½Ò»Ö¡ï¿½ï¿½Ê¼Ê±ï¿½ï¿½
             },
             /**
-            *¸üÐÂÖ¡
+            *ï¿½ï¿½ï¿½ï¿½Ö¡
             **/
             update: function() {
 
                 this.now = new Date().getTime();
                 var frames = this.frames;
-                if ((this.now - this.last) >= this.frameDuration) {//Èç¹û¼ä¸ô´óÓÚµÈÓÚÖ¡¼ä¼ä¸ô£¬Ôòupdate
+                if ((this.now - this.last) >= this.frameDuration) {//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½update
                     var currentIndex = this.currentIndex;
                     var length = this.frames.length;
                     this.last = this.now;
 
                     if (currentIndex >= length - 1) {
-                        if (this.loop) {	//Ñ­»·
+                        if (this.loop) {	//Ñ­ï¿½ï¿½
                             return frames[this.currentIndex = 0];
                         }
-                        else if (!this.bounce) {//Ã»ÓÐÑ­»·²¢ÇÒÃ»ÓÐÍù·µ¹ö¶¯£¬ÔòÍ£Ö¹ÔÚ×îºóÒ»Ö¡
+                        else if (!this.bounce) {//Ã»ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í£Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½Ò»Ö¡
                             this.onFinish && this.onFinish();
                             this.onFinish = undefined;
                             return frames[currentIndex];
                         }
                     }
-                    if ((this.bounce) && ((currentIndex >= length - 1 && path > 0) || (currentIndex <= 0 && path < 0))) {	//Íù·µ
+                    if ((this.bounce) && ((currentIndex >= length - 1 && path > 0) || (currentIndex <= 0 && path < 0))) {	//ï¿½ï¿½ï¿½ï¿½
                         path *= (-1);
                     }
                     this.currentIndex += path;
@@ -1155,20 +1155,20 @@
                 return frames[this.currentIndex];
             },
             /**
-            *Ìøµ½ÌØ¶¨Ö¡
+            *ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Ö¡
             **/
             index: function(index) {
                 this.currentIndex = index;
                 return this.frames[this.currentIndex];
             },
             /**
-            *»ñÈ¡ÏÖÊ±Ö¡
+            *ï¿½ï¿½È¡ï¿½ï¿½Ê±Ö¡
             **/
             getCurrentFrame: function() {
                 return this.frames[this.currentIndex];
             },
             /**
-            *ÔÚÌØ¶¨Î»ÖÃ»æÖÆ¸ÃÖ¡
+            *ï¿½ï¿½ï¿½Ø¶ï¿½Î»ï¿½Ã»ï¿½ï¿½Æ¸ï¿½Ö¡
             **/
             draw: function() {
 
@@ -1186,7 +1186,7 @@
 
     /**
     *
-    *sprite¶ÔÏó
+    *spriteï¿½ï¿½ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame", function(cg) {
@@ -1201,12 +1201,12 @@
         }
         sprite.prototype = {
             /**
-            *³õÊ¼»¯
+            *ï¿½ï¿½Ê¼ï¿½ï¿½
             **/
             init: function(options) {
 
                 /**
-                *Ä¬ÈÏ¶ÔÏó
+                *Ä¬ï¿½Ï¶ï¿½ï¿½ï¿½
                 **/
                 var defaultObj = {
                     x: 0,
@@ -1256,33 +1256,33 @@
                 this.minY = options.minY;
                 this.spriteSheetList = {};
 
-                if (options.src) {	//´«ÈëÍ¼Æ¬Â·¾¶
+                if (options.src) {	//ï¿½ï¿½ï¿½ï¿½Í¼Æ¬Â·ï¿½ï¿½
                     this.setCurrentImage(options.src, options.imgX, options.imgY, options.imgWidth, options.imgHeight);
                 }
-                else if (options.spriteSheet) {//´«ÈëspriteSheet¶ÔÏó
+                else if (options.spriteSheet) {//ï¿½ï¿½ï¿½ï¿½spriteSheetï¿½ï¿½ï¿½ï¿½
                     this.addAnimation(options.spriteSheet);
                     setCurrentAnimation(options.spriteSheet);
                 }
 
             },
             /**
-            *·µ»Ø°üº¬¸ÃspriteµÄ¾ØÐÎ¶ÔÏó
+            *ï¿½ï¿½ï¿½Ø°ï¿½ï¿½ï¿½ï¿½ï¿½spriteï¿½Ä¾ï¿½ï¿½Î¶ï¿½ï¿½ï¿½
             **/
             getRect: function() {
                 return new cg.shape.Rect({ x: this.x, y: this.y, width: this.width, height: this.height });
 
             },
             /**
-            *Ìí¼Ó¶¯»­
+            *ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
             **/
             addAnimation: function(spriteSheet) {
 				spriteSheet.relatedSprite=this;
                 this.spriteSheetList[spriteSheet.id] = spriteSheet;
             },
             /**
-            *ÉèÖÃµ±Ç°ÏÔÊ¾¶¯»­
+            *ï¿½ï¿½ï¿½Ãµï¿½Ç°ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½
             **/
-            setCurrentAnimation: function(id) {//¿É´«Èëid»òspriteSheet
+            setCurrentAnimation: function(id) {//ï¿½É´ï¿½ï¿½ï¿½idï¿½ï¿½spriteSheet
                 if (!this.isCurrentAnimation(id)) {
                     if (cg.core.isString(id)) {
                         this.spriteSheet = this.spriteSheetList[id];
@@ -1297,7 +1297,7 @@
 
             },
             /**
-            *ÅÐ¶Ïµ±Ç°¶¯»­ÊÇ·ñÎª¸ÃidµÄ¶¯»­
+            *ï¿½Ð¶Ïµï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½idï¿½Ä¶ï¿½ï¿½ï¿½
             **/
             isCurrentAnimation: function(id) {
                 if (cg.core.isString(id)) {
@@ -1308,7 +1308,7 @@
                 }
             },
             /**
-            *ÉèÖÃµ±Ç°ÏÔÊ¾Í¼Ïñ
+            *ï¿½ï¿½ï¿½Ãµï¿½Ç°ï¿½ï¿½Ê¾Í¼ï¿½ï¿½
             **/
             setCurrentImage: function(src, imgX, imgY,imgWidth,imgHeight) {
                 if (!this.isCurrentImage(src, imgX, imgY,imgWidth,imgHeight)) {
@@ -1326,7 +1326,7 @@
                 }
             },
             /**
-            *ÅÐ¶Ïµ±Ç°Í¼ÏñÊÇ·ñÎª¸ÃsrcµÄÍ¼Ïñ
+            *ï¿½Ð¶Ïµï¿½Ç°Í¼ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½srcï¿½ï¿½Í¼ï¿½ï¿½
             **/
             isCurrentImage: function(src, imgX, imgY,imgWidth,imgHeight) {
 				var image = this.image;
@@ -1345,13 +1345,13 @@
 				return image==src;
             },
 			/**
-            *Ìøµ½ÌØ¶¨Ö¡
+            *ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Ö¡
             **/
 			index:function(index){
 				this.spriteSheet&&this.spriteSheet.index(index);		
 			},
             /**
-            *ÉèÖÃÒÆ¶¯²ÎÊý
+            *ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½
             **/
             setMovement: function(options) {
                 isUndefined = cg.core.isUndefined;
@@ -1373,7 +1373,7 @@
 
             },
             /**
-            *ÖØÖÃÒÆ¶¯²ÎÊý»Øµ½³õÊ¼Öµ
+            *ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½Ê¼Öµ
             **/
             resetMovement: function() {
                 this.speedX = 0;
@@ -1392,9 +1392,9 @@
                 this.minAngle = -postive_infinity;
             },
             /**
-            *¸üÐÂÎ»ÖÃºÍÖ¡¶¯»­
+            *ï¿½ï¿½ï¿½ï¿½Î»ï¿½Ãºï¿½Ö¡ï¿½ï¿½ï¿½ï¿½
             **/
-            update: function(duration) {//duration:¸ÃÖ¡ÀúÊ± µ¥Î»£ºÃë
+            update: function(duration) {//duration:ï¿½ï¿½Ö¡ï¿½ï¿½Ê± ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½
                 this.speedX = this.speedX + this.aX * duration;
                 if (this.maxSpeedX < 0) {
                     this.maxSpeedX *= -1;
@@ -1420,14 +1420,14 @@
 
                 this.rotate(this.rotateSpeed).move(this.speedX, this.speedY);
 
-                if (this.spriteSheet) {//¸üÐÂspriteSheet¶¯»­
+                if (this.spriteSheet) {//ï¿½ï¿½ï¿½ï¿½spriteSheetï¿½ï¿½ï¿½ï¿½
                     this.spriteSheet.x = this.x
                     this.spriteSheet.y = this.y;
                     this.spriteSheet.update();
                 }
             },
             /**
-            *»æÖÆ³ösprite
+            *ï¿½ï¿½ï¿½Æ³ï¿½sprite
             **/
             draw: function() {
                 var context = this.context;
@@ -1451,7 +1451,7 @@
 
             },
             /**
-            *ÒÆ¶¯Ò»¶¨¾àÀë
+            *ï¿½Æ¶ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             **/
             move: function(dx, dy) {
                 dx = dx || 0;
@@ -1464,7 +1464,7 @@
 
             },
             /**
-            *ÒÆ¶¯µ½Ä³´¦
+            *ï¿½Æ¶ï¿½ï¿½ï¿½Ä³ï¿½ï¿½
             **/
             moveTo: function(x, y) {
                 this.x = Math.min(Math.max(this.minX, x), this.maxX);
@@ -1472,7 +1472,7 @@
                 return this;
             },
             /**
-            *Ðý×ªÒ»¶¨½Ç¶È
+            *ï¿½ï¿½×ªÒ»ï¿½ï¿½ï¿½Ç¶ï¿½
             **/
             rotate: function(da) {
                 da = da || 0;
@@ -1482,7 +1482,7 @@
                 return this;
             },
             /**
-            *Ðý×ªµ½Ò»¶¨½Ç¶È
+            *ï¿½ï¿½×ªï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ç¶ï¿½
             **/
             rotateTo: function(a) {
                 this.angle = Math.min(Math.max(this.minAngle, a), this.maxAngle);
@@ -1490,7 +1490,7 @@
 
             },
             /**
-            *¸Ä±äÒ»¶¨³ß´ç
+            *ï¿½Ä±ï¿½Ò»ï¿½ï¿½ï¿½ß´ï¿½
             **/
             resize: function(dw, dh) {
                 this.width += dw;
@@ -1498,7 +1498,7 @@
                 return this;
             },
             /**
-            *¸Ä±äµ½Ò»¶¨³ß´ç
+            *ï¿½Ä±äµ½Ò»ï¿½ï¿½ï¿½ß´ï¿½
             **/
             resizeTo: function(width, height) {
                 this.width = width;
@@ -1512,7 +1512,7 @@
     });
     /**
     *
-    *spriteÁÐ±í
+    *spriteï¿½Ð±ï¿½
     *
     **/
     cnGame.register("cnGame", function(cg) {
@@ -1546,7 +1546,7 @@
 
     /**
     *
-    *ÓÎÏ·Ñ­»·
+    *ï¿½ï¿½Ï·Ñ­ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame", function(cg) {
@@ -1554,7 +1554,7 @@
         var timeId;
         var delay;
         /**
-        *Ñ­»··½·¨
+        *Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         **/
         var loop = function() {
             var self = this;
@@ -1562,25 +1562,25 @@
                 var now = new Date().getTime();
                 if (!self.pause && !self.stop) {
 
-                    var duration = (now - self.lastTime); //Ö¡ÀúÊ±
+                    var duration = (now - self.lastTime); //Ö¡ï¿½ï¿½Ê±
                     var spriteList = cg.spriteList;
                     self.loopDuration = (self.startTime - self.now) / 1000;
 
-                    if (self.gameObj.update) {//µ÷ÓÃÓÎÏ·¶ÔÏóµÄupdate
+                    if (self.gameObj.update) {//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ï¿½update
                         self.gameObj.update(duration / 1000);
                     }
                     if (self.gameObj.draw) {
                         cg.context.clearRect(0, 0, cg.width, cg.height);
                         self.gameObj.draw(duration / 1000);
                     }
-                    for (var i = 0; i < spriteList.length; i++) {//¸üÐÂËùÓÐsprite
+                    for (var i = 0; i < spriteList.length; i++) {//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sprite
 						spriteList[i].update(duration / 1000);                    	
 						if(spriteList[i]){
                         	spriteList[i].draw();
 						}
                     }
 
-                    if (duration > self.interval) {//ÐÞÕýdelayÊ±¼ä
+                    if (duration > self.interval) {//ï¿½ï¿½ï¿½ï¿½delayÊ±ï¿½ï¿½
                         delay = Math.max(1, self.interval - (duration - self.interval));
 
                     }
@@ -1601,11 +1601,11 @@
         }
         gameLoop.prototype = {
             /**
-            *³õÊ¼»¯
+            *ï¿½ï¿½Ê¼ï¿½ï¿½
             **/
             init: function(gameObj, options) {
                 /**
-                *Ä¬ÈÏ¶ÔÏó
+                *Ä¬ï¿½Ï¶ï¿½ï¿½ï¿½
                 **/
                 var defaultObj = {
                     fps: 30
@@ -1622,10 +1622,10 @@
             },
 
             /**
-            *¿ªÊ¼Ñ­»·
+            *ï¿½ï¿½Ê¼Ñ­ï¿½ï¿½
             **/
             start: function() {
-                if (this.stop) {		//Èç¹ûÊÇ½áÊø×´Ì¬Ôò¿ÉÒÔ¿ªÊ¼
+                if (this.stop) {		//ï¿½ï¿½ï¿½ï¿½Ç½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ô¿ï¿½Ê¼
                     this.stop = false;
                     var now = new Date().getTime();
                     this.startTime = now;
@@ -1634,19 +1634,19 @@
                     loop.call(this)();
                 }
             }, 	/**
-		 *¼ÌÐøÑ­»·
+		 *ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½
 		**/
             run: function() {
                 this.pause = false;
             },
             /**
-            *ÔÝÍ£Ñ­»·
+            *ï¿½ï¿½Í£Ñ­ï¿½ï¿½
             **/
             pause: function() {
                 this.pause = true;
             },
             /**
-            *Í£Ö¹Ñ­»·
+            *Í£Ö¹Ñ­ï¿½ï¿½
             **/
             end: function() {
                 this.stop = true;
@@ -1660,7 +1660,7 @@
 
     /**
     *
-    *µØÍ¼
+    *ï¿½ï¿½Í¼
     *
     **/
     cnGame.register("cnGame", function(cg) {
@@ -1674,16 +1674,16 @@
         }
         map.prototype = {
             /**
-            *³õÊ¼»¯
+            *ï¿½ï¿½Ê¼ï¿½ï¿½
             **/
             init: function(mapMatrix, options) {
                 /**
-                *Ä¬ÈÏ¶ÔÏó
+                *Ä¬ï¿½Ï¶ï¿½ï¿½ï¿½
                 **/
                 var defaultObj = {
-                    cellSize: [32, 32],   //·½¸ñ¿í£¬¸ß
-                    beginX: 0, 	    //µØÍ¼ÆðÊ¼x
-                    beginY: 0			//µØÍ¼ÆðÊ¼y
+                    cellSize: [32, 32],   //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                    beginX: 0, 	    //ï¿½ï¿½Í¼ï¿½ï¿½Ê¼x
+                    beginY: 0			//ï¿½ï¿½Í¼ï¿½ï¿½Ê¼y
 
                 };
                 options = options || {};
@@ -1692,13 +1692,13 @@
                 this.cellSize = options.cellSize;
                 this.beginX = options.beginX;
                 this.beginY = options.beginY;
-                this.row = mapMatrix.length; //ÓÐ¶àÉÙÐÐ
+                this.row = mapMatrix.length; //ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½
 
             },
             /**
-            *¸ù¾Ýmap¾ØÕó»æÖÆmap
+            *ï¿½ï¿½ï¿½ï¿½mapï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½map
             **/
-            draw: function(options) {//options£º{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
+            draw: function(options) {//optionsï¿½ï¿½{"1":{src:"xxx.png",x:0,y:0},"2":{src:"xxx.png",x:1,y:1}}
                 var mapMatrix = this.mapMatrix;
                 var beginX = this.beginX;
                 var beginY = this.beginY;
@@ -1708,7 +1708,7 @@
                 var currentObj;
                 var row = this.row;
                 var img;
-                for (var i = beginY, ylen = beginY + row * cellSize[1]; i < ylen; i += cellSize[1]) {	//¸ù¾ÝµØÍ¼¾ØÕó£¬»æÖÆÃ¿¸ö·½¸ñ
+                for (var i = beginY, ylen = beginY + row * cellSize[1]; i < ylen; i += cellSize[1]) {	//ï¿½ï¿½ï¿½Ýµï¿½Í¼ï¿½ï¿½ï¿½ó£¬»ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     currentRow = (i - beginY) / cellSize[1];
                     for (var j = beginX, xlen = beginX + mapMatrix[currentRow].length * cellSize[0]; j < xlen; j += cellSize[0]) {
                         currentCol = (j - beginX) / cellSize[0];
@@ -1716,13 +1716,13 @@
                         currentObj.x = currentObj.x || 0;
                         currentObj.y = currentObj.y || 0;
                         img = cg.loader.loadedImgs[currentObj.src];
-                        cg.context.drawImage(img, currentObj.x, currentObj.y, cellSize[0], cellSize[1], j, i, cellSize[0], cellSize[1]); //»æÖÆÌØ¶¨×ø±êµÄÍ¼Ïñ
+                        cg.context.drawImage(img, currentObj.x, currentObj.y, cellSize[0], cellSize[1], j, i, cellSize[0], cellSize[1]); //ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
                     }
                 }
 
             },
             /**
-            *»ñÈ¡ÌØ¶¨¶ÔÏóÔÚµØÍ¼ÖÐ´¦ÓÚµÄ·½¸ñµÄÖµ
+            *ï¿½ï¿½È¡ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Í¼ï¿½Ð´ï¿½ï¿½ÚµÄ·ï¿½ï¿½ï¿½ï¿½Öµ
             **/
             getPosValue: function(x, y) {
                 if (cg.core.isObject(x)) {
@@ -1738,7 +1738,7 @@
                 return undefined;
             },
             /**
-            *»ñÈ¡ÌØ¶¨¶ÔÏóÔÚµØÍ¼ÖÐ´¦ÓÚµÄ·½¸ñË÷Òý
+            *ï¿½ï¿½È¡ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Í¼ï¿½Ð´ï¿½ï¿½ÚµÄ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             **/
             getCurrentIndex: function(x, y) {
                 if (cg.core.isObject(x)) {
@@ -1755,7 +1755,7 @@
 
             },
             /**
-            *»ñÈ¡ÌØ¶¨¶ÔÏóÊÇ·ñ¸ÕºÃÓë¸ñ×ÓÖØºÏ
+            *ï¿½ï¿½È¡ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Õºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øºï¿½
             **/
             isMatchCell: function(x, y) {
                 if (cg.core.isObject(x)) {
@@ -1765,7 +1765,7 @@
                 return (x % this.cellSize[0] == 0) && (y % this.cellSize[1] == 0);
             },
             /**
-            *ÉèÖÃµØÍ¼¶ÔÓ¦Î»ÖÃµÄÖµ
+            *ï¿½ï¿½ï¿½Ãµï¿½Í¼ï¿½ï¿½Ó¦Î»ï¿½Ãµï¿½Öµ
             **/
             setPosValue: function(x, y, value) {
                 this.mapMatrix[y][x] = value;
@@ -1778,13 +1778,13 @@
 
     /**
     *
-    *³¡¾°
+    *ï¿½ï¿½ï¿½ï¿½
     *
     **/
     cnGame.register("cnGame", function(cg) {
 
         /**
-        *Ê¹Ö¸¶¨¶ÔÏóÔÚ¿ÉÊÓÇøÓòviewÄÚ
+        *Ê¹Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½viewï¿½ï¿½
         **/
         var inside = function(sprite) {
             var dir = sprite.insideDir;
@@ -1814,11 +1814,11 @@
         view.prototype = {
 
             /**
-            *³õÊ¼»¯
+            *ï¿½ï¿½Ê¼ï¿½ï¿½
             **/
             init: function(options) {
                 /**
-                *Ä¬ÈÏ¶ÔÏó
+                *Ä¬ï¿½Ï¶ï¿½ï¿½ï¿½
                 **/
                 var defaultObj = {
                     width: cg.width,
@@ -1847,7 +1847,7 @@
 
             },
             /**
-            *Ê¹playerµÄÎ»ÖÃ±£³ÖÔÚ³¡¾°ÖÐµãÖ®Ç°µÄÒÆ¶¯±³¾°
+            *Ê¹playerï¿½ï¿½Î»ï¿½Ã±ï¿½ï¿½ï¿½ï¿½Ú³ï¿½ï¿½ï¿½ï¿½Ðµï¿½Ö®Ç°ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½
             **/
             centerPlayer: function(isLoop) {
                 isLoop = isLoop || false;
@@ -1855,9 +1855,9 @@
                 this.isCenterPlayer = true;
             },
             /**
-            *Ê¹¶ÔÏóµÄÎ»ÖÃ±£³ÖÔÚ³¡¾°ÄÚ
+            *Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½Ã±ï¿½ï¿½ï¿½ï¿½Ú³ï¿½ï¿½ï¿½ï¿½ï¿½
             **/
-            insideView: function(sprite, dir) {//dirÎªÏÞ¶¨ÄÄ¸ö·½ÏòÔÚviewÄÚ£¬ÖµÎªx»òy£¬²»´«ÔòÁ½¸ö·½Ïò½ÔÏÞ¶¨
+            insideView: function(sprite, dir) {//dirÎªï¿½Þ¶ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½viewï¿½Ú£ï¿½ÖµÎªxï¿½ï¿½yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¶ï¿½
                 if (cg.core.isArray(sprite)) {
                     for (var i = 0, len = sprite.length; i < len; i++) {
                         arguments.callee.call(this, sprite[i], dir);
@@ -1869,9 +1869,9 @@
                 }
             },
             /**
-            *±³¾°ÒÆ¶¯Ê±µÄ¸üÐÂ
+            *ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½Ê±ï¿½Ä¸ï¿½ï¿½ï¿½
             **/
-            update: function(spritelist) {//´«ÈëËùÓÐspriteµÄÊý×é
+            update: function(spritelist) {//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½spriteï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 if (this.isCenterPlayer) {
                     if (this.player.x > this.centerX) {
                         if (this.x < this.imgWidth - this.width) {
@@ -1908,7 +1908,7 @@
                 }
             },
             /**
-            *»æÖÆ³¡¾°
+            *ï¿½ï¿½ï¿½Æ³ï¿½ï¿½ï¿½
             **/
             draw: function() {
                 cg.context.drawImage(cg.loader.loadedImgs[this.src], this.x, this.y, this.width, this.height, 0, 0, this.width, this.height);
